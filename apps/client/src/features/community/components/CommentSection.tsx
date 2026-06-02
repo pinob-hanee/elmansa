@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Send, CornerDownLeft } from 'lucide-react';
 import { communityApi } from '../api/community';
 import { useAuthStore } from '../../../store/authStore';
@@ -8,7 +8,7 @@ import { ar } from 'date-fns/locale';
 
 interface CommentSectionProps {
   postId: string;
-  comments: any[];
+  comments?: any[];
 }
 
 export default function CommentSection({ postId, comments: initialComments }: CommentSectionProps) {

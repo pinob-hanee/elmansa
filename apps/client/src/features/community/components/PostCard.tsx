@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Heart, MessageCircle, MoreHorizontal, Flag, Pin } from 'lucide-react';
+import { Heart, MessageCircle, Flag, Pin } from 'lucide-react';
 import { communityApi } from '../api/community';
 import CommentSection from './CommentSection';
 import { cn } from '../../../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import toast from 'react-hot-toast';
 
 interface PostCardProps {
   post: any;
@@ -23,15 +24,26 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
   const reactionMutation = useMutation({
     mutationFn: () => communityApi.toggleReaction({ postId: post.id, type: 'LIKE' }),
     onSuccess: () => {
-      // Optimistic update could go here, but invalidation works fine for now
       queryClient.invalidateQueries({ queryKey: ['community-posts'] });
     },
   });
 
-  const pinMutation = useMutation({
-    mutationFn: () => communityApi.pinPost(post.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['community-posts'] }),
-  });
+  const handleReport = () => {
+    toast((t) => (
+      <div className="flex flex-col gap-3" dir="rtl">
+        <p className="font-medium text-surface-900">هل تريد إبلاغ الإدارة عن هذا المنشور كمحتوى غير لائق؟</p>
+        <div className="flex gap-2 justify-end">
+          <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1.5 text-xs font-medium bg-surface-200 hover:bg-surface-300 text-surface-700 rounded-lg">إلغاء</button>
+          <button onClick={() => {
+              toast.dismiss(t.id);
+              communityApi.reportPost({ targetId: post.authorId, postId: post.id, reason: 'INAPPROPRIATE' })
+                .then(() => toast.success('تم إرسال البلاغ للإدارة'))
+                .catch(() => toast.error('حدث خطأ أثناء الإبلاغ'));
+          }} className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg">نعم، أبلغ</button>
+        </div>
+      </div>
+    ), { duration: 5000 });
+  };
 
   return (
     <div className="glass rounded-2xl p-5 border border-white/5 transition-all hover:border-white/10">
@@ -66,16 +78,19 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
             </div>
           </div>
         </div>
-
-        <button className="text-surface-500 hover:text-white transition-colors p-1">
-          <MoreHorizontal className="w-5 h-5" />
-        </button>
       </div>
 
       {/* Post Content */}
       <div className="text-surface-100 text-[15px] leading-relaxed whitespace-pre-wrap mb-4">
         {post.content}
       </div>
+
+      {/* Post Images */}
+      {post.imageUrls && post.imageUrls.length > 0 && (
+        <div className="mb-4 rounded-xl overflow-hidden border border-surface-800">
+          <img src={post.imageUrls[0]} alt="Post attachment" className="w-full max-h-96 object-cover" />
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-4 pt-4 border-t border-surface-800">
@@ -96,20 +111,26 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
           className="flex items-center gap-2 text-sm font-medium text-surface-400 hover:text-primary-400 transition-colors"
         >
           <MessageCircle className="w-5 h-5" />
-          {post.comments?.length > 0 && <span>{post.comments.length}</span>}
+          {post._count?.comments > 0 && <span>{post._count.comments}</span>}
           تعليق
         </button>
 
         <div className="flex-1" />
 
-        <button className="text-surface-500 hover:text-surface-300 transition-colors" title="إبلاغ">
-          <Flag className="w-4 h-4" />
-        </button>
+        {currentUserId !== post.authorId && (
+          <button 
+            onClick={handleReport}
+            className="text-surface-500 hover:text-error transition-colors" 
+            title="إبلاغ كمحتوى غير لائق"
+          >
+            <Flag className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Comments Section */}
       {showComments && (
-        <CommentSection postId={post.id} comments={post.comments} />
+        <CommentSection postId={post.id} />
       )}
     </div>
   );

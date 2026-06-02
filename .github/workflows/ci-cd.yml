@@ -1,0 +1,131 @@
+name: Elmansa LMS CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  SERVER_IMAGE: ${{ github.repository }}/server
+  CLIENT_IMAGE: ${{ github.repository }}/client
+
+jobs:
+  # ============================================================
+  # Lint & Type Check
+  # ============================================================
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint --workspace=apps/server
+      - run: npm run lint --workspace=apps/client
+
+  # ============================================================
+  # Test Backend
+  # ============================================================
+  test-server:
+    name: Test Server
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: elmansa_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    env:
+      DATABASE_URL: postgresql://postgres:test_password@localhost:5432/elmansa_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: test-jwt-secret-min-32-chars-long-key
+      REFRESH_TOKEN_SECRET: test-refresh-secret-min-32-chars-long
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --workspace=apps/server
+      - run: npm run db:push --workspace=apps/server
+      - run: npm test --workspace=apps/server
+
+  # ============================================================
+  # Build & Push Docker Images (main branch only)
+  # ============================================================
+  build-push:
+    name: Build & Push Images
+    needs: [lint, test-server]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./apps/server
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.SERVER_IMAGE }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.SERVER_IMAGE }}:latest
+          target: production
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./apps/client
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.CLIENT_IMAGE }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.CLIENT_IMAGE }}:latest
+          target: production
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================
+  # Deploy to Production
+  # ============================================================
+  deploy:
+    name: Deploy to Production
+    needs: build-push
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd /opt/elmansa
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f
