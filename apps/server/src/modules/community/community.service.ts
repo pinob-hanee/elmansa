@@ -40,6 +40,7 @@ export class CommunityService {
             select: { id: true, profile: { select: { firstName: true, lastName: true, avatarUrl: true } } },
           },
           course: { select: { id: true, title: true, slug: true } },
+          reactions: true,
           _count: { select: { comments: true, reactions: true } },
         },
       }),
