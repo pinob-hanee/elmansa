@@ -16,6 +16,7 @@ interface PostCardProps {
 
 export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
+  const [isReported, setIsReported] = useState(false);
   const queryClient = useQueryClient();
 
   const isLiked = post.reactions?.some((r: any) => r.userId === currentUserId && r.type === 'LIKE');
@@ -29,6 +30,7 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
   });
 
   const handleReport = () => {
+    if (isReported) return;
     toast((t) => (
       <div className="flex flex-col gap-3" dir="rtl">
         <p className="font-medium text-surface-900">هل تريد إبلاغ الإدارة عن هذا المنشور كمحتوى غير لائق؟</p>
@@ -37,7 +39,10 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
           <button onClick={() => {
               toast.dismiss(t.id);
               communityApi.reportPost({ targetId: post.authorId, postId: post.id, reason: 'INAPPROPRIATE' })
-                .then(() => toast.success('تم إرسال البلاغ للإدارة'))
+                .then(() => {
+                  toast.success('تم إرسال البلاغ للإدارة');
+                  setIsReported(true);
+                })
                 .catch(() => toast.error('حدث خطأ أثناء الإبلاغ'));
           }} className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg">نعم، أبلغ</button>
         </div>
@@ -120,10 +125,15 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
         {currentUserId !== post.authorId && (
           <button 
             onClick={handleReport}
-            className="text-surface-500 hover:text-error transition-colors" 
-            title="إبلاغ كمحتوى غير لائق"
+            disabled={isReported}
+            className={cn(
+              "flex items-center gap-2 text-sm transition-colors",
+              isReported ? "text-amber-500 cursor-not-allowed" : "text-surface-500 hover:text-error"
+            )}
+            title={isReported ? "تم الإبلاغ" : "إبلاغ كمحتوى غير لائق"}
           >
-            <Flag className="w-4 h-4" />
+            <Flag className={cn("w-4 h-4", isReported && "fill-current")} />
+            {isReported && <span className="text-xs">تم الإبلاغ</span>}
           </button>
         )}
       </div>
