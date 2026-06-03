@@ -10,6 +10,9 @@ export interface UserProfile {
   city?: string;
   language: string;
   darkMode: boolean;
+  xp?: number;
+  level?: number;
+  currentStreak?: number;
 }
 
 export interface AuthUser {

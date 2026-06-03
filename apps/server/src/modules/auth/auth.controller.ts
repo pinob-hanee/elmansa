@@ -121,6 +121,16 @@ export class AuthController {
 
   async me(req: Request, res: Response, next: NextFunction) {
     try {
+      // Update streak
+      try {
+        const { GamificationService } = await import('../gamification/gamification.service');
+        const gamificationSvc = new GamificationService();
+        await gamificationSvc.updateStreak(req.user!.userId);
+      } catch (err) {
+        // Silently fail gamification so auth is not broken
+        console.error('Gamification streak error:', err);
+      }
+
       const user = await import('../../config/database').then(({ prisma }) =>
         prisma.user.findUnique({
           where: { id: req.user!.userId },

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowRight, Menu, X, PlayCircle, FileText, CheckCircle2, HelpCircle } from 'lucide-react';
 import { studentCoursesApi } from '../../features/courses/api/student.courses';
 import StudentQuizViewer from '../../features/quiz/components/StudentQuizViewer';
@@ -19,6 +19,17 @@ export default function LessonPage() {
   const { data: videoData, isLoading: videoLoading } = useQuery({
     queryKey: ['lesson-video', lessonId],
     queryFn: () => studentCoursesApi.getLessonVideo(lessonId!),
+  });
+
+  const updateProgressMutation = useMutation({
+    mutationFn: (watchedTime: number) => studentCoursesApi.updateProgress(lessonId!, watchedTime),
+    onSuccess: (data) => {
+      if (data?.xpEarned > 0) {
+        import('react-hot-toast').then(toast => {
+          toast.default.success(`مبروك! أكملت الدرس وربحت ${data.xpEarned} XP 🌟`, { duration: 4000 });
+        });
+      }
+    }
   });
 
   // Find current lesson details to get title/type
@@ -64,7 +75,7 @@ export default function LessonPage() {
               <StudentQuizViewer 
                 lessonId={lessonId!} 
                 onComplete={() => {
-                  // TODO: Advance to next lesson
+                  updateProgressMutation.mutate(currentLesson?.videoDuration || 1000);
                 }} 
               />
             </div>
@@ -79,8 +90,9 @@ export default function LessonPage() {
                 controls
                 controlsList="nodownload"
                 className="w-full h-full outline-none"
-                onEnded={() => {
-                  // TODO: Mark as complete
+                onEnded={(e) => {
+                  const target = e.target as HTMLVideoElement;
+                  updateProgressMutation.mutate(target.duration || currentLesson?.videoDuration || 1000);
                 }}
               >
                 متصفحك لا يدعم مشغل الفيديو.

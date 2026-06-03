@@ -124,7 +124,7 @@ router.get('/lessons/:lessonId/video', authenticate, requireApprovedStudent, asy
 });
 
 // Progress tracking
-router.post('/lessons/:lessonId/progress', authenticate, async (req, res, next) => {
+router.post('/lessons/:lessonId/progress', authenticate, requireApprovedStudent, async (req, res, next) => {
   try {
     const progress = await svc.updateLessonProgress(
       req.params.lessonId,

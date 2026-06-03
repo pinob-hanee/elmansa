@@ -272,7 +272,13 @@ export class CourseService {
       ? watchedTime / lesson.videoDuration >= 0.9
       : false;
 
-    return prisma.lessonProgress.upsert({
+    const existing = await prisma.lessonProgress.findUnique({
+      where: { userId_lessonId: { userId, lessonId } }
+    });
+
+    const wasAlreadyCompleted = existing?.isCompleted;
+
+    const result = await prisma.lessonProgress.upsert({
       where: { userId_lessonId: { userId, lessonId } },
       create: {
         userId,
@@ -283,10 +289,27 @@ export class CourseService {
       },
       update: {
         watchedTime,
-        isCompleted,
-        completedAt: isCompleted ? new Date() : undefined,
+        isCompleted: isCompleted || existing?.isCompleted, // Never un-complete a lesson
+        completedAt: (!existing?.isCompleted && isCompleted) ? new Date() : existing?.completedAt,
       },
     });
+
+    let xpEarned = 0;
+    if (isCompleted && !wasAlreadyCompleted) {
+      try {
+        const { GamificationService } = await import('../gamification/gamification.service');
+        const gamificationSvc = new GamificationService();
+        await gamificationSvc.awardXp(userId, 50, 'LESSON_COMPLETION'); // 50 XP per lesson
+        xpEarned = 50;
+      } catch (err) {
+        console.error('Failed to award XP for lesson completion:', err);
+      }
+    }
+
+    return {
+      ...result,
+      xpEarned
+    };
   }
 
   async getCategories() {

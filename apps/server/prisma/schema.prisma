@@ -136,6 +136,7 @@ model User {
   watchHistory       VideoWatchHistory[]
   certificates       Certificate[]
   achievements       UserAchievement[]
+  xpLogs             XpLog[]
 
   @@index([email])
   @@index([role, approvalStatus])
@@ -158,6 +159,14 @@ model Profile {
   twitterUrl      String?
   linkedinUrl     String?
   youtubeUrl      String?
+
+  // Gamification
+  xp              Int       @default(0)
+  level           Int       @default(1)
+  currentStreak   Int       @default(0)
+  longestStreak   Int       @default(0)
+  lastActivityAt  DateTime?
+
   language        String   @default("ar")
   timezone        String   @default("Africa/Cairo")
   darkMode        Boolean  @default(false)
@@ -640,6 +649,19 @@ model UserAchievement {
   achievement Achievement @relation(fields: [achievementId], references: [id])
 
   @@unique([userId, achievementId])
+}
+
+
+model XpLog {
+  id        String   @id @default(uuid())
+  userId    String
+  amount    Int
+  reason    String   // e.g., "LESSON_COMPLETION", "DAILY_LOGIN", "COMMUNITY_POST"
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 // ============================================================

@@ -1,6 +1,6 @@
 import { motion, type Variants } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { Code2, Terminal, GitBranch, Clock, AlertTriangle, CheckCircle2, PlayCircle, Compass, BookOpen } from 'lucide-react';
+import { Code2, Terminal, GitBranch, Clock, AlertTriangle, CheckCircle2, PlayCircle, Compass, BookOpen, Flame, Star, Award } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import { cn } from '../../lib/utils';
@@ -21,6 +21,12 @@ export default function StudentDashboard() {
     // Don't retry on error, just show error state
     retry: 1,
     // Skip if pending — they have no enrollments yet
+    enabled: !isPending,
+  });
+
+  const { data: gamification } = useQuery({
+    queryKey: ['gamification-stats'],
+    queryFn: () => api.get('/gamification/stats').then(r => r.data.data),
     enabled: !isPending,
   });
 
@@ -92,6 +98,51 @@ export default function StudentDashboard() {
               </motion.div>
             ))}
           </div>
+
+          {/* Gamification Stats */}
+          {gamification?.profile && (
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="glass rounded-2xl p-5 border border-white/5 md:col-span-2 flex flex-col justify-center relative overflow-hidden group">
+                <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl group-hover:bg-primary-500/20 transition-all" />
+                <div className="relative flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
+                      <Star className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-surface-400 text-sm font-medium">المستوى الحالي</div>
+                      <div className="text-2xl font-extrabold text-white">مستوى {gamification.profile.level}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-bold text-primary-400">{gamification.profile.xp} XP</div>
+                    <div className="text-xs text-surface-500">من أصل {gamification.profile.level * 1000}</div>
+                  </div>
+                </div>
+                <div className="h-3 bg-surface-800 rounded-full overflow-hidden border border-white/5">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(gamification.profile.xp % 1000) / 10}%` }}
+                    transition={{ duration: 1, delay: 0.5 }}
+                    className="h-full bg-gradient-to-r from-primary-500 to-purple-500 rounded-full relative"
+                  >
+                    <div className="absolute inset-0 bg-white/20 w-full h-full animate-pulse" />
+                  </motion.div>
+                </div>
+              </div>
+
+              <div className="glass rounded-2xl p-5 border border-white/5 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-all" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/20 mb-3 relative z-10">
+                  <Flame className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-3xl font-extrabold text-white mb-1 relative z-10">
+                  {gamification.profile.currentStreak} <span className="text-lg text-surface-400 font-medium">أيام</span>
+                </div>
+                <div className="text-sm font-medium text-orange-400 relative z-10">سلسلة التعلم الحالية</div>
+              </div>
+            </motion.div>
+          )}
 
           {/* In Progress Courses */}
           <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
