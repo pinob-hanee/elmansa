@@ -11,27 +11,31 @@ i18n
   .init({
     resources: {
       en: { translation: enTranslations },
-      ar: { translation: arTranslations }
+      ar: { translation: arTranslations },
     },
     fallbackLng: 'ar',
     supportedLngs: ['en', 'ar'],
+    // CRITICAL: run synchronously so first render has translations
+    initImmediate: false,
     interpolation: {
-      escapeValue: false // React already escapes values
+      escapeValue: false,
     },
     detection: {
       order: ['localStorage', 'navigator'],
-      caches: ['localStorage']
-    }
+      caches: ['localStorage'],
+    },
   });
 
-// Listen to language changes to update document direction
-i18n.on('languageChanged', (lng) => {
-  document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
+// Update document direction whenever language changes
+const applyDirection = (lng: string) => {
+  const isRtl = lng === 'ar';
+  document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
   document.documentElement.lang = lng;
-});
+};
 
-// Set initial direction
-document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
-document.documentElement.lang = i18n.language || 'ar';
+i18n.on('languageChanged', applyDirection);
+
+// Apply on first load
+applyDirection(i18n.language || 'ar');
 
 export default i18n;
