@@ -257,7 +257,7 @@ export class CourseService {
         where: {
           userId,
           courseId: lesson.chapter.module.courseId,
-          status: 'ACTIVE',
+          status: { in: ['ACTIVE', 'COMPLETED'] },
         },
       });
       if (!enrollment) throw new ForbiddenError('You are not enrolled in this course');
