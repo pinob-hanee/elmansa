@@ -97,7 +97,7 @@ export class CourseService {
     let isEnrolled = false;
     if (userId) {
       const enrollment = await prisma.enrollment.findUnique({
-        where: { userId_courseId: { userId, course.id } }
+        where: { userId_courseId: { userId, courseId: course.id } }
       });
       if (enrollment) isEnrolled = true;
     }
@@ -205,10 +205,34 @@ export class CourseService {
     const existing = await prisma.enrollment.findUnique({
       where: { userId_courseId: { userId, courseId } },
     });
-    if (existing) throw new Error('Already enrolled or pending');
+    if (existing) {
+      if (existing.status === 'DROPPED') {
+        // Re-enroll
+        return prisma.enrollment.update({
+          where: { userId_courseId: { userId, courseId } },
+          data: { status: 'ACTIVE' },
+        });
+      }
+      throw new Error('Already enrolled or pending');
+    }
 
     return prisma.enrollment.create({
       data: { userId, courseId, status: 'ACTIVE' },
+    });
+  }
+
+  async getStudentEnrollments(userId: string) {
+    return prisma.enrollment.findMany({
+      where: { userId },
+      include: { course: { select: { id: true, title: true, thumbnail: true } } },
+      orderBy: { enrolledAt: 'desc' },
+    });
+  }
+
+  async dropEnrollment(userId: string, courseId: string) {
+    return prisma.enrollment.update({
+      where: { userId_courseId: { userId, courseId } },
+      data: { status: 'DROPPED' },
     });
   }
 

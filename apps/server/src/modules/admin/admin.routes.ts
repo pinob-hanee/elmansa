@@ -65,6 +65,24 @@ router.get('/users', requireRole('SUPER_ADMIN'), async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// Student enrollments
+import { CourseService } from '../courses/course.service';
+const courseSvc = new CourseService();
+
+router.get('/students/:id/enrollments', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+  try {
+    const enrollments = await courseSvc.getStudentEnrollments(req.params.id);
+    successResponse(res, enrollments);
+  } catch (e) { next(e); }
+});
+
+router.patch('/students/:id/enrollments/:courseId/drop', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+  try {
+    const result = await courseSvc.dropEnrollment(req.params.id, req.params.courseId);
+    successResponse(res, result, 'Enrollment dropped');
+  } catch (e) { next(e); }
+});
+
 // Community Moderation
 import { CommunityService } from '../community/community.service';
 const communitySvc = new CommunityService();
