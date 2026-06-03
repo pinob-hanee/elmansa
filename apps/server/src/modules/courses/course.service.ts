@@ -264,15 +264,18 @@ export class CourseService {
     }
 
     let fileKey = lesson.videoKey;
+    let resourceType: 'video' | 'image' | 'raw' | 'auto' = 'video';
+
     if (lesson.type === 'PDF') {
       fileKey = lesson.pdfKey;
+      resourceType = 'image'; // Cloudinary treats PDFs as images
     }
 
     if (!fileKey) throw new NotFoundError('Content not found for this lesson');
 
     // Generate signed URL
     const { generateSignedUrl } = await import('../media/media.service');
-    return generateSignedUrl(fileKey);
+    return generateSignedUrl(fileKey, resourceType);
   }
 
   async updateLessonProgress(lessonId: string, userId: string, watchedTime: number) {
