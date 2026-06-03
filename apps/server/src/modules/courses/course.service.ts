@@ -95,14 +95,18 @@ export class CourseService {
     if (!course) throw new NotFoundError('Course not found');
 
     let isEnrolled = false;
+    let enrollmentStatus: string | null = null;
     if (userId) {
       const enrollment = await prisma.enrollment.findUnique({
         where: { userId_courseId: { userId, courseId: course.id } }
       });
-      if (enrollment) isEnrolled = true;
+      if (enrollment && enrollment.status !== 'DROPPED') {
+        isEnrolled = true;
+        enrollmentStatus = enrollment.status;
+      }
     }
 
-    const response = { ...course, isEnrolled };
+    const response = { ...course, isEnrolled, enrollmentStatus };
     await cache.set(cacheKey + (userId ? `:${userId}` : ''), response, 600); // 10 min cache
     return response;
   }
@@ -205,15 +209,19 @@ export class CourseService {
     const existing = await prisma.enrollment.findUnique({
       where: { userId_courseId: { userId, courseId } },
     });
+
     if (existing) {
       if (existing.status === 'DROPPED') {
-        // Re-enroll
+        // Re-enroll a dropped student
         return prisma.enrollment.update({
           where: { userId_courseId: { userId, courseId } },
           data: { status: 'ACTIVE' },
         });
       }
-      throw new Error('Already enrolled or pending');
+      if (existing.status === 'COMPLETED' || existing.status === 'ACTIVE') {
+        // Already in the course — just return the existing enrollment (idempotent)
+        return existing;
+      }
     }
 
     return prisma.enrollment.create({
