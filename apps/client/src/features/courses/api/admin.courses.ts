@@ -61,12 +61,12 @@ export const adminCoursesApi = {
   },
 
   getQuiz: async (lessonId: string) => {
-    const res = await api.get(`/quiz/lesson/${lessonId}`);
+    const res = await api.get(`/quizzes/lesson/${lessonId}`);
     return res.data.data;
   },
 
   upsertQuiz: async (lessonId: string, data: any) => {
-    const res = await api.put(`/quiz/lesson/${lessonId}`, data);
+    const res = await api.put(`/quizzes/lesson/${lessonId}`, data);
     return res.data.data;
   }
 };

@@ -27,12 +27,12 @@ export const studentCoursesApi = {
   },
 
   getQuiz: async (lessonId: string) => {
-    const res = await api.get(`/quiz/lesson/${lessonId}`);
+    const res = await api.get(`/quizzes/lesson/${lessonId}`);
     return res.data.data;
   },
 
   submitQuiz: async (quizId: string, answers: any[]) => {
-    const res = await api.post(`/quiz/${quizId}/attempt`, { answers });
+    const res = await api.post(`/quizzes/${quizId}/attempt`, { answers });
     return res.data.data;
   },
   
