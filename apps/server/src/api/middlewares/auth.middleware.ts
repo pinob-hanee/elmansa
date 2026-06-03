@@ -56,6 +56,43 @@ export const authenticate = async (
   }
 };
 
+export const optionalAuthenticate = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+      return next();
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    if (await isTokenBlacklisted(token)) {
+      return next();
+    }
+
+    const payload = verifyAccessToken(token);
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { id: true, email: true, role: true, isActive: true },
+    });
+
+    if (user && user.isActive) {
+      req.user = {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+      };
+    }
+    next();
+  } catch (error) {
+    next(); // Ignore errors and proceed as unauthenticated
+  }
+};
+
 export const requireRole = (...roles: Role[]) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {

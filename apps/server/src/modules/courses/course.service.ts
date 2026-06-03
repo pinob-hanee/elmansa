@@ -94,8 +94,17 @@ export class CourseService {
 
     if (!course) throw new NotFoundError('Course not found');
 
-    await cache.set(cacheKey, course, 600); // 10 min cache
-    return course;
+    let isEnrolled = false;
+    if (userId) {
+      const enrollment = await prisma.enrollment.findUnique({
+        where: { userId_courseId: { userId, course.id } }
+      });
+      if (enrollment) isEnrolled = true;
+    }
+
+    const response = { ...course, isEnrolled };
+    await cache.set(cacheKey + (userId ? `:${userId}` : ''), response, 600); // 10 min cache
+    return response;
   }
 
   async getFullCourseForAdmin(courseId: string) {
@@ -165,19 +174,19 @@ export class CourseService {
   // Curriculum Building
   async createModule(courseId: string, data: any) {
     return prisma.module.create({
-      data: { ...data, courseId },
+      data: { ...data, courseId, isPublished: true },
     });
   }
 
   async createChapter(moduleId: string, data: any) {
     return prisma.chapter.create({
-      data: { ...data, moduleId },
+      data: { ...data, moduleId, isPublished: true },
     });
   }
 
   async createLesson(chapterId: string, data: any) {
     const lesson = await prisma.lesson.create({
-      data: { ...data, chapterId },
+      data: { ...data, chapterId, isPublished: true },
     });
     await cache.delPattern('course:*');
     return lesson;

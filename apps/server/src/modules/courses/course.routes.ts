@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { CourseService } from './course.service';
-import { authenticate, requireRole, requireApprovedStudent } from '../../api/middlewares/auth.middleware';
+import { authenticate, requireRole, requireApprovedStudent, optionalAuthenticate } from '../../api/middlewares/auth.middleware';
 import { successResponse, paginatedResponse } from '../../utils/response';
 import { fileUpload } from '../media/media.service';
 
@@ -42,7 +42,7 @@ router.get('/admin/list', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), a
   } catch (e) { next(e); }
 });
 
-router.get('/:slug', async (req, res, next) => {
+router.get('/:slug', optionalAuthenticate, async (req, res, next) => {
   try {
     const course = await svc.getCourseBySlug(req.params.slug, req.user?.userId);
     successResponse(res, course);
