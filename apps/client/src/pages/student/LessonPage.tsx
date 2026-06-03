@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { ArrowRight, Menu, X, PlayCircle, FileText, CheckCircle2, HelpCircle } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+import { ArrowRight, Menu, X, PlayCircle, FileText, CheckCircle2, HelpCircle, Trophy, Award } from 'lucide-react';
 import { studentCoursesApi } from '../../features/courses/api/student.courses';
 import StudentQuizViewer from '../../features/quiz/components/StudentQuizViewer';
 import { cn } from '../../lib/utils';
@@ -9,7 +10,9 @@ import { cn } from '../../lib/utils';
 export default function LessonPage() {
   const { slug, lessonId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { data: course, isLoading: courseLoading } = useQuery({
     queryKey: ['course', slug],
@@ -25,9 +28,30 @@ export default function LessonPage() {
     mutationFn: (watchedTime: number) => studentCoursesApi.updateProgress(lessonId!, watchedTime),
     onSuccess: (data) => {
       if (data?.xpEarned > 0) {
-        import('react-hot-toast').then(toast => {
-          toast.default.success(`مبروك! أكملت الدرس وربحت ${data.xpEarned} XP 🌟`, { duration: 4000 });
+        toast.success(`+${data.xpEarned} XP! أكملت الدرس 🌟`, { duration: 3000 });
+      }
+      // Show badge unlocks
+      if (data?.newBadges?.length > 0) {
+        data.newBadges.forEach((badge: string, i: number) => {
+          setTimeout(() => {
+            toast.success(`🏆 إنجاز جديد: ${badge}!`, { duration: 5000, icon: '🎖️' });
+          }, i * 1500);
         });
+      }
+      // Course completion celebration
+      if (data?.courseCompleted) {
+        queryClient.invalidateQueries({ queryKey: ['gamification-stats'] });
+        setTimeout(() => {
+          toast.success('🎓 مبروك! أكملت الكورس بنجاح! شهادتك جاهزة 🎉', {
+            duration: 8000,
+            style: {
+              background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+              color: '#fff',
+              fontWeight: 'bold',
+              fontSize: '16px',
+            },
+          });
+        }, 2000);
       }
     }
   });
@@ -90,7 +114,22 @@ export default function LessonPage() {
                 controls
                 controlsList="nodownload"
                 className="w-full h-full outline-none"
+                onTimeUpdate={(e) => {
+                  const video = e.target as HTMLVideoElement;
+                  // Auto-save every 30 seconds (using ref to avoid re-renders)
+                  if (!progressTimerRef.current) {
+                    progressTimerRef.current = setInterval(() => {
+                      if (!video.paused && video.currentTime > 0) {
+                        studentCoursesApi.updateProgress(lessonId!, Math.floor(video.currentTime));
+                      }
+                    }, 30000);
+                  }
+                }}
                 onEnded={(e) => {
+                  if (progressTimerRef.current) {
+                    clearInterval(progressTimerRef.current);
+                    progressTimerRef.current = null;
+                  }
                   const target = e.target as HTMLVideoElement;
                   updateProgressMutation.mutate(target.duration || currentLesson?.videoDuration || 1000);
                 }}

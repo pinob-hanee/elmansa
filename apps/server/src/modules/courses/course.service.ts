@@ -224,7 +224,7 @@ export class CourseService {
   async getStudentEnrollments(userId: string) {
     return prisma.enrollment.findMany({
       where: { userId },
-      include: { course: { select: { id: true, title: true, thumbnail: true } } },
+      include: { course: { select: { id: true, title: true, thumbnailUrl: true } } },
       orderBy: { enrolledAt: 'desc' },
     });
   }
@@ -265,8 +265,21 @@ export class CourseService {
   async updateLessonProgress(lessonId: string, userId: string, watchedTime: number) {
     const lesson = await prisma.lesson.findUnique({
       where: { id: lessonId },
-      select: { videoDuration: true },
+      select: {
+        videoDuration: true,
+        chapter: {
+          select: {
+            module: {
+              select: { courseId: true }
+            }
+          }
+        }
+      },
     });
+
+    if (!lesson) throw new NotFoundError('Lesson not found');
+
+    const courseId = lesson.chapter.module.courseId;
 
     const isCompleted = lesson?.videoDuration
       ? watchedTime / lesson.videoDuration >= 0.9
@@ -295,21 +308,106 @@ export class CourseService {
     });
 
     let xpEarned = 0;
+    let newBadges: string[] = [];
+    let courseCompleted = false;
+    let certificateCode: string | null = null;
+
     if (isCompleted && !wasAlreadyCompleted) {
       try {
         const { GamificationService } = await import('../gamification/gamification.service');
         const gamificationSvc = new GamificationService();
-        await gamificationSvc.awardXp(userId, 50, 'LESSON_COMPLETION'); // 50 XP per lesson
+        const gResult = await gamificationSvc.awardXpWithAchievements(userId, 50, 'LESSON_COMPLETION');
         xpEarned = 50;
+        newBadges = gResult?.newBadges || [];
       } catch (err) {
         console.error('Failed to award XP for lesson completion:', err);
+      }
+
+      // Check if the entire course is now complete
+      try {
+        const completionResult = await this.checkAndCompleteCourse(userId, courseId);
+        if (completionResult.completed) {
+          courseCompleted = true;
+          certificateCode = completionResult.certificateCode;
+          xpEarned += completionResult.bonusXp;
+          newBadges = [...newBadges, ...(completionResult.newBadges || [])];
+        }
+      } catch (err) {
+        console.error('Failed to check course completion:', err);
       }
     }
 
     return {
       ...result,
-      xpEarned
+      xpEarned,
+      newBadges,
+      courseCompleted,
+      certificateCode,
     };
+  }
+
+  private async checkAndCompleteCourse(userId: string, courseId: string) {
+    // Get total published lesson count for this course
+    const totalLessons = await prisma.lesson.count({
+      where: {
+        isPublished: true,
+        chapter: { isPublished: true, module: { isPublished: true, courseId } }
+      }
+    });
+
+    if (totalLessons === 0) return { completed: false, bonusXp: 0, certificateCode: null, newBadges: [] };
+
+    // Get completed lessons for this course
+    const completedLessons = await prisma.lessonProgress.count({
+      where: {
+        userId,
+        isCompleted: true,
+        lesson: {
+          isPublished: true,
+          chapter: { isPublished: true, module: { isPublished: true, courseId } }
+        }
+      }
+    });
+
+    if (completedLessons < totalLessons) return { completed: false, bonusXp: 0, certificateCode: null, newBadges: [] };
+
+    // Check if already completed
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { userId_courseId: { userId, courseId } }
+    });
+
+    if (!enrollment || enrollment.status === 'COMPLETED') {
+      return { completed: false, bonusXp: 0, certificateCode: null, newBadges: [] };
+    }
+
+    // Generate unique certificate code
+    const uniqueCode = `CERT-${courseId.slice(0, 8).toUpperCase()}-${userId.slice(0, 8).toUpperCase()}-${Date.now()}`;
+
+    // Mark enrollment as COMPLETED and generate certificate atomically
+    await prisma.$transaction([
+      prisma.enrollment.update({
+        where: { userId_courseId: { userId, courseId } },
+        data: { status: 'COMPLETED', completedAt: new Date(), progress: 100 }
+      }),
+      prisma.certificate.upsert({
+        where: { userId_courseId: { userId, courseId } },
+        create: { userId, courseId, certificateUrl: `/certificate/${uniqueCode}`, uniqueCode },
+        update: { certificateUrl: `/certificate/${uniqueCode}` }
+      })
+    ]);
+
+    // Award 500 bonus XP + check achievements
+    let newBadges: string[] = [];
+    try {
+      const { GamificationService } = await import('../gamification/gamification.service');
+      const gamificationSvc = new GamificationService();
+      const gResult = await gamificationSvc.awardXpWithAchievements(userId, 500, 'COURSE_COMPLETION');
+      newBadges = gResult?.newBadges || [];
+    } catch (err) {
+      console.error('Failed to award course completion XP:', err);
+    }
+
+    return { completed: true, bonusXp: 500, certificateCode: uniqueCode, newBadges };
   }
 
   async getCategories() {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { studentCoursesApi } from './api/student.courses';
+import { studentCoursesApi } from '../../courses/api/student.courses';
 import { CheckCircle2, XCircle, AlertCircle, Trophy, ArrowRight, Loader2 } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import confetti from 'canvas-confetti';
@@ -32,6 +32,20 @@ export default function StudentQuizViewer({ lessonId, onComplete }: { lessonId: 
           colors: ['#10b981', '#fbbf24', '#3b82f6']
         });
         onComplete?.();
+        // Show XP toast
+        if (data.xpEarned > 0) {
+          setTimeout(() => {
+            import('react-hot-toast').then(t => t.default.success(`+${data.xpEarned} XP! اجتزت الاختبار 🎯`, { duration: 3000 }));
+          }, 800);
+        }
+        // Show new badges
+        if (data.newBadges?.length > 0) {
+          data.newBadges.forEach((badge: string, i: number) => {
+            setTimeout(() => {
+              import('react-hot-toast').then(t => t.default.success(`🏆 إنجاز جديد: ${badge}!`, { duration: 5000, icon: '🎖️' }));
+            }, 1500 + i * 1500);
+          });
+        }
       }
     }
   });

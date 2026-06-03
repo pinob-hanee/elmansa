@@ -24,6 +24,7 @@ const ProfilePage = lazy(() => import('./pages/student/ProfilePage'));
 const NotificationsPage = lazy(() => import('./pages/student/NotificationsPage'));
 
 // Admin routes
+const CertificatePage = lazy(() => import('./pages/student/CertificatePage'));
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminStudents = lazy(() => import('./pages/admin/Students'));
@@ -87,6 +88,7 @@ export default function App() {
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/pending-approval" element={<PendingApprovalPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/certificate/:code" element={<CertificatePage />} />
 
             {/* Student routes */}
             <Route path="/" element={<ProtectedRoute><StudentLayout /></ProtectedRoute>}>

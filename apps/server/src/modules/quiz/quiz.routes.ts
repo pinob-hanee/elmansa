@@ -153,7 +153,33 @@ router.post('/:quizId/attempt', authenticate, async (req, res, next) => {
       include: { answers: true },
     });
 
-    successResponse(res, { attempt, score: scorePercent, isPassed }, 'Quiz submitted', 201);
+    // Award XP if passed (and hasn't passed before)
+    let xpEarned = 0;
+    let newBadges: string[] = [];
+    if (isPassed) {
+      const previousPass = await prisma.quizAttempt.findFirst({
+        where: {
+          quizId: quiz.id,
+          userId: req.user!.userId,
+          isPassed: true,
+          id: { not: attempt.id }, // exclude the one we just created
+        }
+      });
+
+      if (!previousPass) {
+        try {
+          const { GamificationService } = await import('../gamification/gamification.service');
+          const gamSvc = new GamificationService();
+          const gResult = await gamSvc.awardXpWithAchievements(req.user!.userId, 50, 'QUIZ_PASS');
+          xpEarned = 50;
+          newBadges = gResult?.newBadges || [];
+        } catch (err) {
+          console.error('Failed to award XP for quiz pass:', err);
+        }
+      }
+    }
+
+    successResponse(res, { attempt, score: scorePercent, isPassed, xpEarned, newBadges }, 'Quiz submitted', 201);
   } catch (e) { next(e); }
 });
 

@@ -1,7 +1,8 @@
 import { motion, type Variants } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { Code2, Terminal, GitBranch, Clock, AlertTriangle, CheckCircle2, PlayCircle, Compass, BookOpen, Flame, Star, Award } from 'lucide-react';
+import { Code2, Terminal, GitBranch, Clock, AlertTriangle, CheckCircle2, PlayCircle, Compass, BookOpen, Flame, Star, Award, Trophy, Crown, Medal } from 'lucide-react';
 import api from '../../lib/api';
+import { gamificationApi } from '../../features/gamification/api/gamification';
 import { useAuthStore } from '../../store/authStore';
 import { cn } from '../../lib/utils';
 import { Link } from 'react-router-dom';
@@ -26,7 +27,19 @@ export default function StudentDashboard() {
 
   const { data: gamification } = useQuery({
     queryKey: ['gamification-stats'],
-    queryFn: () => api.get('/gamification/stats').then(r => r.data.data),
+    queryFn: gamificationApi.getStats,
+    enabled: !isPending,
+  });
+
+  const { data: leaderboard } = useQuery({
+    queryKey: ['gamification-leaderboard'],
+    queryFn: gamificationApi.getLeaderboard,
+    enabled: !isPending,
+  });
+
+  const { data: achievements } = useQuery({
+    queryKey: ['gamification-achievements'],
+    queryFn: gamificationApi.getAchievements,
     enabled: !isPending,
   });
 
@@ -240,6 +253,93 @@ export default function StudentDashboard() {
               </div>
             )}
           </motion.div>
+
+          {/* Achievements + Leaderboard Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Achievements */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={5}>
+              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <Award className="w-5 h-5 text-amber-400" />
+                إنجازاتي
+              </h2>
+              {!achievements?.length ? (
+                <div className="glass rounded-2xl p-6 border border-white/5 text-center">
+                  <Trophy className="w-10 h-10 text-surface-600 mx-auto mb-2" />
+                  <p className="text-surface-400 text-sm">أكمل دروساً لفتح الإنجازات</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {achievements.slice(0, 6).map((a: any) => (
+                    <div
+                      key={a.id}
+                      className={cn(
+                        "glass rounded-xl p-3 border flex items-center gap-3 transition-all",
+                        a.earned
+                          ? "border-amber-500/30 bg-amber-500/5"
+                          : "border-white/5 opacity-50 grayscale"
+                      )}
+                    >
+                      <div className="text-2xl shrink-0">{a.iconUrl}</div>
+                      <div className="min-w-0">
+                        <p className={cn("text-xs font-bold truncate", a.earned ? "text-amber-300" : "text-surface-400")}>
+                          {a.nameAr || a.name}
+                        </p>
+                        <p className="text-[10px] text-surface-500">+{a.points} نقطة</p>
+                      </div>
+                      {a.earned && <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0 mr-auto" />}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Leaderboard */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={6}>
+              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <Crown className="w-5 h-5 text-yellow-400" />
+                لوحة المتصدرين
+              </h2>
+              <div className="glass rounded-2xl border border-white/5 overflow-hidden">
+                {!leaderboard?.length ? (
+                  <div className="p-6 text-center">
+                    <Medal className="w-10 h-10 text-surface-600 mx-auto mb-2" />
+                    <p className="text-surface-400 text-sm">لا يوجد بيانات بعد</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-surface-800">
+                    {leaderboard.slice(0, 5).map((leader: any, i: number) => (
+                      <div key={leader.userId} className={cn(
+                        "flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-800/30",
+                        leader.userId === user?.id && "bg-primary-500/5 border-r-2 border-r-primary-500"
+                      )}>
+                        <div className={cn(
+                          "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
+                          i === 0 ? "bg-yellow-500 text-black" :
+                          i === 1 ? "bg-slate-400 text-black" :
+                          i === 2 ? "bg-amber-700 text-white" :
+                          "bg-surface-800 text-surface-400"
+                        )}>
+                          {i < 3 ? ['🥇','🥈','🥉'][i] : leader.rank}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">
+                            {leader.name} {leader.userId === user?.id && <span className="text-primary-400 text-xs">(أنت)</span>}
+                          </p>
+                          <p className="text-xs text-surface-500">مستوى {leader.level} · {leader.city || ''}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-bold text-primary-400">{leader.xp.toLocaleString()} XP</p>
+                          {leader.currentStreak > 0 && (
+                            <p className="text-xs text-orange-400">🔥 {leader.currentStreak}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
         </>
       )}
 

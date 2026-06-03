@@ -33,6 +33,20 @@ export class GamificationService {
     return { xp: newXp, level: newLevel, leveledUp: newLevel > profile.level };
   }
 
+  async awardXpWithAchievements(userId: string, amount: number, reason: string) {
+    const result = await this.awardXp(userId, amount, reason);
+    // Check achievements in background (non-blocking)
+    try {
+      const { AchievementService } = await import('./achievement.service');
+      const achSvc = new AchievementService();
+      const newBadges = await achSvc.checkAndAward(userId);
+      return { ...result, newBadges };
+    } catch (err) {
+      console.error('Achievement check failed:', err);
+      return { ...result, newBadges: [] as string[] };
+    }
+  }
+
   async updateStreak(userId: string) {
     const profile = await prisma.profile.findUnique({
       where: { userId }
