@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "courses": "Courses",
+    "achievements": "Achievements",
+    "community": "Community",
+    "logout": "Logout",
+    "students": "Students",
+    "settings": "Settings",
+    "login": "Login",
+    "admin": "Admin Panel",
+    "notifications": "Notifications",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "greeting": "Welcome, {{name}}! 👨‍💻",
+    "subtitle": "// Continue your coding journey today",
+    "enrolledCourses": "Enrolled Courses",
+    "completedCourses": "Completed Courses",
+    "newNotifications": "New Notifications",
+    "accountPending": "Account Pending Review",
+    "accountPendingDesc": "Your registration request is awaiting admin approval. You will be notified once accepted and can then access all courses.",
+    "approvalWaitTime": "Approval usually takes 24 hours"
+  },
+  "common": {
+    "search": "Search...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "language": "العربية"
+  }
+}

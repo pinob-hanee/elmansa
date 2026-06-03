@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "dashboard": "لوحة القيادة",
+    "courses": "الدورات",
+    "achievements": "الإنجازات",
+    "community": "المجتمع",
+    "logout": "تسجيل الخروج",
+    "students": "الطلاب",
+    "settings": "الإعدادات",
+    "login": "تسجيل الدخول",
+    "admin": "لوحة الإدارة",
+    "notifications": "الإشعارات",
+    "profile": "ملفي"
+  },
+  "dashboard": {
+    "welcome": "أهلاً بك",
+    "greeting": "مرحباً، {{name}}! 👨‍💻",
+    "subtitle": "// استمر في رحلتك البرمجية اليوم",
+    "enrolledCourses": "كورسات مسجّل بها",
+    "completedCourses": "كورسات أكملتها",
+    "newNotifications": "إشعارات جديدة",
+    "accountPending": "حسابك قيد المراجعة",
+    "accountPendingDesc": "طلب تسجيلك بانتظار موافقة المسؤول. سيتم إشعارك فور قبول حسابك وستتمكن حينها من الوصول إلى جميع الكورسات.",
+    "approvalWaitTime": "عادةً ما يستغرق القبول 24 ساعة"
+  },
+  "common": {
+    "search": "بحث...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "language": "English"
+  }
+}

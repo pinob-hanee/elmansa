@@ -10,19 +10,25 @@ import { cn } from '../lib/utils';
 import api from '../lib/api';
 import NotificationBell from '../features/notifications/components/NotificationBell';
 
-const navItems = [
-  { icon: Home, label: 'الرئيسية', href: '/dashboard' },
-  { icon: Terminal, label: 'الكورسات', href: '/courses' },
-  { icon: Users, label: 'المجتمع', href: '/community' },
-  { icon: Bell, label: 'الإشعارات', href: '/notifications' },
-  { icon: User, label: 'ملفي', href: '/profile' },
-];
+import { useTranslation } from 'react-i18next';
+
+import LanguageSwitcher from '../components/layout/LanguageSwitcher';
 
 export default function StudentLayout() {
+  const { t, i18n } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const isRtl = i18n.language === 'ar';
+
+  const navItems = [
+    { icon: Home, label: t('nav.dashboard'), href: '/dashboard' },
+    { icon: Terminal, label: t('nav.courses'), href: '/courses' },
+    { icon: Users, label: t('nav.community'), href: '/community' },
+    { icon: Bell, label: t('nav.notifications', 'الإشعارات'), href: '/notifications' },
+    { icon: User, label: t('nav.profile', 'ملفي'), href: '/profile' },
+  ];
 
   const handleLogout = async () => {
     await api.post('/auth/logout').catch(() => {});
@@ -31,7 +37,7 @@ export default function StudentLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-surface-950 overflow-hidden" dir="rtl">
+    <div className="flex h-screen bg-surface-950 overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Sidebar */}
       <motion.aside
         animate={{ width: sidebarOpen ? 256 : 72 }}
@@ -90,7 +96,7 @@ export default function StudentLayout() {
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute right-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary-500 rounded-full"
+                    className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary-500 rounded-full`}
                   />
                 )}
               </Link>
@@ -114,7 +120,7 @@ export default function StudentLayout() {
               <button
                 onClick={handleLogout}
                 className="text-surface-500 hover:text-error transition-colors"
-                title="تسجيل الخروج"
+                title={t('nav.logout')}
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -132,9 +138,9 @@ export default function StudentLayout() {
         {/* Collapse toggle */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute bottom-20 left-0 translate-x-1/2 w-6 h-6 rounded-full bg-surface-700 border border-surface-600 flex items-center justify-center text-surface-400 hover:text-white transition-all z-10"
+          className={`absolute bottom-20 ${isRtl ? 'left-0 translate-x-1/2' : 'right-0 translate-x-1/2'} w-6 h-6 rounded-full bg-surface-700 border border-surface-600 flex items-center justify-center text-surface-400 hover:text-white transition-all z-10`}
         >
-          <ChevronRight className={cn('w-3 h-3 transition-transform', sidebarOpen ? 'rotate-180' : '')} />
+          <ChevronRight className={cn('w-3 h-3 transition-transform', sidebarOpen ? (isRtl ? 'rotate-180' : 'rotate-180') : '')} />
         </button>
       </motion.aside>
 
@@ -148,6 +154,7 @@ export default function StudentLayout() {
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <div className="flex-1" />
+          <LanguageSwitcher />
           <NotificationBell />
           <Link to="/profile" className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
             {user?.profile?.firstName?.charAt(0) || 'U'}

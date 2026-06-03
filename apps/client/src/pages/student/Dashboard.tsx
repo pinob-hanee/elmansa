@@ -1,6 +1,7 @@
 import { motion, type Variants } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Code2, Terminal, GitBranch, Clock, AlertTriangle, CheckCircle2, PlayCircle, Compass, BookOpen, Flame, Star, Award, Trophy, Crown, Medal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../../lib/api';
 import { gamificationApi } from '../../features/gamification/api/gamification';
 import { useAuthStore } from '../../store/authStore';
@@ -13,8 +14,10 @@ const fadeUp: Variants = {
 };
 
 export default function StudentDashboard() {
+  const { t, i18n } = useTranslation();
   const { user } = useAuthStore();
   const isPending = user?.approvalStatus === 'PENDING';
+  const isRtl = i18n.language === 'ar';
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['student-dashboard'],
@@ -44,19 +47,19 @@ export default function StudentDashboard() {
   });
 
   const stats = [
-    { label: 'كورسات مسجّل بها', value: data?.stats?.enrolledCount ?? 0, icon: Terminal, color: 'from-primary-500 to-purple-600' },
-    { label: 'كورسات أكملتها', value: data?.stats?.completedCount ?? 0, icon: GitBranch, color: 'from-emerald-500 to-teal-600' },
-    { label: 'إشعارات جديدة', value: data?.stats?.unreadNotifications ?? 0, icon: Code2, color: 'from-amber-500 to-orange-600' },
+    { label: t('dashboard.enrolledCourses'), value: data?.stats?.enrolledCount ?? 0, icon: Terminal, color: 'from-primary-500 to-purple-600' },
+    { label: t('dashboard.completedCourses'), value: data?.stats?.completedCount ?? 0, icon: GitBranch, color: 'from-emerald-500 to-teal-600' },
+    { label: t('dashboard.newNotifications'), value: data?.stats?.unreadNotifications ?? 0, icon: Code2, color: 'from-amber-500 to-orange-600' },
   ];
 
   return (
-    <div dir="rtl" className="space-y-8">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-8">
       {/* Welcome */}
       <motion.div variants={fadeUp} initial="hidden" animate="visible">
         <h1 className="text-2xl font-extrabold text-white mb-1 font-mono">
-          <span className="text-primary-400">{'>'}</span> مرحباً، {user?.profile?.firstName || user?.email?.split('@')[0]}! 👨‍💻
+          <span className="text-primary-400">{'>'}</span> {t('dashboard.greeting', { name: user?.profile?.firstName || user?.email?.split('@')[0] })}
         </h1>
-        <p className="text-surface-400 font-mono text-sm">{'// استمر في رحلتك البرمجية اليوم'}</p>
+        <p className="text-surface-400 font-mono text-sm">{t('dashboard.subtitle')}</p>
       </motion.div>
 
       {/* Pending Approval Banner */}
@@ -73,13 +76,13 @@ export default function StudentDashboard() {
               <AlertTriangle className="w-6 h-6 text-amber-400" />
             </div>
             <div className="flex-1">
-              <h3 className="text-amber-300 font-bold text-lg mb-1">حسابك قيد المراجعة</h3>
+              <h3 className="text-amber-300 font-bold text-lg mb-1">{t('dashboard.accountPending')}</h3>
               <p className="text-amber-200/70 text-sm leading-relaxed mb-3">
-                طلب تسجيلك بانتظار موافقة المسؤول. سيتم إشعارك فور قبول حسابك وستتمكن حينها من الوصول إلى جميع الكورسات.
+                {t('dashboard.accountPendingDesc')}
               </p>
               <div className="flex items-center gap-2 text-amber-400 text-sm">
                 <Clock className="w-4 h-4" />
-                <span>عادةً ما يستغرق القبول 24 ساعة</span>
+                <span>{t('dashboard.approvalWaitTime')}</span>
               </div>
             </div>
           </div>
