@@ -18,10 +18,14 @@ if (isCloudinaryConfigured) {
 
 const localUploadDir = path.join(process.cwd(), 'uploads');
 
-export const generateSignedUrl = (key: string, resourceType: 'video' | 'image' | 'raw' | 'auto' = 'video'): string => {
+export const generateSignedUrl = (key: string, resourceType: 'video' | 'image' | 'raw' | 'auto' = 'video', format?: string): string => {
   if (key.startsWith('http')) return key;
   if (!isCloudinaryConfigured) return `${env.APP_URL || 'http://localhost:5000'}/uploads/${key}`;
-  return cloudinary.url(key, { secure: true, resource_type: resourceType });
+  
+  const options: any = { secure: true, resource_type: resourceType };
+  if (format) options.format = format;
+  
+  return cloudinary.url(key, options);
 };
 
 const getStorage = (folder: string, isVideo = false) => {
