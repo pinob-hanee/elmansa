@@ -1,40 +1,48 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { BookOpen, Mail, Lock, Eye, EyeOff, User, Phone, School, MapPin, UserPlus } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import api from '../../lib/api';
 import { cn } from '../../lib/utils';
+import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
 
-const schema = z.object({
-  firstName: z.string().min(2, 'الاسم الأول مطلوب (حرفان على الأقل)'),
-  lastName: z.string().min(2, 'الاسم الأخير مطلوب'),
-  email: z.string().email('بريد إلكتروني غير صحيح'),
-  password: z
-    .string()
-    .min(8, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل')
-    .regex(/[A-Z]/, 'يجب أن تحتوي على حرف كبير')
-    .regex(/[0-9]/, 'يجب أن تحتوي على رقم'),
-  phone: z.string().optional(),
-  grade: z.string().optional(),
-  school: z.string().optional(),
-  city: z.string().optional(),
-});
+function makeSchema(t: any) {
+  return z.object({
+    firstName: z.string().min(2, t('auth.firstNameRequired')),
+    lastName: z.string().min(2, t('auth.lastNameRequired')),
+    email: z.string().email(t('auth.emailInvalid')),
+    password: z
+      .string()
+      .min(8, t('auth.passwordMin'))
+      .regex(/[A-Z]/, t('auth.passwordUppercase'))
+      .regex(/[0-9]/, t('auth.passwordNumber')),
+    phone: z.string().optional(),
+    grade: z.string().optional(),
+    school: z.string().optional(),
+    city: z.string().optional(),
+  });
+}
 
-type FormData = z.infer<typeof schema>;
+type FormData = {
+  firstName: string; lastName: string; email: string; password: string;
+  phone?: string; grade?: string; school?: string; city?: string;
+};
 
-const InputField = ({ label, icon: Icon, error, ...props }: any) => (
+const InputField = ({ label, icon: Icon, error, isRtl, ...props }: any) => (
   <div>
     <label className="block text-sm font-medium text-surface-300 mb-1.5">{label}</label>
     <div className="relative">
-      <Icon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500" />
+      <Icon className={cn('absolute top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500', isRtl ? 'right-3' : 'left-3')} />
       <input
         {...props}
         className={cn(
-          'w-full pr-10 pl-4 py-2.5 rounded-xl bg-surface-800 border text-white placeholder-surface-500 text-sm outline-none transition-all',
+          'w-full py-2.5 rounded-xl bg-surface-800 border text-white placeholder-surface-500 text-sm outline-none transition-all',
+          isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4',
           error ? 'border-error/50' : 'border-surface-700 focus:border-primary-500'
         )}
       />
@@ -44,12 +52,13 @@ const InputField = ({ label, icon: Icon, error, ...props }: any) => (
 );
 
 export default function RegisterPage() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
-  const navigate = useNavigate();
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(makeSchema(t)),
   });
 
   const mutation = useMutation({
@@ -59,7 +68,7 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-surface-950 flex items-center justify-center p-6" dir="rtl">
+      <div className="min-h-screen bg-surface-950 flex items-center justify-center p-6" dir={isRtl ? 'rtl' : 'ltr'}>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -68,16 +77,14 @@ export default function RegisterPage() {
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-success/20 to-success/5 border border-success/30 flex items-center justify-center mx-auto mb-6">
             <div className="text-5xl">✅</div>
           </div>
-          <h2 className="text-3xl font-extrabold text-white mb-3">تم التسجيل بنجاح!</h2>
-          <p className="text-surface-400 mb-2">تم إرسال رابط التحقق إلى بريدك الإلكتروني.</p>
-          <p className="text-surface-400 mb-8">
-            بعد التحقق من بريدك، سيقوم المدرس بمراجعة طلبك والموافقة عليه.
-          </p>
+          <h2 className="text-3xl font-extrabold text-white mb-3">{t('auth.registrationSuccess')}</h2>
+          <p className="text-surface-400 mb-2">{t('auth.verificationSent')}</p>
+          <p className="text-surface-400 mb-8">{t('auth.waitForApproval')}</p>
           <Link
             to="/login"
             className="px-8 py-3 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-medium transition-all"
           >
-            الانتقال لتسجيل الدخول
+            {t('auth.goToLogin')}
           </Link>
         </motion.div>
       </div>
@@ -85,7 +92,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-950 flex items-center justify-center py-12 px-6" dir="rtl">
+    <div className="min-h-screen bg-surface-950 flex items-center justify-center py-12 px-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -93,14 +100,17 @@ export default function RegisterPage() {
       >
         {/* Header */}
         <div className="text-center mb-8">
+          <div className="flex justify-end mb-2">
+            <LanguageSwitcher />
+          </div>
           <Link to="/" className="inline-flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-extrabold gradient-text">Elmansa</span>
           </Link>
-          <h1 className="text-3xl font-extrabold text-white mb-2">إنشاء حساب جديد</h1>
-          <p className="text-surface-400">انضم إلى مجتمع التعلم الآن</p>
+          <h1 className="text-3xl font-extrabold text-white mb-2">{t('auth.createAccount')}</h1>
+          <p className="text-surface-400">{t('auth.joinCommunity')}</p>
         </div>
 
         <div className="glass rounded-3xl p-8 border border-white/10">
@@ -115,7 +125,7 @@ export default function RegisterPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            <span className="text-sm font-medium group-hover:text-white/90">إنشاء حساب بـ Google</span>
+            <span className="text-sm font-medium group-hover:text-white/90">{t('auth.registerWithGoogle')}</span>
           </a>
 
           <div className="relative mb-5">
@@ -123,55 +133,33 @@ export default function RegisterPage() {
               <div className="w-full border-t border-surface-700" />
             </div>
             <div className="relative flex justify-center">
-              <span className="px-4 bg-surface-900/90 rounded-full text-surface-400 text-xs">أو بالبريد الإلكتروني</span>
+              <span className="px-4 bg-surface-900/90 rounded-full text-surface-400 text-xs">{t('auth.orWithEmail')}</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <InputField
-                label="الاسم الأول"
-                icon={User}
-                placeholder="محمد"
-                error={errors.firstName?.message}
-                {...register('firstName')}
-              />
-              <InputField
-                label="الاسم الأخير"
-                icon={User}
-                placeholder="أحمد"
-                error={errors.lastName?.message}
-                {...register('lastName')}
-              />
+              <InputField label={t('auth.firstName')} icon={User} placeholder={isRtl ? 'محمد' : 'John'} error={errors.firstName?.message} isRtl={isRtl} {...register('firstName')} />
+              <InputField label={t('auth.lastName')} icon={User} placeholder={isRtl ? 'أحمد' : 'Doe'} error={errors.lastName?.message} isRtl={isRtl} {...register('lastName')} />
             </div>
 
-            <InputField
-              label="البريد الإلكتروني"
-              icon={Mail}
-              type="email"
-              placeholder="you@example.com"
-              error={errors.email?.message}
-              {...register('email')}
-            />
+            <InputField label={t('auth.email')} icon={Mail} type="email" placeholder="you@example.com" error={errors.email?.message} isRtl={isRtl} {...register('email')} />
 
             <div>
-              <label className="block text-sm font-medium text-surface-300 mb-1.5">كلمة المرور</label>
+              <label className="block text-sm font-medium text-surface-300 mb-1.5">{t('auth.password')}</label>
               <div className="relative">
-                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500" />
+                <Lock className={cn('absolute top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500', isRtl ? 'right-3' : 'left-3')} />
                 <input
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   className={cn(
-                    'w-full pr-10 pl-10 py-2.5 rounded-xl bg-surface-800 border text-white placeholder-surface-500 text-sm outline-none transition-all',
+                    'w-full py-2.5 rounded-xl bg-surface-800 border text-white placeholder-surface-500 text-sm outline-none transition-all',
+                    isRtl ? 'pr-10 pl-10' : 'pl-10 pr-10',
                     errors.password ? 'border-error/50' : 'border-surface-700 focus:border-primary-500'
                   )}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-500"
-                >
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className={cn('absolute top-1/2 -translate-y-1/2 text-surface-500', isRtl ? 'left-3' : 'right-3')}>
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -179,38 +167,18 @@ export default function RegisterPage() {
             </div>
 
             <div className="border-t border-surface-700/50 pt-4">
-              <p className="text-xs text-surface-500 mb-3">معلومات إضافية (اختيارية)</p>
+              <p className="text-xs text-surface-500 mb-3">{t('auth.optionalInfo')}</p>
               <div className="grid grid-cols-2 gap-4">
-                <InputField
-                  label="رقم الهاتف"
-                  icon={Phone}
-                  placeholder="01012345678"
-                  {...register('phone')}
-                />
-                <InputField
-                  label="الصف الدراسي"
-                  icon={BookOpen}
-                  placeholder="الصف الثالث الثانوي"
-                  {...register('grade')}
-                />
-                <InputField
-                  label="المدرسة"
-                  icon={School}
-                  placeholder="اسم مدرستك"
-                  {...register('school')}
-                />
-                <InputField
-                  label="المحافظة"
-                  icon={MapPin}
-                  placeholder="القاهرة"
-                  {...register('city')}
-                />
+                <InputField label={t('auth.phone')} icon={Phone} placeholder="01012345678" isRtl={isRtl} {...register('phone')} />
+                <InputField label={t('auth.grade')} icon={BookOpen} placeholder={isRtl ? 'الصف الثالث الثانوي' : 'Grade 12'} isRtl={isRtl} {...register('grade')} />
+                <InputField label={t('auth.school')} icon={School} placeholder={isRtl ? 'اسم مدرستك' : 'Your school'} isRtl={isRtl} {...register('school')} />
+                <InputField label={t('auth.city')} icon={MapPin} placeholder={isRtl ? 'القاهرة' : 'Cairo'} isRtl={isRtl} {...register('city')} />
               </div>
             </div>
 
             {mutation.error && (
               <div className="p-3 rounded-xl bg-error/10 border border-error/30 text-error text-sm">
-                حدث خطأ. ربما هذا البريد الإلكتروني مسجل مسبقاً.
+                {t('auth.registerError')}
               </div>
             )}
 
@@ -224,7 +192,7 @@ export default function RegisterPage() {
               ) : (
                 <>
                   <UserPlus className="w-5 h-5" />
-                  إنشاء الحساب
+                  {t('auth.createAccountBtn')}
                 </>
               )}
             </button>
@@ -232,9 +200,9 @@ export default function RegisterPage() {
         </div>
 
         <p className="mt-6 text-center text-surface-400 text-sm">
-          لديك حساب بالفعل؟{' '}
+          {t('auth.hasAccount')}{' '}
           <Link to="/login" className="text-primary-400 hover:text-primary-300 font-medium">
-            سجّل دخولك
+            {t('auth.loginLink')}
           </Link>
         </p>
       </motion.div>

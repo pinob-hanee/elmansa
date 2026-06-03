@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, CheckCheck, Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { notificationsApi } from '../../features/notifications/api/notifications';
 import { cn } from '../../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { ar } from 'date-fns/locale';
+import { ar, enUS } from 'date-fns/locale';
 
 export default function NotificationsPage() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const queryClient = useQueryClient();
 
   const { data: notifications, isLoading } = useQuery({
@@ -25,7 +28,7 @@ export default function NotificationsPage() {
 
   if (isLoading) {
     return (
-      <div dir="rtl" className="max-w-3xl mx-auto space-y-4">
+      <div dir={isRtl ? 'rtl' : 'ltr'} className="max-w-3xl mx-auto space-y-4">
         {[1, 2, 3, 4].map(i => (
           <div key={i} className="h-24 bg-surface-900 rounded-2xl animate-pulse" />
         ))}
@@ -34,13 +37,16 @@ export default function NotificationsPage() {
   }
 
   const unreadCount = notifications?.filter((n: any) => !n.isRead).length || 0;
+  const locale = isRtl ? ar : enUS;
 
   return (
-    <div dir="rtl" className="max-w-3xl mx-auto">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-extrabold text-white mb-2">الإشعارات</h1>
-          <p className="text-surface-400">تابع أحدث التنبيهات والأحداث الخاصة بك</p>
+          <h1 className="text-2xl font-extrabold text-white mb-2">{t('nav.notifications')}</h1>
+          <p className="text-surface-400">
+            {isRtl ? 'تابع أحدث التنبيهات والأحداث الخاصة بك' : 'Stay up to date with your latest alerts and events'}
+          </p>
         </div>
         {unreadCount > 0 && (
           <button
@@ -49,7 +55,7 @@ export default function NotificationsPage() {
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-800 text-surface-300 hover:text-white hover:bg-surface-700 transition-all text-sm"
           >
             <CheckCheck className="w-4 h-4" />
-            تحديد الكل كمقروء
+            {isRtl ? 'تحديد الكل كمقروء' : 'Mark all as read'}
           </button>
         )}
       </div>
@@ -59,8 +65,12 @@ export default function NotificationsPage() {
           <div className="w-16 h-16 rounded-full bg-surface-800 flex items-center justify-center mx-auto mb-4">
             <Bell className="w-8 h-8 text-surface-600" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-2">لا توجد إشعارات</h3>
-          <p className="text-surface-400">ستظهر جميع الإشعارات والتنبيهات الخاصة بك هنا</p>
+          <h3 className="text-lg font-bold text-white mb-2">
+            {isRtl ? 'لا توجد إشعارات' : 'No Notifications'}
+          </h3>
+          <p className="text-surface-400">
+            {isRtl ? 'ستظهر جميع الإشعارات والتنبيهات الخاصة بك هنا' : 'All your notifications and alerts will appear here'}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -73,8 +83,8 @@ export default function NotificationsPage() {
               }}
               className={cn(
                 "glass rounded-2xl p-5 border transition-all cursor-pointer flex gap-4",
-                !notification.isRead 
-                  ? "border-primary-500/30 bg-primary-500/5" 
+                !notification.isRead
+                  ? "border-primary-500/30 bg-primary-500/5"
                   : "border-white/5 hover:border-white/10"
               )}
             >
@@ -93,7 +103,7 @@ export default function NotificationsPage() {
                   </h3>
                   <div className="flex items-center gap-1.5 text-xs text-surface-500 shrink-0 mt-1">
                     <Clock className="w-3.5 h-3.5" />
-                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: ar })}
+                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale })}
                   </div>
                 </div>
                 <p className="text-surface-400 text-sm leading-relaxed">

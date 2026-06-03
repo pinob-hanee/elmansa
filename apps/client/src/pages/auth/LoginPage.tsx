@@ -6,25 +6,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { BookOpen, Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import api from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import { cn } from '../../lib/utils';
+import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
 
-const schema = z.object({
-  email: z.string().email('بريد إلكتروني غير صحيح'),
-  password: z.string().min(1, 'كلمة المرور مطلوبة'),
-  rememberMe: z.boolean().optional(),
-});
+function makeSchema(t: any) {
+  return z.object({
+    email: z.string().email(t('auth.emailInvalid')),
+    password: z.string().min(1, t('auth.passwordRequired')),
+    rememberMe: z.boolean().optional(),
+  });
+}
 
-type FormData = z.infer<typeof schema>;
+type FormData = { email: string; password: string; rememberMe?: boolean };
 
 export default function LoginPage() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(makeSchema(t)),
   });
 
   const mutation = useMutation({
@@ -45,8 +51,8 @@ export default function LoginPage() {
   const onSubmit = (data: FormData) => mutation.mutate(data);
 
   return (
-    <div className="min-h-screen bg-surface-950 flex" dir="rtl">
-      {/* Left side — branding */}
+    <div className="min-h-screen bg-surface-950 flex" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Left/Right side — branding */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-900 via-surface-900 to-purple-900" />
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary-600/30 rounded-full blur-3xl" />
@@ -62,13 +68,13 @@ export default function LoginPage() {
             </div>
             <h1 className="text-5xl font-extrabold text-white mb-4">Elmansa</h1>
             <p className="text-surface-300 text-xl leading-relaxed max-w-sm">
-              منصتك التعليمية المتكاملة للتعلم والنمو
+              {t('auth.platformTagline')}
             </p>
           </motion.div>
         </div>
       </div>
 
-      {/* Right side — form */}
+      {/* Form side */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -76,9 +82,14 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
+          {/* Language Switcher */}
+          <div className="flex justify-end mb-6">
+            <LanguageSwitcher />
+          </div>
+
           <div className="mb-8">
-            <h2 className="text-3xl font-extrabold text-white mb-2">مرحباً بعودتك!</h2>
-            <p className="text-surface-400">سجّل دخولك للمتابعة</p>
+            <h2 className="text-3xl font-extrabold text-white mb-2">{t('auth.welcomeBack')}</h2>
+            <p className="text-surface-400">{t('auth.loginSubtitle')}</p>
           </div>
 
           {/* Google Sign in */}
@@ -92,7 +103,7 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            <span className="text-sm font-medium group-hover:text-white/90">تسجيل الدخول بـ Google</span>
+            <span className="text-sm font-medium group-hover:text-white/90">{t('auth.loginWithGoogle')}</span>
           </a>
 
           <div className="relative mb-6">
@@ -100,22 +111,23 @@ export default function LoginPage() {
               <div className="w-full border-t border-surface-700" />
             </div>
             <div className="relative flex justify-center">
-              <span className="px-4 bg-surface-950 text-surface-500 text-sm">أو بالبريد الإلكتروني</span>
+              <span className="px-4 bg-surface-950 text-surface-500 text-sm">{t('auth.orWithEmail')}</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-surface-300 mb-1.5">البريد الإلكتروني</label>
+              <label className="block text-sm font-medium text-surface-300 mb-1.5">{t('auth.email')}</label>
               <div className="relative">
-                <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-surface-500" />
+                <Mail className={cn('absolute top-1/2 -translate-y-1/2 w-5 h-5 text-surface-500', isRtl ? 'right-3' : 'left-3')} />
                 <input
                   {...register('email')}
                   type="email"
                   placeholder="you@example.com"
                   className={cn(
-                    'w-full pr-11 pl-4 py-3 rounded-xl bg-surface-800 border text-white placeholder-surface-500 outline-none transition-all',
+                    'w-full py-3 rounded-xl bg-surface-800 border text-white placeholder-surface-500 outline-none transition-all',
+                    isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4',
                     errors.email ? 'border-error focus:border-error' : 'border-surface-700 focus:border-primary-500'
                   )}
                 />
@@ -125,22 +137,23 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-surface-300 mb-1.5">كلمة المرور</label>
+              <label className="block text-sm font-medium text-surface-300 mb-1.5">{t('auth.password')}</label>
               <div className="relative">
-                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-surface-500" />
+                <Lock className={cn('absolute top-1/2 -translate-y-1/2 w-5 h-5 text-surface-500', isRtl ? 'right-3' : 'left-3')} />
                 <input
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   className={cn(
-                    'w-full pr-11 pl-11 py-3 rounded-xl bg-surface-800 border text-white placeholder-surface-500 outline-none transition-all',
+                    'w-full py-3 rounded-xl bg-surface-800 border text-white placeholder-surface-500 outline-none transition-all',
+                    isRtl ? 'pr-11 pl-11' : 'pl-11 pr-11',
                     errors.password ? 'border-error' : 'border-surface-700 focus:border-primary-500'
                   )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-500 hover:text-surface-300"
+                  className={cn('absolute top-1/2 -translate-y-1/2 text-surface-500 hover:text-surface-300', isRtl ? 'left-3' : 'right-3')}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -150,16 +163,16 @@ export default function LoginPage() {
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input {...register('rememberMe')} type="checkbox" className="rounded border-surface-600 bg-surface-800 text-primary-600" />
-                <span className="text-sm text-surface-400">تذكرني</span>
+                <span className="text-sm text-surface-400">{t('auth.rememberMe')}</span>
               </label>
               <Link to="/forgot-password" className="text-sm text-primary-400 hover:text-primary-300 transition-colors">
-                نسيت كلمة المرور؟
+                {t('auth.forgotPassword')}
               </Link>
             </div>
 
             {mutation.error && (
               <div className="p-3 rounded-xl bg-error/10 border border-error/30 text-error text-sm">
-                بريد إلكتروني أو كلمة مرور غير صحيحة
+                {t('auth.loginError')}
               </div>
             )}
 
@@ -173,16 +186,16 @@ export default function LoginPage() {
               ) : (
                 <>
                   <LogIn className="w-5 h-5" />
-                  تسجيل الدخول
+                  {t('auth.login')}
                 </>
               )}
             </button>
           </form>
 
           <p className="mt-6 text-center text-surface-400 text-sm">
-            ليس لديك حساب؟{' '}
+            {t('auth.noAccount')}{' '}
             <Link to="/register" className="text-primary-400 hover:text-primary-300 font-medium transition-colors">
-              سجّل الآن
+              {t('auth.registerNow')}
             </Link>
           </p>
         </motion.div>

@@ -1,12 +1,15 @@
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, Search, Filter } from 'lucide-react';
+import { BookOpen, Search } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../../lib/api';
 import { cn } from '../../lib/utils';
 
 export default function CoursesPage() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
 
@@ -17,19 +20,22 @@ export default function CoursesPage() {
   });
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-extrabold text-white mb-1">الكورسات</h1>
-        <p className="text-surface-400">استعرض جميع الكورسات المتاحة</p>
+        <h1 className="text-2xl font-extrabold text-white mb-1">{t('courses.title')}</h1>
+        <p className="text-surface-400">{t('courses.subtitle')}</p>
       </div>
 
       <div className="relative">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500" />
+        <Search className={cn('absolute top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500', isRtl ? 'right-3' : 'left-3')} />
         <input
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); }}
-          placeholder="ابحث عن كورس..."
-          className="w-full max-w-md pr-10 pl-4 py-2.5 rounded-xl bg-surface-800 border border-surface-700 focus:border-primary-500 text-white placeholder-surface-500 text-sm outline-none transition-all"
+          placeholder={t('courses.searchPlaceholder')}
+          className={cn(
+            'w-full max-w-md py-2.5 rounded-xl bg-surface-800 border border-surface-700 focus:border-primary-500 text-white placeholder-surface-500 text-sm outline-none transition-all',
+            isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'
+          )}
         />
       </div>
 
@@ -42,7 +48,7 @@ export default function CoursesPage() {
       ) : data?.data?.length === 0 ? (
         <div className="text-center py-16">
           <BookOpen className="w-16 h-16 text-surface-700 mx-auto mb-4" />
-          <p className="text-surface-400">لا توجد كورسات متاحة حالياً</p>
+          <p className="text-surface-400">{t('courses.noCoursesAvailable')}</p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -65,7 +71,7 @@ export default function CoursesPage() {
                 )}
                 {Number(course.price) === 0 && (
                   <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-success/20 border border-success/30 text-success text-xs font-medium">
-                    مجاني
+                    {t('courses.free')}
                   </span>
                 )}
               </div>
@@ -76,7 +82,7 @@ export default function CoursesPage() {
                 <p className="text-surface-400 text-sm mb-4 line-clamp-2">{course.description}</p>
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-surface-500">
-                    {course._count?.enrollments || 0} طالب
+                    {course._count?.enrollments || 0} {t('courses.students')}
                   </div>
                   {Number(course.price) > 0 ? (
                     <span className="text-primary-400 font-bold">{course.price} EGP</span>
@@ -86,7 +92,7 @@ export default function CoursesPage() {
                   to={`/courses/${course.slug}`}
                   className="mt-4 block w-full text-center py-2.5 rounded-xl bg-primary-600/20 hover:bg-primary-600 text-primary-400 hover:text-white text-sm font-medium transition-all border border-primary-500/30 hover:border-transparent"
                 >
-                  عرض الكورس
+                  {t('courses.viewCourse')}
                 </Link>
               </div>
             </motion.div>

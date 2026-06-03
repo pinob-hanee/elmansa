@@ -5,10 +5,13 @@ import { User, Save, Phone, MapPin, School, Book, Star, Flame, Award, Camera, Ex
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
 import { cn } from '../../lib/utils';
+import { useTranslation } from 'react-i18next';
 import { gamificationApi } from '../../features/gamification/api/gamification';
 import { Link } from 'react-router-dom';
 
 export default function ProfilePage() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const { user, setUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -45,7 +48,7 @@ export default function ProfilePage() {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error('الصورة يجب أن تكون أقل من 5MB'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error(t('profile.imageTooLarge')); return; }
 
     setUploading(true);
     try {
@@ -54,9 +57,9 @@ export default function ProfilePage() {
       const { data } = await api.post('/media/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       await api.patch('/users/me/profile', { avatarUrl: data.data.url });
       setUser({ ...user!, profile: { ...user!.profile!, avatarUrl: data.data.url } });
-      toast.success('تم تحديث الصورة الشخصية');
+      toast.success(t('profile.avatarUpdated'));
     } catch {
-      toast.error('فشل رفع الصورة');
+      toast.error(t('profile.avatarError'));
     } finally {
       setUploading(false);
     }
@@ -68,9 +71,9 @@ export default function ProfilePage() {
     try {
       const { data } = await api.patch('/users/me/profile', formData);
       setUser(data.data);
-      toast.success('تم حفظ الملف الشخصي بنجاح');
+      toast.success(t('profile.profileSaved'));
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'حدث خطأ أثناء حفظ البيانات');
+      toast.error(error.response?.data?.message || t('profile.profileError'));
     } finally {
       setLoading(false);
     }
@@ -79,16 +82,24 @@ export default function ProfilePage() {
   const xp = gamStats?.profile?.xp ?? user?.profile?.xp ?? 0;
   const level = gamStats?.profile?.level ?? user?.profile?.level ?? 1;
   const streak = gamStats?.profile?.currentStreak ?? user?.profile?.currentStreak ?? 0;
-  const xpForNextLevel = level * 1000;
   const xpProgress = ((xp % 1000) / 10);
 
   const earnedAchievements = achievements?.filter((a: any) => a.earned) || [];
 
+  const fields = [
+    { label: t('profile.firstName'), name: 'firstName', icon: User, required: true },
+    { label: t('profile.lastName'), name: 'lastName', icon: User, required: true },
+    { label: t('profile.phone'), name: 'phone', icon: Phone, type: 'tel' },
+    { label: t('profile.city'), name: 'city', icon: MapPin },
+    { label: t('profile.grade'), name: 'grade', icon: Book },
+    { label: t('profile.school'), name: 'school', icon: School },
+  ];
+
   return (
-    <div dir="rtl" className="max-w-4xl mx-auto space-y-8">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-extrabold text-white mb-2">الملف الشخصي</h1>
-        <p className="text-surface-400">تحديث بياناتك الشخصية ومشاهدة إنجازاتك</p>
+        <h1 className="text-2xl font-extrabold text-white mb-2">{t('profile.title')}</h1>
+        <p className="text-surface-400">{t('profile.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -122,7 +133,7 @@ export default function ProfilePage() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 text-primary-400" />
-                <span className="text-white font-bold">المستوى {level}</span>
+                <span className="text-white font-bold">{t('profile.level', { level })}</span>
               </div>
               <span className="text-primary-400 text-sm font-bold">{xp.toLocaleString()} XP</span>
             </div>
@@ -132,7 +143,9 @@ export default function ProfilePage() {
                 style={{ width: `${xpProgress}%` }}
               />
             </div>
-            <p className="text-xs text-surface-500 mt-1.5 text-center">{xp % 1000} / 1000 XP للمستوى {level + 1}</p>
+            <p className="text-xs text-surface-500 mt-1.5 text-center">
+              {t('profile.xpToNext', { xp: xp % 1000, next: level + 1 })}
+            </p>
           </div>
 
           {/* Streak */}
@@ -141,8 +154,8 @@ export default function ProfilePage() {
               <Flame className="w-6 h-6 text-white" />
             </div>
             <div>
-              <div className="text-2xl font-extrabold text-white">{streak} <span className="text-sm text-surface-400 font-medium">أيام</span></div>
-              <div className="text-sm text-orange-400 font-medium">سلسلة التعلم</div>
+              <div className="text-2xl font-extrabold text-white">{streak} <span className="text-sm text-surface-400 font-medium">{t('profile.streak')}</span></div>
+              <div className="text-sm text-orange-400 font-medium">{t('profile.streakLabel')}</div>
             </div>
           </div>
         </div>
@@ -152,25 +165,21 @@ export default function ProfilePage() {
           <div className="glass rounded-2xl p-6 border border-white/5">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {[
-                  { label: 'الاسم الأول', name: 'firstName', icon: User, required: true },
-                  { label: 'الاسم الأخير', name: 'lastName', icon: User, required: true },
-                  { label: 'رقم الهاتف', name: 'phone', icon: Phone, type: 'tel' },
-                  { label: 'المدينة', name: 'city', icon: MapPin },
-                  { label: 'الصف الدراسي', name: 'grade', icon: Book },
-                  { label: 'المدرسة', name: 'school', icon: School },
-                ].map(field => (
+                {fields.map(field => (
                   <div key={field.name} className="space-y-1.5">
                     <label className="text-sm font-medium text-surface-300">{field.label}</label>
                     <div className="relative">
-                      <field.icon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500" />
+                      <field.icon className={cn('absolute top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500', isRtl ? 'right-3' : 'left-3')} />
                       <input
                         type={(field as any).type || 'text'}
                         name={field.name}
                         value={(formData as any)[field.name]}
                         onChange={handleChange}
                         required={(field as any).required}
-                        className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2.5 pr-9 pl-4 text-white text-sm focus:outline-none focus:border-primary-500/50 transition-all"
+                        className={cn(
+                          'w-full bg-surface-900 border border-surface-800 rounded-xl py-2.5 text-white text-sm focus:outline-none focus:border-primary-500/50 transition-all',
+                          isRtl ? 'pr-9 pl-4' : 'pl-9 pr-4'
+                        )}
                       />
                     </div>
                   </div>
@@ -178,14 +187,14 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-surface-300">نبذة تعريفية</label>
+                <label className="text-sm font-medium text-surface-300">{t('profile.bio')}</label>
                 <textarea
                   name="bio"
                   value={formData.bio}
                   onChange={handleChange}
                   rows={3}
                   className="w-full bg-surface-900 border border-surface-800 rounded-xl p-4 text-white text-sm focus:outline-none focus:border-primary-500/50 transition-all resize-none"
-                  placeholder="اكتب نبذة قصيرة عن نفسك..."
+                  placeholder={t('profile.bioPlaceholder')}
                 />
               </div>
 
@@ -195,7 +204,7 @@ export default function ProfilePage() {
                   disabled={loading}
                   className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium transition-all shadow-lg shadow-primary-500/20 disabled:opacity-50"
                 >
-                  {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Save className="w-5 h-5" /> حفظ التغييرات</>}
+                  {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Save className="w-5 h-5" /> {t('profile.saveChanges')}</>}
                 </button>
               </div>
             </form>
@@ -208,7 +217,7 @@ export default function ProfilePage() {
         <div>
           <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <Award className="w-5 h-5 text-amber-400" />
-            الإنجازات المكتسبة ({earnedAchievements.length})
+            {t('profile.achievements', { count: earnedAchievements.length })}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             {earnedAchievements.map((a: any) => (
@@ -227,7 +236,7 @@ export default function ProfilePage() {
         <div>
           <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <Award className="w-5 h-5 text-emerald-400" />
-            شهاداتي ({certificates.length})
+            {t('profile.certificates', { count: certificates.length })}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {certificates.map((cert: any) => (
@@ -238,7 +247,7 @@ export default function ProfilePage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-white text-sm truncate">{cert.course?.title}</p>
                   <p className="text-xs text-surface-400 mt-0.5">
-                    {new Date(cert.issueDate).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    {new Date(cert.issueDate).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </p>
                 </div>
                 <Link

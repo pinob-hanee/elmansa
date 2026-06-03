@@ -2,9 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { PlayCircle, Clock, BookOpen, Layers, CheckCircle2, FileText, Award } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { studentCoursesApi } from '../../features/courses/api/student.courses';
 
 export default function CourseDetailPage() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -17,7 +20,7 @@ export default function CourseDetailPage() {
   const enrollMutation = useMutation({
     mutationFn: () => studentCoursesApi.enroll(course.id),
     onSuccess: () => {
-      toast.success('تم التسجيل بنجاح!');
+      toast.success(t('courses.enrollSuccess'));
       queryClient.invalidateQueries({ queryKey: ['course', slug] });
       const firstLesson = course?.modules?.[0]?.chapters?.[0]?.lessons?.[0];
       if (firstLesson) {
@@ -25,7 +28,7 @@ export default function CourseDetailPage() {
       }
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'حدث خطأ أثناء التسجيل');
+      toast.error(err.response?.data?.message || t('courses.enrollError'));
     }
   });
 
@@ -38,7 +41,7 @@ export default function CourseDetailPage() {
     );
   }
 
-  if (!course) return <div className="text-white text-center py-20">كورس غير موجود</div>;
+  if (!course) return <div className="text-white text-center py-20">{t('courses.notFound')}</div>;
 
   const isEnrolled = course.isEnrolled;
   const isCompleted = course.enrollmentStatus === 'COMPLETED';
@@ -48,21 +51,30 @@ export default function CourseDetailPage() {
     if (isEnrolled && firstLesson) {
       navigate(`/courses/${slug}/lesson/${firstLesson.id}`);
     } else if (isEnrolled && !firstLesson) {
-      toast.error('لا توجد دروس متاحة في هذا الكورس حالياً');
+      toast.error(t('courses.noLessonsAvailable'));
     } else {
       enrollMutation.mutate();
     }
   };
 
   const buttonLabel = () => {
-    if (enrollMutation.isPending) return 'جاري التحميل...';
-    if (isCompleted) return 'مراجعة الكورس مرة أخرى';
-    if (isEnrolled) return 'متابعة التعلم';
-    return 'ابدأ التعلم الآن';
+    if (enrollMutation.isPending) return t('common.loading');
+    if (isCompleted) return t('courses.reviewCourse');
+    if (isEnrolled) return t('courses.resumeLearning');
+    return t('courses.startLearning');
+  };
+
+  const levelLabel = (level: string) => {
+    const map: Record<string, string> = {
+      BEGINNER: t('courses.beginner'),
+      INTERMEDIATE: t('courses.intermediate'),
+      ADVANCED: t('courses.advanced'),
+    };
+    return map[level] || t('courses.allLevels');
   };
 
   return (
-    <div dir="rtl" className="max-w-5xl mx-auto pb-20">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="max-w-5xl mx-auto pb-20">
       {/* Hero Section */}
       <div className="relative rounded-3xl overflow-hidden glass border border-white/5 mb-8">
         <div className="absolute inset-0 bg-gradient-to-r from-surface-950 via-surface-950/80 to-transparent z-10" />
@@ -76,16 +88,16 @@ export default function CourseDetailPage() {
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-4">
               <span className="px-3 py-1 rounded-full bg-primary-500/20 text-primary-400 text-sm font-medium border border-primary-500/20">
-                {course.category?.name || 'عام'}
+                {course.category?.name || t('courses.general')}
               </span>
               <span className="text-surface-400 text-sm flex items-center gap-1">
                 <Layers className="w-4 h-4" />
-                {course.level === 'BEGINNER' ? 'مبتدئ' : course.level === 'INTERMEDIATE' ? 'متوسط' : course.level === 'ADVANCED' ? 'متقدم' : 'جميع المستويات'}
+                {levelLabel(course.level)}
               </span>
               {isCompleted && (
                 <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-medium border border-emerald-500/20 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  مكتمل
+                  {t('courses.completed')}
                 </span>
               )}
             </div>
@@ -100,11 +112,11 @@ export default function CourseDetailPage() {
             <div className="flex items-center gap-6 text-surface-400 mb-8">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5" />
-                <span>{course.modules?.length || 0} وحدات</span>
+                <span>{course.modules?.length || 0} {t('courses.modules')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
-                <span>الوصول مدى الحياة</span>
+                <span>{t('courses.lifetimeAccess')}</span>
               </div>
             </div>
 
@@ -118,38 +130,32 @@ export default function CourseDetailPage() {
                 <PlayCircle className="w-6 h-6" />
               </button>
 
-              {/* Show certificate link if completed */}
               {isCompleted && (
                 <Link
                   to="/profile"
                   className="flex items-center gap-2 px-6 py-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 font-bold transition-all"
                 >
                   <Award className="w-5 h-5" />
-                  عرض الشهادة
+                  {t('courses.viewCertificate')}
                 </Link>
               )}
             </div>
           </div>
 
           <div className="w-full md:w-80 glass rounded-2xl p-6 border border-white/5 shrink-0 bg-surface-900/50 backdrop-blur-xl">
-            <h3 className="font-bold text-white text-xl mb-4">هذا الكورس يتضمن:</h3>
+            <h3 className="font-bold text-white text-xl mb-4">{t('courses.includes')}</h3>
             <ul className="space-y-4">
-              <li className="flex items-center gap-3 text-surface-300">
-                <CheckCircle2 className="w-5 h-5 text-primary-500 shrink-0" />
-                <span>شرح فيديو عالي الجودة</span>
-              </li>
-              <li className="flex items-center gap-3 text-surface-300">
-                <CheckCircle2 className="w-5 h-5 text-primary-500 shrink-0" />
-                <span>ملفات PDF ومراجع للتنزيل</span>
-              </li>
-              <li className="flex items-center gap-3 text-surface-300">
-                <CheckCircle2 className="w-5 h-5 text-primary-500 shrink-0" />
-                <span>اختبارات لتقييم مستواك</span>
-              </li>
-              <li className="flex items-center gap-3 text-surface-300">
-                <CheckCircle2 className="w-5 h-5 text-primary-500 shrink-0" />
-                <span>شهادة إتمام بنهاية الكورس</span>
-              </li>
+              {[
+                t('courses.includesVideo'),
+                t('courses.includesPdf'),
+                t('courses.includesQuiz'),
+                t('courses.includesCertificate'),
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-surface-300">
+                  <CheckCircle2 className="w-5 h-5 text-primary-500 shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
@@ -157,12 +163,12 @@ export default function CourseDetailPage() {
 
       {/* Curriculum */}
       <div className="max-w-3xl">
-        <h2 className="text-2xl font-bold text-white mb-6">محتوى الكورس</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">{t('courses.curriculum')}</h2>
         <div className="space-y-4">
           {course.modules?.map((module: any, index: number) => (
             <div key={module.id} className="glass rounded-2xl border border-white/5 overflow-hidden">
               <div className="p-5 bg-surface-800/50 flex items-center justify-between">
-                <h3 className="font-bold text-white">الوحدة {index + 1}: {module.title}</h3>
+                <h3 className="font-bold text-white">{t('courses.unit')} {index + 1}: {module.title}</h3>
               </div>
               <div className="p-3 divide-y divide-surface-800/50">
                 {module.chapters?.map((chapter: any) => (
@@ -178,7 +184,7 @@ export default function CourseDetailPage() {
                         <span className="flex-1 text-surface-200">{lesson.title}</span>
                         {lesson.isFree && (
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-success/20 text-success border border-success/20">
-                            مجاني
+                            {t('courses.lessonFree')}
                           </span>
                         )}
                       </div>
