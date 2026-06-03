@@ -182,7 +182,7 @@ export default function LessonPage() {
                   متصفحك لا يدعم مشغل الفيديو.
                 </video>
               </div>
-            )
+            ) : null
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-surface-400">
               لا يوجد فيديو لهذا الدرس
