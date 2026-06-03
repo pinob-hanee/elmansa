@@ -5,7 +5,7 @@ import { communityApi } from '../api/community';
 import api from '../../../lib/api';
 import { useAuthStore } from '../../../store/authStore';
 import { cn } from '../../../lib/utils';
-import EmojiPicker, { Theme, EmojiClickData } from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import toast from 'react-hot-toast';
 
 export default function CreatePost() {
@@ -38,7 +38,7 @@ export default function CreatePost() {
     createMutation.mutate({ content, imageUrls: imageUrl ? [imageUrl] : [] });
   };
 
-  const onEmojiClick = (emojiData: EmojiClickData) => {
+  const onEmojiClick = (emojiData: any) => {
     setContent(prev => prev + emojiData.emoji);
   };
 
