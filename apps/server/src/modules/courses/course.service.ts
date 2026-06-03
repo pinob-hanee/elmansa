@@ -263,11 +263,16 @@ export class CourseService {
       if (!enrollment) throw new ForbiddenError('You are not enrolled in this course');
     }
 
-    if (!lesson.videoKey) throw new NotFoundError('Video not found');
+    let fileKey = lesson.videoKey;
+    if (lesson.type === 'PDF') {
+      fileKey = lesson.pdfKey;
+    }
+
+    if (!fileKey) throw new NotFoundError('Content not found for this lesson');
 
     // Generate signed URL
     const { generateSignedUrl } = await import('../media/media.service');
-    return generateSignedUrl(lesson.videoKey);
+    return generateSignedUrl(fileKey);
   }
 
   async updateLessonProgress(lessonId: string, userId: string, watchedTime: number) {

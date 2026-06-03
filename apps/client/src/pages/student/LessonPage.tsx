@@ -108,35 +108,54 @@ export default function LessonPage() {
               <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : videoData?.url ? (
-            <div className="w-full h-full lg:max-h-[80vh] bg-black">
-              <video
-                src={videoData.url}
-                controls
-                controlsList="nodownload"
-                className="w-full h-full outline-none"
-                onTimeUpdate={(e) => {
-                  const video = e.target as HTMLVideoElement;
-                  // Auto-save every 30 seconds (using ref to avoid re-renders)
-                  if (!progressTimerRef.current) {
-                    progressTimerRef.current = setInterval(() => {
-                      if (!video.paused && video.currentTime > 0) {
-                        studentCoursesApi.updateProgress(lessonId!, Math.floor(video.currentTime));
-                      }
-                    }, 30000);
-                  }
-                }}
-                onEnded={(e) => {
-                  if (progressTimerRef.current) {
-                    clearInterval(progressTimerRef.current);
-                    progressTimerRef.current = null;
-                  }
-                  const target = e.target as HTMLVideoElement;
-                  updateProgressMutation.mutate(target.duration || currentLesson?.videoDuration || 1000);
-                }}
-              >
-                متصفحك لا يدعم مشغل الفيديو.
-              </video>
-            </div>
+            currentLesson?.type === 'PDF' ? (
+              <div className="w-full h-full lg:max-h-[80vh] bg-surface-950 flex flex-col">
+                <iframe 
+                  src={videoData.url} 
+                  className="flex-1 w-full"
+                  title="Document Viewer"
+                />
+                <div className="p-4 bg-surface-900 border-t border-surface-800 flex justify-end">
+                  <button 
+                    onClick={() => updateProgressMutation.mutate(currentLesson?.videoDuration || 1000)}
+                    disabled={updateProgressMutation.isPending}
+                    className="px-6 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    أكملت قراءة المستند
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full h-full lg:max-h-[80vh] bg-black">
+                <video
+                  src={videoData.url}
+                  controls
+                  controlsList="nodownload"
+                  className="w-full h-full outline-none"
+                  onTimeUpdate={(e) => {
+                    const video = e.target as HTMLVideoElement;
+                    if (!progressTimerRef.current) {
+                      progressTimerRef.current = setInterval(() => {
+                        if (!video.paused && video.currentTime > 0) {
+                          studentCoursesApi.updateProgress(lessonId!, Math.floor(video.currentTime));
+                        }
+                      }, 30000);
+                    }
+                  }}
+                  onEnded={(e) => {
+                    if (progressTimerRef.current) {
+                      clearInterval(progressTimerRef.current);
+                      progressTimerRef.current = null;
+                    }
+                    const target = e.target as HTMLVideoElement;
+                    updateProgressMutation.mutate(target.duration || currentLesson?.videoDuration || 1000);
+                  }}
+                >
+                  متصفحك لا يدعم مشغل الفيديو.
+                </video>
+              </div>
+            )
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-surface-400">
               لا يوجد فيديو لهذا الدرس

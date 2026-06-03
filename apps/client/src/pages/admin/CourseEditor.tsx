@@ -143,29 +143,29 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
           />
 
           <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <button 
-              onClick={handleUploadClick}
-              disabled={isUploading}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all relative overflow-hidden",
-                isUploading ? "bg-surface-800 text-primary-400" :
-                "bg-surface-800 text-surface-400 hover:text-white hover:bg-surface-700"
-              )}
-            >
-              {isUploading && (
-                <div className="absolute inset-y-0 right-0 bg-primary-500/20 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-              )}
-              <span className="relative z-10 flex items-center gap-1.5">
-                {isUploading ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : hasMedia ? (
-                  <Edit2 className="w-3.5 h-3.5" />
-                ) : (
-                  <UploadCloud className="w-3.5 h-3.5" />
+            {!hasMedia || isUploading ? (
+              <button 
+                onClick={handleUploadClick}
+                disabled={isUploading}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all relative overflow-hidden",
+                  isUploading ? "bg-surface-800 text-primary-400" :
+                  "bg-surface-800 text-surface-400 hover:text-white hover:bg-surface-700"
                 )}
-                {isUploading ? `جاري الرفع ${uploadProgress}%` : hasMedia ? 'تغيير' : 'رفع ملف'}
-              </span>
-            </button>
+              >
+                {isUploading && (
+                  <div className="absolute inset-y-0 right-0 bg-primary-500/20 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  {isUploading ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <UploadCloud className="w-3.5 h-3.5" />
+                  )}
+                  {isUploading ? `جاري الرفع ${uploadProgress}%` : 'رفع ملف'}
+                </span>
+              </button>
+            ) : null}
 
             {hasMedia && !isUploading && (
               <button 
