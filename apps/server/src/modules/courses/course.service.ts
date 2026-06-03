@@ -263,6 +263,10 @@ export class CourseService {
       if (!enrollment) throw new ForbiddenError('You are not enrolled in this course');
     }
 
+    if (lesson.type === 'TEXT') {
+      return { content: lesson.content || '' };
+    }
+
     let fileKey = lesson.videoKey;
     let resourceType: 'video' | 'image' | 'raw' | 'auto' = 'video';
     let format: string | undefined = undefined;
@@ -277,7 +281,7 @@ export class CourseService {
 
     // Generate signed URL
     const { generateSignedUrl } = await import('../media/media.service');
-    return generateSignedUrl(fileKey, resourceType, format);
+    return { url: generateSignedUrl(fileKey, resourceType, format) };
   }
 
   async updateLessonProgress(lessonId: string, userId: string, watchedTime: number) {

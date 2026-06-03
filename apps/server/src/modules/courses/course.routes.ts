@@ -115,11 +115,11 @@ router.post('/:id/enroll', authenticate, requireApprovedStudent, async (req, res
   } catch (e) { next(e); }
 });
 
-// Video URL (signed)
+// Video URL (signed) or Lesson Content
 router.get('/lessons/:lessonId/video', authenticate, requireApprovedStudent, async (req, res, next) => {
   try {
-    const url = await svc.getLessonVideoUrl(req.params.lessonId, req.user!.userId);
-    successResponse(res, { url });
+    const data = await svc.getLessonVideoUrl(req.params.lessonId, req.user!.userId);
+    successResponse(res, data);
   } catch (e) { next(e); }
 });
 

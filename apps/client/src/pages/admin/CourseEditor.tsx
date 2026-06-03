@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { adminCoursesApi } from '../../features/courses/api/admin.courses';
 import QuizBuilder from '../../features/quiz/components/QuizBuilder';
+import TextEditorModal from './components/TextEditorModal';
 import toast from 'react-hot-toast';
 import { cn } from '../../lib/utils';
 
@@ -42,12 +43,13 @@ function AddItemForm({ placeholder, onAdd, onCancel }: { placeholder: string; on
 }
 
 function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
-  const typeColor = lesson.type === 'VIDEO' ? 'text-primary-400' : lesson.type === 'QUIZ' ? 'text-amber-400' : 'text-purple-400';
-  const TypeIcon = lesson.type === 'VIDEO' ? Video : FileText;
+  const typeColor = lesson.type === 'VIDEO' ? 'text-primary-400' : lesson.type === 'QUIZ' ? 'text-amber-400' : lesson.type === 'TEXT' ? 'text-blue-400' : 'text-purple-400';
+  const TypeIcon = lesson.type === 'VIDEO' ? Video : lesson.type === 'TEXT' ? Edit2 : FileText;
   
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showQuizBuilder, setShowQuizBuilder] = useState(false);
+  const [showTextEditor, setShowTextEditor] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
 
@@ -198,6 +200,27 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
           )}
         </>
       )}
+
+      {lesson.type === 'TEXT' && (
+        <>
+          <button 
+            onClick={() => setShowTextEditor(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded-lg text-xs font-medium transition-all opacity-0 group-hover:opacity-100"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+            تعديل المقال
+          </button>
+          
+          {showTextEditor && (
+            <TextEditorModal 
+              lessonId={lesson.id} 
+              courseId={courseId}
+              initialContent={lesson.content}
+              onClose={() => setShowTextEditor(false)} 
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -205,7 +228,7 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
 function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId: string; courseId: string }) {
   const [expanded, setExpanded] = useState(true);
   const [addingLesson, setAddingLesson] = useState(false);
-  const [lessonType, setLessonType] = useState<'VIDEO' | 'QUIZ' | 'PDF'>('VIDEO');
+  const [lessonType, setLessonType] = useState<'VIDEO' | 'QUIZ' | 'PDF' | 'TEXT'>('VIDEO');
   const qc = useQueryClient();
 
   const addLessonMutation = useMutation({
@@ -232,8 +255,8 @@ function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId:
 
           {addingLesson ? (
             <div className="px-2 py-2 space-y-2">
-              <div className="flex gap-2">
-                {(['VIDEO', 'QUIZ', 'PDF'] as const).map(t => (
+              <div className="flex gap-2 flex-wrap">
+                {(['VIDEO', 'QUIZ', 'PDF', 'TEXT'] as const).map(t => (
                   <button
                     key={t}
                     onClick={() => setLessonType(t)}
@@ -241,7 +264,7 @@ function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId:
                       lessonType === t ? 'bg-primary-600/20 border-primary-500/50 text-primary-300' : 'bg-surface-800 border-surface-700 text-surface-400'
                     )}
                   >
-                    {t === 'VIDEO' ? '🎬 فيديو' : t === 'QUIZ' ? '📝 اختبار' : '📄 PDF'}
+                    {t === 'VIDEO' ? '🎬 فيديو' : t === 'QUIZ' ? '📝 اختبار' : t === 'PDF' ? '📄 PDF' : '✍️ مقال'}
                   </button>
                 ))}
               </div>

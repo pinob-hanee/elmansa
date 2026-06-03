@@ -6,6 +6,10 @@ import { ArrowRight, Menu, X, PlayCircle, FileText, CheckCircle2, HelpCircle, Tr
 import { studentCoursesApi } from '../../features/courses/api/student.courses';
 import StudentQuizViewer from '../../features/quiz/components/StudentQuizViewer';
 import { cn } from '../../lib/utils';
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
 export default function LessonPage() {
   const { slug, lessonId } = useParams();
@@ -13,6 +17,7 @@ export default function LessonPage() {
   const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
   const { data: course, isLoading: courseLoading } = useQuery({
     queryKey: ['course', slug],
@@ -107,14 +112,18 @@ export default function LessonPage() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : videoData?.url ? (
-            currentLesson?.type === 'PDF' ? (
-              <div className="w-full h-full lg:max-h-[80vh] bg-surface-950 flex flex-col">
-                <iframe 
-                  src={videoData.url} 
-                  className="flex-1 w-full"
-                  title="Document Viewer"
-                />
+          ) : videoData?.url || videoData?.content ? (
+            currentLesson?.type === 'PDF' && videoData.url ? (
+              <div className="w-full h-full lg:max-h-[80vh] bg-surface-950 flex flex-col overflow-hidden">
+                <div className="flex-1 w-full relative overflow-y-auto custom-scrollbar pdf-viewer-container" dir="ltr">
+                  <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                    <Viewer
+                      fileUrl={videoData.url}
+                      plugins={[defaultLayoutPluginInstance]}
+                      theme="dark"
+                    />
+                  </Worker>
+                </div>
                 <div className="p-4 bg-surface-900 border-t border-surface-800 flex justify-end">
                   <button 
                     onClick={() => updateProgressMutation.mutate(currentLesson?.videoDuration || 1000)}
@@ -126,7 +135,25 @@ export default function LessonPage() {
                   </button>
                 </div>
               </div>
-            ) : (
+            ) : currentLesson?.type === 'TEXT' && videoData.content ? (
+              <div className="w-full h-full lg:max-h-[80vh] bg-surface-950 flex flex-col overflow-hidden">
+                <div 
+                  className="flex-1 w-full relative overflow-y-auto custom-scrollbar p-6 md:p-12 prose prose-invert max-w-none prose-img:rounded-xl prose-a:text-primary-400"
+                  dir="rtl"
+                  dangerouslySetInnerHTML={{ __html: videoData.content }}
+                />
+                <div className="p-4 bg-surface-900 border-t border-surface-800 flex justify-end">
+                  <button 
+                    onClick={() => updateProgressMutation.mutate(currentLesson?.videoDuration || 1000)}
+                    disabled={updateProgressMutation.isPending}
+                    className="px-6 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    أكملت قراءة المقال
+                  </button>
+                </div>
+              </div>
+            ) : videoData.url ? (
               <div className="w-full h-full lg:max-h-[80vh] bg-black">
                 <video
                   src={videoData.url}
