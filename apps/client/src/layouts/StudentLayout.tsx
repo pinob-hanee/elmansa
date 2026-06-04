@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Code2, Home, Compass, Users, Bell, User,
-  Menu, X, LogOut, ChevronRight, Terminal
+  Code2, Home, Users, Bell, User,
+  Menu, X, LogOut, ChevronRight, Terminal, Zap
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
 import NotificationBell from '../features/notifications/components/NotificationBell';
-
+import { useQuery } from '@tanstack/react-query';
+import { gamificationApi } from '../features/gamification/api/gamification';
 import { useTranslation } from 'react-i18next';
-
 import LanguageSwitcher from '../components/layout/LanguageSwitcher';
 
 export default function StudentLayout() {
@@ -21,6 +21,21 @@ export default function StudentLayout() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const isRtl = i18n.language === 'ar';
+  const isPending = user?.approvalStatus === 'PENDING';
+
+  // Live XP / level — auto-updates when gamification-stats is invalidated
+  const { data: gamification } = useQuery({
+    queryKey: ['gamification-stats'],
+    queryFn: gamificationApi.getStats,
+    enabled: !isPending,
+    staleTime: 0, // Always re-fetch after invalidation
+  });
+
+  const xp = gamification?.profile?.xp ?? 0;
+  const level = gamification?.profile?.level ?? 1;
+  const XP_PER_LEVEL = 1000;
+  const xpInLevel = xp % XP_PER_LEVEL;
+  const xpPercent = Math.min(100, Math.round((xpInLevel / XP_PER_LEVEL) * 100));
 
   const navItems = [
     { icon: Home, label: t('nav.dashboard'), href: '/dashboard' },
@@ -107,23 +122,46 @@ export default function StudentLayout() {
         {/* User section */}
         <div className="p-3 border-t border-surface-800 shrink-0">
           {sidebarOpen ? (
-            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-800 transition-all group">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                {user?.profile?.firstName?.charAt(0) || 'U'}
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-800 transition-all group">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                  {user?.profile?.firstName?.charAt(0) || 'U'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">
+                    {user?.profile?.firstName} {user?.profile?.lastName}
+                  </p>
+                  <p className="text-xs text-surface-500 truncate">{user?.email}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="text-surface-500 hover:text-error transition-colors"
+                  title={t('nav.logout')}
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
-                  {user?.profile?.firstName} {user?.profile?.lastName}
-                </p>
-                <p className="text-xs text-surface-500 truncate">{user?.email}</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="text-surface-500 hover:text-error transition-colors"
-                title={t('nav.logout')}
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+
+              {/* XP / Level bar */}
+              {!isPending && (
+                <div className="px-2 pb-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-1 text-xs text-amber-400 font-bold">
+                      <Zap className="w-3 h-3" />
+                      {isRtl ? `المستوى ${level}` : `Level ${level}`}
+                    </div>
+                    <span className="text-[10px] text-surface-500 font-mono">{xpInLevel}/{XP_PER_LEVEL} XP</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-surface-800 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${xpPercent}%` }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <button

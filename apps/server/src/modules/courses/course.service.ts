@@ -55,9 +55,12 @@ export class CourseService {
   }
 
   async getCourseBySlug(slug: string, userId?: string) {
+    // Only cache the public (no-user) version to avoid stale progress data
     const cacheKey = `course:${slug}`;
-    const cached = await cache.get<any>(cacheKey);
-    if (cached) return cached;
+    if (!userId) {
+      const cached = await cache.get<any>(cacheKey);
+      if (cached) return cached;
+    }
 
     const course = await prisma.course.findUnique({
       where: { slug },
@@ -96,18 +99,45 @@ export class CourseService {
 
     let isEnrolled = false;
     let enrollmentStatus: string | null = null;
+    let completedLessonIds = new Set<string>();
+
     if (userId) {
-      const enrollment = await prisma.enrollment.findUnique({
-        where: { userId_courseId: { userId, courseId: course.id } }
-      });
+      const [enrollment, progressRecords] = await Promise.all([
+        prisma.enrollment.findUnique({
+          where: { userId_courseId: { userId, courseId: course.id } }
+        }),
+        prisma.lessonProgress.findMany({
+          where: { userId, isCompleted: true },
+          select: { lessonId: true },
+        }),
+      ]);
+
       if (enrollment && enrollment.status !== 'DROPPED') {
         isEnrolled = true;
         enrollmentStatus = enrollment.status;
       }
+
+      completedLessonIds = new Set(progressRecords.map((p) => p.lessonId));
     }
 
-    const response = { ...course, isEnrolled, enrollmentStatus };
-    await cache.set(cacheKey + (userId ? `:${userId}` : ''), response, 600); // 10 min cache
+    // Inject isCompleted into each lesson
+    const modulesWithProgress = course.modules.map((mod) => ({
+      ...mod,
+      chapters: mod.chapters.map((ch) => ({
+        ...ch,
+        lessons: ch.lessons.map((lesson) => ({
+          ...lesson,
+          isCompleted: completedLessonIds.has(lesson.id),
+        })),
+      })),
+    }));
+
+    const response = { ...course, modules: modulesWithProgress, isEnrolled, enrollmentStatus };
+
+    if (!userId) {
+      await cache.set(cacheKey, response, 600);
+    }
+
     return response;
   }
 
@@ -289,6 +319,7 @@ export class CourseService {
       where: { id: lessonId },
       select: {
         videoDuration: true,
+        type: true,
         chapter: {
           select: {
             module: {
@@ -303,9 +334,10 @@ export class CourseService {
 
     const courseId = lesson.chapter.module.courseId;
 
+    // Videos: need 90% watched. PDF, TEXT, QUIZ: always mark completed on progress update
     const isCompleted = lesson?.videoDuration
       ? watchedTime / lesson.videoDuration >= 0.9
-      : false;
+      : true; // PDF, TEXT, QUIZ — any progress call = completed
 
     const existing = await prisma.lessonProgress.findUnique({
       where: { userId_lessonId: { userId, lessonId } }

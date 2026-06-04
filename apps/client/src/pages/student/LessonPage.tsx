@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { ArrowRight, Menu, X, PlayCircle, FileText, CheckCircle2, HelpCircle, Trophy, Award } from 'lucide-react';
+import { ArrowRight, Menu, X, PlayCircle, FileText, CheckCircle2, HelpCircle, Lock } from 'lucide-react';
 import { studentCoursesApi } from '../../features/courses/api/student.courses';
 import StudentQuizViewer from '../../features/quiz/components/StudentQuizViewer';
 import { cn } from '../../lib/utils';
@@ -10,11 +10,14 @@ import { Worker, Viewer } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { useTranslation } from 'react-i18next';
 
 export default function LessonPage() {
   const { slug, lessonId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
@@ -32,22 +35,54 @@ export default function LessonPage() {
   const updateProgressMutation = useMutation({
     mutationFn: (watchedTime: number) => studentCoursesApi.updateProgress(lessonId!, watchedTime),
     onSuccess: (data) => {
+      // Always re-fetch course so sidebar checkmarks update
+      queryClient.invalidateQueries({ queryKey: ['course', slug] });
+
       if (data?.xpEarned > 0) {
-        toast.success(`+${data.xpEarned} XP! أكملت الدرس 🌟`, { duration: 3000 });
+        // Always refresh XP/level stats after earning XP
+        queryClient.invalidateQueries({ queryKey: ['gamification-stats'] });
+        queryClient.invalidateQueries({ queryKey: ['student-dashboard'] });
+
+        const xpMsg = isRtl
+          ? `+${data.xpEarned} XP! أكملت الدرس 🌟`
+          : `+${data.xpEarned} XP! Lesson completed 🌟`;
+        toast.success(xpMsg, { duration: 3000 });
+
+        // Level up notification
+        if (data?.leveledUp) {
+          setTimeout(() => {
+            const lvlMsg = isRtl ? '🚀 ارتقيت مستوى!' : '🚀 Level Up!';
+            toast.success(lvlMsg, {
+              duration: 5000,
+              style: {
+                background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+                color: '#fff',
+                fontWeight: 'bold',
+              },
+            });
+          }, 800);
+        }
       }
-      // Show badge unlocks
+
+      // Badge unlocks
       if (data?.newBadges?.length > 0) {
         data.newBadges.forEach((badge: string, i: number) => {
           setTimeout(() => {
-            toast.success(`🏆 إنجاز جديد: ${badge}!`, { duration: 5000, icon: '🎖️' });
+            const badgeMsg = isRtl ? `🏆 إنجاز جديد: ${badge}!` : `🏆 New Achievement: ${badge}!`;
+            toast.success(badgeMsg, { duration: 5000, icon: '🎖️' });
           }, i * 1500);
         });
       }
+
       // Course completion celebration
       if (data?.courseCompleted) {
         queryClient.invalidateQueries({ queryKey: ['gamification-stats'] });
+        queryClient.invalidateQueries({ queryKey: ['student-dashboard'] });
         setTimeout(() => {
-          toast.success('🎓 مبروك! أكملت الكورس بنجاح! شهادتك جاهزة 🎉', {
+          const completeMsg = isRtl
+            ? '🎓 مبروك! أكملت الكورس بنجاح! شهادتك جاهزة 🎉'
+            : '🎓 Congratulations! Course completed! Your certificate is ready 🎉';
+          toast.success(completeMsg, {
             duration: 8000,
             style: {
               background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
@@ -58,24 +93,39 @@ export default function LessonPage() {
           });
         }, 2000);
       }
-    }
+    },
   });
 
-  // Find current lesson details to get title/type
+  // Calculate overall completion %
+  let totalLessons = 0;
+  let completedLessons = 0;
   let currentLesson: any = null;
+
   course?.modules?.forEach((m: any) => {
     m.chapters?.forEach((c: any) => {
       c.lessons?.forEach((l: any) => {
+        totalLessons++;
+        if (l.isCompleted) completedLessons++;
         if (l.id === lessonId) currentLesson = l;
       });
     });
   });
 
-  if (courseLoading) return <div className="p-8 text-center text-white">جاري التحميل...</div>;
-  if (!course) return <div className="p-8 text-center text-white">لم يتم العثور على الكورس</div>;
+  const completionPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+  if (courseLoading) return (
+    <div className="h-screen flex items-center justify-center bg-surface-950">
+      <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+  if (!course) return (
+    <div className="p-8 text-center text-white">
+      {isRtl ? 'لم يتم العثور على الكورس' : 'Course not found'}
+    </div>
+  );
 
   return (
-    <div dir="rtl" className="h-screen flex flex-col bg-surface-950 overflow-hidden">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="h-screen flex flex-col bg-surface-950 overflow-hidden">
       {/* Header */}
       <header className="h-16 shrink-0 glass border-b border-surface-800 flex items-center justify-between px-4 z-20">
         <div className="flex items-center gap-4">
@@ -83,11 +133,25 @@ export default function LessonPage() {
             onClick={() => navigate(`/courses/${slug}`)}
             className="p-2 text-surface-400 hover:text-white transition-colors rounded-lg hover:bg-surface-800"
           >
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className={cn('w-5 h-5', !isRtl && 'rotate-180')} />
           </button>
           <div className="w-px h-6 bg-surface-800" />
           <h1 className="font-bold text-white line-clamp-1">{course.title}</h1>
         </div>
+
+        {/* Progress bar in header */}
+        <div className="hidden md:flex items-center gap-3">
+          <div className="w-32 h-2 bg-surface-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-primary-500 to-purple-500 rounded-full transition-all duration-700"
+              style={{ width: `${completionPercent}%` }}
+            />
+          </div>
+          <span className="text-sm text-surface-400 font-mono">
+            {completionPercent}%
+          </span>
+        </div>
+
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="lg:hidden p-2 text-surface-400 hover:text-white"
@@ -101,11 +165,11 @@ export default function LessonPage() {
         <main className="flex-1 overflow-y-auto bg-black relative">
           {currentLesson?.type === 'QUIZ' ? (
             <div className="w-full h-full bg-surface-950 overflow-y-auto">
-              <StudentQuizViewer 
-                lessonId={lessonId!} 
+              <StudentQuizViewer
+                lessonId={lessonId!}
                 onComplete={() => {
                   updateProgressMutation.mutate(currentLesson?.videoDuration || 1000);
-                }} 
+                }}
               />
             </div>
           ) : videoLoading ? (
@@ -125,31 +189,45 @@ export default function LessonPage() {
                   </Worker>
                 </div>
                 <div className="p-4 bg-surface-900 border-t border-surface-800 flex justify-end">
-                  <button 
+                  <button
                     onClick={() => updateProgressMutation.mutate(currentLesson?.videoDuration || 1000)}
-                    disabled={updateProgressMutation.isPending}
-                    className="px-6 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                    disabled={updateProgressMutation.isPending || currentLesson?.isCompleted}
+                    className={cn(
+                      'px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2',
+                      currentLesson?.isCompleted
+                        ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 cursor-default'
+                        : 'bg-primary-600 hover:bg-primary-500 text-white'
+                    )}
                   >
                     <CheckCircle2 className="w-5 h-5" />
-                    أكملت قراءة المستند
+                    {currentLesson?.isCompleted
+                      ? (isRtl ? '✅ تم الإكمال' : '✅ Completed')
+                      : (isRtl ? 'أكملت قراءة المستند' : 'Mark as Read')}
                   </button>
                 </div>
               </div>
             ) : currentLesson?.type === 'TEXT' && videoData.content ? (
               <div className="w-full h-full lg:max-h-[80vh] bg-surface-950 flex flex-col overflow-hidden">
-                <div 
+                <div
                   className="flex-1 w-full relative overflow-y-auto custom-scrollbar p-6 md:p-12 prose prose-invert max-w-none prose-img:rounded-xl prose-a:text-primary-400"
-                  dir="rtl"
+                  dir={isRtl ? 'rtl' : 'ltr'}
                   dangerouslySetInnerHTML={{ __html: videoData.content }}
                 />
                 <div className="p-4 bg-surface-900 border-t border-surface-800 flex justify-end">
-                  <button 
+                  <button
                     onClick={() => updateProgressMutation.mutate(currentLesson?.videoDuration || 1000)}
-                    disabled={updateProgressMutation.isPending}
-                    className="px-6 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                    disabled={updateProgressMutation.isPending || currentLesson?.isCompleted}
+                    className={cn(
+                      'px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2',
+                      currentLesson?.isCompleted
+                        ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 cursor-default'
+                        : 'bg-primary-600 hover:bg-primary-500 text-white'
+                    )}
                   >
                     <CheckCircle2 className="w-5 h-5" />
-                    أكملت قراءة المقال
+                    {currentLesson?.isCompleted
+                      ? (isRtl ? '✅ تم الإكمال' : '✅ Completed')
+                      : (isRtl ? 'أكملت قراءة المقال' : 'Mark as Read')}
                   </button>
                 </div>
               </div>
@@ -179,20 +257,19 @@ export default function LessonPage() {
                     updateProgressMutation.mutate(target.duration || currentLesson?.videoDuration || 1000);
                   }}
                 >
-                  متصفحك لا يدعم مشغل الفيديو.
+                  {isRtl ? 'متصفحك لا يدعم مشغل الفيديو.' : 'Your browser does not support the video player.'}
                 </video>
               </div>
             ) : null
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-surface-400">
-              لا يوجد فيديو لهذا الدرس
+              {isRtl ? 'لا يوجد محتوى لهذا الدرس' : 'No content for this lesson'}
             </div>
           )}
-          
+
           {currentLesson?.type !== 'QUIZ' && (
             <div className="p-6 max-w-4xl mx-auto">
               <h2 className="text-2xl font-bold text-white mb-4">{currentLesson?.title}</h2>
-              {/* Description or attachments would go here */}
             </div>
           )}
         </main>
@@ -200,59 +277,92 @@ export default function LessonPage() {
         {/* Sidebar (Curriculum) */}
         <aside
           className={cn(
-            "absolute lg:static inset-y-0 right-0 w-80 bg-surface-900 border-l border-surface-800 z-10 transition-transform duration-300 flex flex-col",
-            sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+            'absolute lg:static inset-y-0 right-0 w-80 bg-surface-900 border-l border-surface-800 z-10 transition-transform duration-300 flex flex-col',
+            isRtl
+              ? (sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0')
+              : (sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0')
           )}
         >
+          {/* Sidebar header with progress */}
           <div className="p-4 border-b border-surface-800 shrink-0">
-            <h3 className="font-bold text-white">محتوى الكورس</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-white text-sm">
+                {isRtl ? 'محتوى الكورس' : 'Course Content'}
+              </h3>
+              <span className="text-xs text-primary-400 font-mono font-bold">
+                {completedLessons}/{totalLessons}
+              </span>
+            </div>
+            {/* Progress bar */}
+            <div className="w-full h-1.5 bg-surface-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-primary-500 to-emerald-400 rounded-full transition-all duration-700"
+                style={{ width: `${completionPercent}%` }}
+              />
+            </div>
+            <p className="text-xs text-surface-500 mt-1">
+              {isRtl ? `${completionPercent}% مكتمل` : `${completionPercent}% complete`}
+            </p>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto p-3 space-y-3">
             {course.modules?.map((module: any, mIdx: number) => (
               <div key={module.id} className="space-y-1">
-                <div className="px-2 py-1.5 text-xs font-bold text-surface-400 uppercase">
-                  الوحدة {mIdx + 1}: {module.title}
+                <div className="px-2 py-1.5 text-xs font-bold text-surface-400 uppercase flex items-center gap-2">
+                  {isRtl ? `الوحدة ${mIdx + 1}: ${module.title}` : `Module ${mIdx + 1}: ${module.title}`}
                 </div>
                 {module.chapters?.map((chapter: any) => (
-                  <div key={chapter.id} className="space-y-1">
+                  <div key={chapter.id} className="space-y-0.5">
                     {chapter.lessons?.map((lesson: any) => {
                       const isActive = lesson.id === lessonId;
-                      // const isCompleted = false; // Add progress logic later
-                      
+                      const isDone = lesson.isCompleted;
+
                       return (
                         <Link
                           key={lesson.id}
                           to={`/courses/${slug}/lesson/${lesson.id}`}
                           className={cn(
-                            "flex items-start gap-3 p-2.5 rounded-xl transition-colors",
-                            isActive 
-                              ? "bg-primary-500/10 border border-primary-500/20" 
-                              : "hover:bg-surface-800 border border-transparent"
+                            'flex items-start gap-3 p-2.5 rounded-xl transition-all',
+                            isActive
+                              ? 'bg-primary-500/10 border border-primary-500/20'
+                              : isDone
+                                ? 'hover:bg-emerald-500/5 border border-transparent'
+                                : 'hover:bg-surface-800 border border-transparent'
                           )}
                         >
-                          <div className="mt-0.5">
-                            {lesson.type === 'VIDEO' ? (
-                              <PlayCircle className={cn("w-4 h-4", isActive ? "text-primary-400" : "text-surface-500")} />
+                          {/* Icon / completion state */}
+                          <div className="mt-0.5 shrink-0">
+                            {isDone ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            ) : lesson.type === 'VIDEO' ? (
+                              <PlayCircle className={cn('w-4 h-4', isActive ? 'text-primary-400' : 'text-surface-500')} />
                             ) : lesson.type === 'QUIZ' ? (
-                              <HelpCircle className={cn("w-4 h-4", isActive ? "text-amber-400" : "text-surface-500")} />
+                              <HelpCircle className={cn('w-4 h-4', isActive ? 'text-amber-400' : 'text-surface-500')} />
                             ) : (
-                              <FileText className={cn("w-4 h-4", isActive ? "text-purple-400" : "text-surface-500")} />
+                              <FileText className={cn('w-4 h-4', isActive ? 'text-purple-400' : 'text-surface-500')} />
                             )}
                           </div>
+
                           <div className="flex-1 min-w-0">
                             <p className={cn(
-                              "text-sm font-medium line-clamp-2 leading-snug",
-                              isActive ? "text-primary-400" : "text-surface-300"
+                              'text-sm font-medium line-clamp-2 leading-snug',
+                              isActive ? 'text-primary-400' : isDone ? 'text-emerald-400/80' : 'text-surface-300'
                             )}>
                               {lesson.title}
                             </p>
                             {lesson.duration && (
                               <span className="text-[10px] text-surface-500 mt-1 block">
-                                {Math.floor(lesson.duration / 60)} دقيقة
+                                {Math.floor(lesson.duration / 60)} {isRtl ? 'دقيقة' : 'min'}
                               </span>
                             )}
                           </div>
+
+                          {/* Free badge */}
+                          {lesson.isFree && !isDone && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 font-bold shrink-0">
+                              {isRtl ? 'مجاني' : 'FREE'}
+                            </span>
+                          )}
                         </Link>
                       );
                     })}
