@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminCoursesApi } from "../../courses/api/admin.courses";
 import { Plus, Trash2, Save, X, HelpCircle, CheckCircle2, AlertCircle } from 'lucide-react';
@@ -147,17 +148,28 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
     setQuestions(newQs);
   };
 
-  if (isLoading) return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  if (isLoading) return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="bg-surface-950 border border-surface-800 rounded-3xl p-12 flex flex-col items-center gap-4">
         <div className="w-10 h-10 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
         <p className="text-surface-400">{isRtl ? 'جاري تحميل الاختبار...' : 'Loading quiz...'}</p>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir={isRtl ? 'rtl' : 'ltr'}>
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      dir={isRtl ? 'rtl' : 'ltr'}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div className="bg-surface-950 border border-surface-800 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
         
         {/* Header */}
@@ -349,6 +361,7 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
