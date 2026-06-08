@@ -17,6 +17,7 @@ import LanguageSwitcher from '../components/layout/LanguageSwitcher';
 export default function StudentLayout() {
   const { t, i18n } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
@@ -38,17 +39,20 @@ export default function StudentLayout() {
   const xpPercent = Math.min(100, Math.round((xpInLevel / XP_PER_LEVEL) * 100));
 
   const navItems = [
-    { icon: Home, label: t('nav.dashboard'), href: '/dashboard' },
-    { icon: Terminal, label: t('nav.courses'), href: '/courses' },
-    { icon: Users, label: t('nav.community'), href: '/community' },
-    { icon: Bell, label: t('nav.notifications', 'الإشعارات'), href: '/notifications' },
-    { icon: User, label: t('nav.profile', 'ملفي'), href: '/profile' },
+    { icon: Home, label: t('nav.dashboard', 'Dashboard'), href: '/dashboard' },
+    { icon: Terminal, label: t('nav.courses', 'Courses'), href: '/courses' },
+    { icon: Users, label: t('nav.community', 'Community'), href: '/community' },
+    { icon: Bell, label: t('nav.notifications', 'Notifications'), href: '/notifications' },
+    { icon: User, label: t('nav.profile', 'Profile'), href: '/profile' },
   ];
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     await api.post('/auth/logout').catch(() => {});
     logout();
     navigate('/login');
+    setIsLoggingOut(false);
   };
 
   return (
@@ -57,7 +61,7 @@ export default function StudentLayout() {
       <motion.aside
         animate={{ width: sidebarOpen ? 256 : 72 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="relative flex flex-col bg-surface-900 border-l border-surface-800 shrink-0 overflow-hidden"
+        className={cn("relative flex flex-col bg-surface-900 border-surface-800 shrink-0 overflow-hidden", isRtl ? "border-l" : "border-r")}
       >
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-surface-800 shrink-0">
@@ -83,7 +87,9 @@ export default function StudentLayout() {
         {/* Nav */}
         <nav className="flex-1 py-4 space-y-1 px-2 overflow-y-auto">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.href;
+            const isActive = item.href === '/dashboard' 
+              ? location.pathname === item.href 
+              : location.pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
@@ -148,9 +154,9 @@ export default function StudentLayout() {
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-1 text-xs text-amber-400 font-bold">
                       <Zap className="w-3 h-3" />
-                      {isRtl ? `المستوى ${level}` : `Level ${level}`}
+                      {t('gamification.level', { level, defaultValue: `Level ${level}` })}
                     </div>
-                    <span className="text-[10px] text-surface-500 font-mono">{xpInLevel}/{XP_PER_LEVEL} XP</span>
+                    <span className="text-[10px] text-surface-500 font-mono">{xpInLevel}/{XP_PER_LEVEL} {t('gamification.xp', 'XP')}</span>
                   </div>
                   <div className="w-full h-1.5 bg-surface-800 rounded-full overflow-hidden">
                     <motion.div
@@ -176,14 +182,24 @@ export default function StudentLayout() {
         {/* Collapse toggle */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label={t('nav.toggleSidebar', 'Toggle Sidebar')}
+          aria-expanded={sidebarOpen}
           className={`absolute bottom-20 ${isRtl ? 'left-0 translate-x-1/2' : 'right-0 translate-x-1/2'} w-6 h-6 rounded-full bg-surface-700 border border-surface-600 flex items-center justify-center text-surface-400 hover:text-white transition-all z-10`}
         >
-          <ChevronRight className={cn('w-3 h-3 transition-transform', sidebarOpen ? (isRtl ? 'rotate-180' : 'rotate-180') : '')} />
+          <ChevronRight className={cn('w-3 h-3 transition-transform', sidebarOpen ? (isRtl ? '' : 'rotate-180') : (isRtl ? 'rotate-180' : ''))} />
         </button>
       </motion.aside>
 
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative z-10">
         <div className="h-16 glass border-b border-surface-800 flex items-center px-6 gap-4 sticky top-0 z-40">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}

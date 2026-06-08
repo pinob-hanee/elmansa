@@ -46,6 +46,21 @@ export const adminCoursesApi = {
     return res.data.data;
   },
 
+  updateChapterDeadline: async (chapterId: string, deadline: string | null) => {
+    const res = await api.put(`/courses/chapters/${chapterId}/deadline`, { deadline });
+    return res.data.data;
+  },
+
+  getStudentDeadlines: async (chapterId: string) => {
+    const res = await api.get(`/courses/chapters/${chapterId}/student-deadlines`);
+    return res.data.data;
+  },
+
+  setStudentDeadline: async (chapterId: string, userId: string, deadline: string) => {
+    const res = await api.post(`/courses/chapters/${chapterId}/student-deadlines`, { userId, deadline });
+    return res.data.data;
+  },
+
   uploadMedia: async (file: File, type: 'video' | 'file', onUploadProgress?: (progressEvent: any) => void) => {
     const formData = new FormData();
     formData.append(type === 'video' ? 'video' : 'file', file);

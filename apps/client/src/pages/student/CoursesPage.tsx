@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../../lib/api';
 import { cn } from '../../lib/utils';
+import { useDebounce } from '../../hooks/useDebounce';
+import { AlertCircle } from 'lucide-react';
 
 export default function CoursesPage() {
   const { t, i18n } = useTranslation();
@@ -13,9 +15,11 @@ export default function CoursesPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['courses', search, page],
-    queryFn: () => api.get('/courses', { params: { search: search || undefined, page, limit: 12 } }).then(r => r.data),
+  const debouncedSearch = useDebounce(search, 300);
+
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['courses', debouncedSearch, page],
+    queryFn: () => api.get('/courses', { params: { search: debouncedSearch || undefined, page, limit: 12 } }).then(r => r.data),
     placeholderData: prev => prev,
   });
 
@@ -44,6 +48,14 @@ export default function CoursesPage() {
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-64 rounded-2xl bg-surface-800 animate-pulse" />
           ))}
+        </div>
+      ) : isError ? (
+        <div className="text-center py-16">
+          <AlertCircle className="w-16 h-16 text-red-500/50 mx-auto mb-4" />
+          <p className="text-red-400 mb-4">{t('common.loadError', 'Failed to load courses')}</p>
+          <button onClick={() => refetch()} className="px-4 py-2 bg-surface-800 hover:bg-surface-700 text-white rounded-lg">
+            {t('common.retry', 'Try Again')}
+          </button>
         </div>
       ) : data?.data?.length === 0 ? (
         <div className="text-center py-16">

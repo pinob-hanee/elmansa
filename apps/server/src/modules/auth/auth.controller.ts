@@ -95,7 +95,7 @@ export class AuthController {
 
   async googleCallback(req: Request, res: Response, next: NextFunction) {
     try {
-      const googleUser = req.user as {
+      const googleUser = req.user as unknown as {
         googleId: string;
         email: string;
         firstName: string;

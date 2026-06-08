@@ -100,39 +100,111 @@ export class CourseService {
     let isEnrolled = false;
     let enrollmentStatus: string | null = null;
     let completedLessonIds = new Set<string>();
+    let certificate: any = null;
 
     if (userId) {
-      const [enrollment, progressRecords] = await Promise.all([
+      const [enrollment, progressRecords, cert, studentDeadlines] = await Promise.all([
         prisma.enrollment.findUnique({
           where: { userId_courseId: { userId, courseId: course.id } }
         }),
         prisma.lessonProgress.findMany({
-          where: { userId, isCompleted: true },
-          select: { lessonId: true },
+          where: { userId, lesson: { chapter: { module: { courseId: course.id } } } },
+          select: { lessonId: true, isCompleted: true, completedAt: true },
         }),
+        prisma.certificate.findUnique({
+          where: { userId_courseId: { userId, courseId: course.id } }
+        }),
+        prisma.studentChapterDeadline.findMany({
+          where: { userId, chapter: { module: { courseId: course.id } } }
+        })
       ]);
+      certificate = cert;
 
       if (enrollment && enrollment.status !== 'DROPPED') {
         isEnrolled = true;
         enrollmentStatus = enrollment.status;
       }
 
-      completedLessonIds = new Set(progressRecords.map((p) => p.lessonId));
+      progressRecords.filter(p => p.isCompleted).forEach(p => completedLessonIds.add(p.lessonId));
+
+      const deadlineMap = new Map<string, Date>();
+      studentDeadlines.forEach(d => deadlineMap.set(d.chapterId, d.deadline));
+
+      // Flatten chapters to check previous chapter progress
+      const allChapters = course.modules.flatMap(m => m.chapters);
+      
+      let previousChapterCompletedInTime = true;
+
+      const modulesWithProgress = course.modules.map((mod) => ({
+        ...mod,
+        chapters: mod.chapters.map((ch) => {
+          // Check if current chapter is locked
+          const isLocked = !previousChapterCompletedInTime;
+          
+          let chapterCompleted = true;
+          let maxCompletedAt: Date | null = null;
+
+          const lessons = ch.lessons.map((lesson) => {
+            const progress = progressRecords.find(p => p.lessonId === lesson.id);
+            const isLessonCompleted = !!(progress?.isCompleted);
+            
+            if (!isLessonCompleted) chapterCompleted = false;
+            if (isLessonCompleted && progress?.completedAt) {
+              if (!maxCompletedAt || progress.completedAt > maxCompletedAt) {
+                maxCompletedAt = progress.completedAt;
+              }
+            }
+
+            return {
+              ...lesson,
+              isCompleted: isLessonCompleted,
+            };
+          });
+
+          // Determine if this chapter was completed before its deadline
+          if (chapterCompleted) {
+            const effectiveDeadline = deadlineMap.get(ch.id) || ch.deadline;
+            if (effectiveDeadline && maxCompletedAt) {
+              if (maxCompletedAt > effectiveDeadline) {
+                previousChapterCompletedInTime = false;
+              }
+            }
+          } else {
+            previousChapterCompletedInTime = false;
+          }
+
+          return {
+            ...ch,
+            isLocked,
+            effectiveDeadline: deadlineMap.get(ch.id) || ch.deadline || null,
+            lessons,
+          };
+        }),
+      }));
+
+      course.modules = modulesWithProgress as any;
+    } else {
+      // Inject isCompleted and isLocked = false for non-logged in users
+      course.modules = course.modules.map((mod) => ({
+        ...mod,
+        chapters: mod.chapters.map((ch) => ({
+          ...ch,
+          isLocked: false,
+          effectiveDeadline: ch.deadline || null,
+          lessons: ch.lessons.map((lesson) => ({
+            ...lesson,
+            isCompleted: false,
+          })),
+        })),
+      })) as any;
     }
 
-    // Inject isCompleted into each lesson
-    const modulesWithProgress = course.modules.map((mod) => ({
-      ...mod,
-      chapters: mod.chapters.map((ch) => ({
-        ...ch,
-        lessons: ch.lessons.map((lesson) => ({
-          ...lesson,
-          isCompleted: completedLessonIds.has(lesson.id),
-        })),
-      })),
-    }));
-
-    const response = { ...course, modules: modulesWithProgress, isEnrolled, enrollmentStatus };
+    const response = { 
+      ...course, 
+      isEnrolled, 
+      enrollmentStatus,
+      certificateCode: enrollmentStatus === 'COMPLETED' ? certificate?.uniqueCode : undefined 
+    };
 
     if (!userId) {
       await cache.set(cacheKey, response, 600);
@@ -218,10 +290,48 @@ export class CourseService {
     });
   }
 
+  async updateChapterDeadline(chapterId: string, deadline: Date | null) {
+    return prisma.chapter.update({
+      where: { id: chapterId },
+      data: { deadline },
+    });
+  }
+
+  async getStudentDeadlinesForChapter(chapterId: string) {
+    return prisma.studentChapterDeadline.findMany({
+      where: { chapterId },
+      include: { user: { select: { id: true, email: true, profile: { select: { firstName: true, lastName: true } } } } }
+    });
+  }
+
+  async setStudentDeadline(chapterId: string, userId: string, deadline: Date) {
+    return prisma.studentChapterDeadline.upsert({
+      where: { userId_chapterId: { userId, chapterId } },
+      create: { userId, chapterId, deadline },
+      update: { deadline },
+    });
+  }
+
   async createLesson(chapterId: string, data: any) {
     const lesson = await prisma.lesson.create({
       data: { ...data, chapterId, isPublished: true },
     });
+
+    const chapter = await prisma.chapter.findUnique({
+      where: { id: chapterId },
+      include: { module: true },
+    });
+
+    if (chapter?.module?.courseId) {
+      await prisma.course.update({
+        where: { id: chapter.module.courseId },
+        data: {
+          totalLessons: { increment: 1 },
+          totalDuration: { increment: data.duration || 0 }
+        }
+      });
+    }
+
     await cache.delPattern('course:*');
     return lesson;
   }
@@ -254,9 +364,16 @@ export class CourseService {
       }
     }
 
-    return prisma.enrollment.create({
+    const enrollment = await prisma.enrollment.create({
       data: { userId, courseId, status: 'ACTIVE' },
     });
+
+    await prisma.course.update({
+      where: { id: courseId },
+      data: { totalEnrolled: { increment: 1 } }
+    });
+
+    return enrollment;
   }
 
   async getStudentEnrollments(userId: string) {
@@ -278,7 +395,7 @@ export class CourseService {
     // Check enrollment
     const lesson = await prisma.lesson.findUnique({
       where: { id: lessonId },
-      include: { chapter: { include: { module: { select: { courseId: true } } } } },
+      include: { chapter: { include: { module: { include: { course: { select: { slug: true } } } } } } },
     });
     if (!lesson) throw new NotFoundError('Lesson not found');
 
@@ -291,6 +408,12 @@ export class CourseService {
         },
       });
       if (!enrollment) throw new ForbiddenError('You are not enrolled in this course');
+      
+      const courseWithProgress = await this.getCourseBySlug(lesson.chapter.module.course.slug, userId);
+      const chapter = courseWithProgress.modules.flatMap(m => m.chapters).find(c => c.id === lesson.chapterId);
+      if (chapter?.isLocked) {
+        throw new ForbiddenError('This chapter is locked due to an uncompleted previous chapter or missed deadline.');
+      }
     }
 
     if (lesson.type === 'TEXT') {
@@ -322,8 +445,9 @@ export class CourseService {
         type: true,
         chapter: {
           select: {
+            id: true,
             module: {
-              select: { courseId: true }
+              select: { course: { select: { id: true, slug: true } } }
             }
           }
         }
@@ -332,7 +456,13 @@ export class CourseService {
 
     if (!lesson) throw new NotFoundError('Lesson not found');
 
-    const courseId = lesson.chapter.module.courseId;
+    const courseId = lesson.chapter.module.course.id;
+
+    const courseWithProgress = await this.getCourseBySlug(lesson.chapter.module.course.slug, userId);
+    const chapter = courseWithProgress.modules.flatMap(m => m.chapters).find(c => c.id === lesson.chapter.id);
+    if (chapter?.isLocked) {
+      throw new ForbiddenError('This chapter is locked due to an uncompleted previous chapter or missed deadline.');
+    }
 
     // Videos: need 90% watched. PDF, TEXT, QUIZ: always mark completed on progress update
     const isCompleted = lesson?.videoDuration

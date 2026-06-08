@@ -16,6 +16,7 @@ export default function StudentQuizViewer({ lessonId, onComplete }: { lessonId: 
 
   const submitMutation = useMutation({
     mutationFn: () => {
+      if (!quiz) return Promise.reject(new Error('Quiz not loaded'));
       const formattedAnswers = Object.entries(answers).map(([questionId, optionIds]) => ({
         questionId,
         optionIds,
@@ -31,7 +32,6 @@ export default function StudentQuizViewer({ lessonId, onComplete }: { lessonId: 
           origin: { y: 0.6 },
           colors: ['#10b981', '#fbbf24', '#3b82f6']
         });
-        onComplete?.();
         // Show XP toast
         if (data.xpEarned > 0) {
           setTimeout(() => {

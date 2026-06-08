@@ -137,6 +137,7 @@ model User {
   certificates       Certificate[]
   achievements       UserAchievement[]
   xpLogs             XpLog[]
+  studentDeadlines   StudentChapterDeadline[]
 
   @@index([email])
   @@index([role, approvalStatus])
@@ -303,13 +304,31 @@ model Chapter {
   description String?
   sortOrder   Int      @default(0)
   isPublished Boolean  @default(false)
+  deadline    DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   module  Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   lessons Lesson[]
+  studentDeadlines StudentChapterDeadline[]
 
   @@index([moduleId, sortOrder])
+}
+
+model StudentChapterDeadline {
+  id        String   @id @default(uuid())
+  userId    String
+  chapterId String
+  deadline  DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId])
+  @@index([userId])
+  @@index([chapterId])
 }
 
 model Lesson {

@@ -65,7 +65,7 @@ services:
         condition: service_healthy
     networks:
       - elmansa-net
-    command: sh -c "npx prisma migrate dev && npm run dev"
+    command: sh -c "npx prisma db push --accept-data-loss && npm run dev"
 
   # Frontend Dev Server
   client:

@@ -3,12 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Settings, Layers, Save, ArrowRight, Plus, Video,
-  FileText, ChevronDown, ChevronRight, Trash2, AlertCircle, CheckCircle2, UploadCloud, Loader2, Edit2
+  FileText, ChevronDown, ChevronRight, Trash2, AlertCircle, CheckCircle2, UploadCloud, Loader2, Edit2, Calendar
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { adminCoursesApi } from '../../features/courses/api/admin.courses';
 import QuizBuilder from '../../features/quiz/components/QuizBuilder';
 import TextEditorModal from './components/TextEditorModal';
+import ChapterDeadlineModal from './components/ChapterDeadlineModal';
 import toast from 'react-hot-toast';
 import { cn } from '../../lib/utils';
 
@@ -227,6 +228,7 @@ function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId:
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(true);
   const [addingLesson, setAddingLesson] = useState(false);
+  const [showDeadlineModal, setShowDeadlineModal] = useState(false);
   const [lessonType, setLessonType] = useState<'VIDEO' | 'QUIZ' | 'PDF' | 'TEXT'>('VIDEO');
   const qc = useQueryClient();
 
@@ -250,8 +252,24 @@ function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId:
       >
         {expanded ? <ChevronDown className="w-4 h-4 text-surface-500" /> : <ChevronRight className="w-4 h-4 text-surface-500" />}
         <span className="flex-1 text-sm font-medium text-surface-200">{chapter.title}</span>
-        <span className="text-xs text-surface-500">{chapter.lessons?.length || 0} {t('courseEditor.lessons')}</span>
+        <span className="text-xs text-surface-500 mr-2">{chapter.lessons?.length || 0} {t('courseEditor.lessons')}</span>
+        <button
+          onClick={(e) => { e.stopPropagation(); setShowDeadlineModal(true); }}
+          className="p-1.5 bg-surface-700/50 hover:bg-surface-600 rounded-lg text-surface-400 hover:text-white transition-colors"
+          title="Manage Deadline"
+        >
+          <Calendar className="w-4 h-4" />
+        </button>
       </div>
+
+      {showDeadlineModal && (
+        <ChapterDeadlineModal
+          chapterId={chapter.id}
+          courseId={courseId}
+          currentDeadline={chapter.deadline}
+          onClose={() => setShowDeadlineModal(false)}
+        />
+      )}
 
       {expanded && (
         <div className="p-2 space-y-1">

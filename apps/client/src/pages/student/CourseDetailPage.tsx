@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { PlayCircle, Clock, BookOpen, Layers, CheckCircle2, FileText, Award } from 'lucide-react';
+import { PlayCircle, Clock, BookOpen, Layers, CheckCircle2, FileText, Award, Lock, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { studentCoursesApi } from '../../features/courses/api/student.courses';
@@ -18,7 +18,10 @@ export default function CourseDetailPage() {
   });
 
   const enrollMutation = useMutation({
-    mutationFn: () => studentCoursesApi.enroll(course.id),
+    mutationFn: () => {
+      if (!course?.id) return Promise.reject(new Error('Course not loaded'));
+      return studentCoursesApi.enroll(course.id);
+    },
     onSuccess: () => {
       toast.success(t('courses.enrollSuccess'));
       queryClient.invalidateQueries({ queryKey: ['course', slug] });
@@ -132,7 +135,7 @@ export default function CourseDetailPage() {
 
               {isCompleted && (
                 <Link
-                  to="/profile"
+                  to={course.certificateCode ? `/certificate/${course.certificateCode}` : '/profile'}
                   className="flex items-center gap-2 px-6 py-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 font-bold transition-all"
                 >
                   <Award className="w-5 h-5" />
@@ -172,8 +175,19 @@ export default function CourseDetailPage() {
               </div>
               <div className="p-3 divide-y divide-surface-800/50">
                 {module.chapters?.map((chapter: any) => (
-                  <div key={chapter.id} className="p-2 space-y-2">
-                    <h4 className="text-sm font-medium text-surface-400 mb-2">{chapter.title}</h4>
+                  <div key={chapter.id} className={`p-2 space-y-2 ${chapter.isLocked ? 'opacity-50' : ''}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium text-surface-400 flex items-center gap-2">
+                        {chapter.isLocked && <Lock className="w-4 h-4 text-rose-500" />}
+                        <span className={chapter.isLocked ? 'text-rose-400/80' : ''}>{chapter.title}</span>
+                      </h4>
+                      {chapter.effectiveDeadline && (
+                        <div className="flex items-center gap-1 text-xs text-surface-500">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(chapter.effectiveDeadline).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
                     {chapter.lessons?.map((lesson: any) => (
                       <div key={lesson.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-800/50 transition-colors">
                         {lesson.type === 'VIDEO' ? (

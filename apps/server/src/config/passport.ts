@@ -25,7 +25,7 @@ export const setupPassport = () => {
             firstName: profile.name?.givenName || '',
             lastName: profile.name?.familyName || '',
             avatarUrl: profile.photos?.[0]?.value,
-          });
+          } as any);
         } catch (error) {
           done(error as Error);
         }

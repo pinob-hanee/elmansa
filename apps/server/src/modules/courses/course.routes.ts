@@ -42,13 +42,6 @@ router.get('/admin/list', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), a
   } catch (e) { next(e); }
 });
 
-router.get('/:slug', optionalAuthenticate, async (req, res, next) => {
-  try {
-    const course = await svc.getCourseBySlug(req.params.slug, req.user?.userId);
-    successResponse(res, course);
-  } catch (e) { next(e); }
-});
-
 // Protected routes
 router.post('/', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
@@ -94,6 +87,27 @@ router.post('/modules/:moduleId/chapters', authenticate, requireRole('TEACHER', 
   } catch (e) { next(e); }
 });
 
+router.put('/chapters/:chapterId/deadline', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+  try {
+    const chapter = await svc.updateChapterDeadline(req.params.chapterId, req.body.deadline ? new Date(req.body.deadline) : null);
+    successResponse(res, chapter, 'Chapter deadline updated');
+  } catch (e) { next(e); }
+});
+
+router.get('/chapters/:chapterId/student-deadlines', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+  try {
+    const deadlines = await svc.getStudentDeadlinesForChapter(req.params.chapterId);
+    successResponse(res, deadlines);
+  } catch (e) { next(e); }
+});
+
+router.post('/chapters/:chapterId/student-deadlines', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+  try {
+    const deadline = await svc.setStudentDeadline(req.params.chapterId, req.body.userId, new Date(req.body.deadline));
+    successResponse(res, deadline, 'Student deadline updated');
+  } catch (e) { next(e); }
+});
+
 router.post('/chapters/:chapterId/lessons', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
     const lesson = await svc.createLesson(req.params.chapterId, req.body);
@@ -132,6 +146,14 @@ router.post('/lessons/:lessonId/progress', authenticate, requireApprovedStudent,
       req.body.watchedTime
     );
     successResponse(res, progress);
+  } catch (e) { next(e); }
+});
+
+// Public slug route (must be last to avoid intercepting other routes)
+router.get('/:slug', optionalAuthenticate, async (req, res, next) => {
+  try {
+    const course = await svc.getCourseBySlug(req.params.slug, req.user?.userId);
+    successResponse(res, course);
   } catch (e) { next(e); }
 });
 

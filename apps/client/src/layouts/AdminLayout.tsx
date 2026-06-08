@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -16,6 +17,7 @@ export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const navItems = [
     { icon: LayoutDashboard, label: t('nav.dashboard'), href: '/admin' },
@@ -26,9 +28,12 @@ export default function AdminLayout() {
   ];
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     await api.post('/auth/logout').catch(() => {});
     logout();
     navigate('/login');
+    setIsLoggingOut(false);
   };
 
   return (
@@ -49,7 +54,9 @@ export default function AdminLayout() {
         {/* Nav */}
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.href;
+            const isActive = item.href === '/admin' 
+              ? location.pathname === item.href 
+              : location.pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}

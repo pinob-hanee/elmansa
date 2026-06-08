@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -21,6 +21,12 @@ export default function LessonPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
+
+  useEffect(() => {
+    return () => {
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+    };
+  }, []);
 
   const { data: course, isLoading: courseLoading } = useQuery({
     queryKey: ['course', slug],
@@ -243,7 +249,7 @@ export default function LessonPage() {
                     if (!progressTimerRef.current) {
                       progressTimerRef.current = setInterval(() => {
                         if (!video.paused && video.currentTime > 0) {
-                          studentCoursesApi.updateProgress(lessonId!, Math.floor(video.currentTime));
+                          updateProgressMutation.mutate(Math.floor(video.currentTime));
                         }
                       }, 30000);
                     }
@@ -311,8 +317,16 @@ export default function LessonPage() {
                 <div className="px-2 py-1.5 text-xs font-bold text-surface-400 uppercase flex items-center gap-2">
                   {isRtl ? `الوحدة ${mIdx + 1}: ${module.title}` : `Module ${mIdx + 1}: ${module.title}`}
                 </div>
-                {module.chapters?.map((chapter: any) => (
-                  <div key={chapter.id} className="space-y-0.5">
+                {module.chapters?.map((chapter: any) => {
+                  const isLocked = chapter.isLocked;
+                  return (
+                  <div key={chapter.id} className={`space-y-0.5 ${isLocked ? 'opacity-50' : ''}`}>
+                    {chapter.isLocked && (
+                      <div className="px-2 py-1 flex items-center gap-2 text-xs text-rose-500 font-medium">
+                        <Lock className="w-3 h-3" />
+                        {isRtl ? 'مغلق (أكمل الفصل السابق / الموعد انتهى)' : 'Locked (Complete previous / Deadline missed)'}
+                      </div>
+                    )}
                     {chapter.lessons?.map((lesson: any) => {
                       const isActive = lesson.id === lessonId;
                       const isDone = lesson.isCompleted;
@@ -320,14 +334,22 @@ export default function LessonPage() {
                       return (
                         <Link
                           key={lesson.id}
-                          to={`/courses/${slug}/lesson/${lesson.id}`}
+                          to={isLocked ? '#' : `/courses/${slug}/lesson/${lesson.id}`}
+                          onClick={(e) => {
+                            if (isLocked) {
+                              e.preventDefault();
+                              toast.error(isRtl ? 'هذا الفصل مغلق' : 'This chapter is locked');
+                            }
+                          }}
                           className={cn(
                             'flex items-start gap-3 p-2.5 rounded-xl transition-all',
-                            isActive
-                              ? 'bg-primary-500/10 border border-primary-500/20'
-                              : isDone
-                                ? 'hover:bg-emerald-500/5 border border-transparent'
-                                : 'hover:bg-surface-800 border border-transparent'
+                            isLocked 
+                              ? 'cursor-not-allowed'
+                              : isActive
+                                ? 'bg-primary-500/10 border border-primary-500/20'
+                                : isDone
+                                  ? 'hover:bg-emerald-500/5 border border-transparent'
+                                  : 'hover:bg-surface-800 border border-transparent'
                           )}
                         >
                           {/* Icon / completion state */}
@@ -367,7 +389,7 @@ export default function LessonPage() {
                       );
                     })}
                   </div>
-                ))}
+                )})}
               </div>
             ))}
           </div>

@@ -19,7 +19,7 @@ const start = async () => {
       logger.warn('⚠️  Redis unavailable — continuing without cache');
     }
 
-    httpServer.listen(PORT, () => {
+    httpServer.listen(PORT, '0.0.0.0', () => {
       logger.info(`🚀 Server running on port ${PORT} in ${env.NODE_ENV} mode`);
       logger.info(`📚 Swagger docs: http://localhost:${PORT}/api/docs`);
     });
