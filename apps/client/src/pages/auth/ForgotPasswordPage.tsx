@@ -23,12 +23,12 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-surface-950 flex items-center justify-center p-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <div className="glass rounded-3xl p-8 border border-white/10">
+        <div className="glass rounded-3xl p-8 border border-surface-200">
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-primary-600/20 flex items-center justify-center mx-auto mb-4">
               <Mail className="w-8 h-8 text-primary-400" />
             </div>
-            <h1 className="text-2xl font-extrabold text-white mb-2">
+            <h1 className="text-2xl font-extrabold text-surface-50 mb-2">
               {isRtl ? 'نسيت كلمة المرور؟' : 'Forgot Password?'}
             </h1>
             <p className="text-surface-400 text-sm">
@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
                     {...register('email')}
                     type="email"
                     placeholder="you@example.com"
-                    className={cn('w-full py-3 rounded-xl bg-surface-800 border text-white placeholder-surface-500 outline-none transition-all', isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4', errors.email ? 'border-error/50' : 'border-surface-700 focus:border-primary-500')}
+                    className={cn('w-full py-3 rounded-xl bg-surface-800 border text-surface-50 placeholder-surface-500 outline-none transition-all', isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4', errors.email ? 'border-error/50' : 'border-surface-700 focus:border-primary-500')}
                   />
                 </div>
                 {errors.email && <p className="mt-1 text-xs text-error">{errors.email.message}</p>}

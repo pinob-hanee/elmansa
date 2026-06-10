@@ -57,7 +57,7 @@ export default function AdminCourses() {
     <div dir="rtl" className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">الكورسات</h1>
+          <h1 className="text-2xl font-bold text-surface-50 mb-1">الكورسات</h1>
           <p className="text-surface-400 text-sm">إدارة الكورسات، المناهج، والمحتوى التعليمي</p>
         </div>
         <Link
@@ -77,7 +77,7 @@ export default function AdminCourses() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ابحث عن كورس..."
-            className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2 pr-10 pl-4 text-white placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all"
+            className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2 pr-10 pl-4 text-surface-50 placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all"
           />
         </div>
       </div>
@@ -89,11 +89,11 @@ export default function AdminCourses() {
           ))}
         </div>
       ) : courses.length === 0 ? (
-        <div className="glass rounded-2xl p-12 text-center border border-white/5">
+        <div className="glass rounded-2xl p-12 text-center border border-surface-200">
           <div className="w-16 h-16 rounded-full bg-surface-800 flex items-center justify-center mx-auto mb-4">
             <BookOpen className="w-8 h-8 text-surface-600" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-2">لا توجد كورسات</h3>
+          <h3 className="text-lg font-bold text-surface-50 mb-2">لا توجد كورسات</h3>
           <p className="text-surface-400 mb-6">لم تقم بإضافة أي كورسات بعد.</p>
           <Link
             to="/admin/courses/new"
@@ -106,7 +106,7 @@ export default function AdminCourses() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course: any) => (
-            <div key={course.id} className="glass rounded-2xl overflow-hidden border border-white/5 flex flex-col group hover:border-primary-500/30 transition-all">
+            <div key={course.id} className="glass rounded-2xl overflow-hidden border border-surface-200 flex flex-col group hover:border-primary-500/30 transition-all">
               <Link to={`/admin/courses/${course.id}/edit`} className="aspect-video bg-surface-800 relative block group-hover:opacity-90 transition-opacity">
                 {course.thumbnail ? (
                   <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
@@ -125,7 +125,7 @@ export default function AdminCourses() {
                 </div>
               </Link>
               <div className="p-5 flex-1 flex flex-col">
-                <Link to={`/admin/courses/${course.id}/edit`} className="font-bold text-white text-lg mb-2 line-clamp-1 hover:text-primary-400 transition-colors">
+                <Link to={`/admin/courses/${course.id}/edit`} className="font-bold text-surface-50 text-lg mb-2 line-clamp-1 hover:text-primary-400 transition-colors">
                   {course.title}
                 </Link>
                 <p className="text-surface-400 text-sm line-clamp-2 mb-4 flex-1">

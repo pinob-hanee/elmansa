@@ -42,7 +42,7 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl hover:bg-surface-800 text-surface-400 hover:text-white transition-all"
+        className="relative p-2 rounded-xl hover:bg-surface-800 text-surface-400 hover:text-surface-50 transition-all"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -53,7 +53,7 @@ export default function NotificationBell() {
       {isOpen && (
         <div className="absolute left-0 mt-2 w-80 bg-surface-900 border border-surface-800 rounded-2xl shadow-xl z-50 overflow-hidden">
           <div className="p-4 border-b border-surface-800 flex items-center justify-between">
-            <h3 className="font-bold text-white">الإشعارات</h3>
+            <h3 className="font-bold text-surface-50">الإشعارات</h3>
             {unreadCount > 0 && (
               <span className="bg-primary-500/20 text-primary-400 text-xs px-2 py-1 rounded-full font-medium">
                 {unreadCount} جديد
@@ -85,7 +85,7 @@ export default function NotificationBell() {
                   >
                     <div className="w-2 h-2 mt-2 rounded-full shrink-0 bg-primary-500" style={{ opacity: notification.isRead ? 0 : 1 }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white mb-1">{notification.title}</p>
+                      <p className="text-sm font-medium text-surface-50 mb-1">{notification.title}</p>
                       <p className="text-xs text-surface-400 line-clamp-2 leading-relaxed">{notification.message}</p>
                       <div className="flex items-center gap-1 mt-2 text-surface-500 text-[10px]">
                         <Clock className="w-3 h-3" />

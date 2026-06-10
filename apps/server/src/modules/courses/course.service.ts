@@ -19,6 +19,13 @@ export class CourseService {
     const limit = filters.limit || 12;
     const skip = (page - 1) * limit;
 
+    // Cache key for public listing
+    const cacheKey = `courses:list:${JSON.stringify(filters)}`;
+    if (filters.isPublished !== false) { // Don't cache admin queries
+      const cached = await cache.get<any>(cacheKey);
+      if (cached) return cached;
+    }
+
     const where: Prisma.CourseWhereInput = {
       ...(filters.isPublished !== undefined ? { isPublished: filters.isPublished } : {}),
       ...(filters.categoryId ? { categoryId: filters.categoryId } : {}),
@@ -48,10 +55,16 @@ export class CourseService {
       prisma.course.count({ where }),
     ]);
 
-    return {
+    const result = {
       courses,
       meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
+
+    if (filters.isPublished !== false) {
+      await cache.set(cacheKey, result, 300); // Cache for 5 minutes
+    }
+
+    return result;
   }
 
   async getCourseBySlug(slug: string, userId?: string) {
@@ -165,7 +178,7 @@ export class CourseService {
           if (chapterCompleted) {
             const effectiveDeadline = deadlineMap.get(ch.id) || ch.deadline;
             if (effectiveDeadline && maxCompletedAt) {
-              if (maxCompletedAt > effectiveDeadline) {
+              if ((maxCompletedAt as Date).getTime() > effectiveDeadline.getTime()) {
                 previousChapterCompletedInTime = false;
               }
             }
@@ -229,6 +242,7 @@ export class CourseService {
                   select: {
                     id: true, title: true, type: true,
                     duration: true, isFree: true, isPublished: true, sortOrder: true,
+                    videoKey: true, pdfKey: true,
                   },
                 },
               },
@@ -298,13 +312,35 @@ export class CourseService {
   }
 
   async getStudentDeadlinesForChapter(chapterId: string) {
-    return prisma.studentChapterDeadline.findMany({
-      where: { chapterId },
+    const chapter = await prisma.chapter.findUnique({ where: { id: chapterId }, select: { module: { select: { courseId: true } } } });
+    if (!chapter) throw new NotFoundError('Chapter not found');
+    
+    const enrollments = await prisma.enrollment.findMany({
+      where: { courseId: chapter.module.courseId },
       include: { user: { select: { id: true, email: true, profile: { select: { firstName: true, lastName: true } } } } }
+    });
+
+    const deadlines = await prisma.studentChapterDeadline.findMany({
+      where: { chapterId },
+    });
+
+    return enrollments.map(e => {
+      const d = deadlines.find(x => x.userId === e.userId);
+      return {
+        userId: e.userId,
+        user: e.user,
+        deadline: d ? d.deadline : null,
+      };
     });
   }
 
-  async setStudentDeadline(chapterId: string, userId: string, deadline: Date) {
+  async setStudentDeadline(chapterId: string, userId: string, deadline: Date | null) {
+    if (!deadline) {
+      await prisma.studentChapterDeadline.deleteMany({
+        where: { userId, chapterId }
+      });
+      return { message: 'Deadline reset' };
+    }
     return prisma.studentChapterDeadline.upsert({
       where: { userId_chapterId: { userId, chapterId } },
       create: { userId, chapterId, deadline },
@@ -391,6 +427,22 @@ export class CourseService {
     });
   }
 
+  async ensureChapterDeadlineStarted(userId: string, chapterId: string) {
+    const existingDeadline = await prisma.studentChapterDeadline.findUnique({
+      where: { userId_chapterId: { userId, chapterId } }
+    });
+    if (!existingDeadline) {
+      // Set deadline exactly 3 days from now
+      await prisma.studentChapterDeadline.create({
+        data: {
+          userId,
+          chapterId,
+          deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+        }
+      });
+    }
+  }
+
   async getLessonVideoUrl(lessonId: string, userId: string) {
     // Check enrollment
     const lesson = await prisma.lesson.findUnique({
@@ -410,11 +462,14 @@ export class CourseService {
       if (!enrollment) throw new ForbiddenError('You are not enrolled in this course');
       
       const courseWithProgress = await this.getCourseBySlug(lesson.chapter.module.course.slug, userId);
-      const chapter = courseWithProgress.modules.flatMap(m => m.chapters).find(c => c.id === lesson.chapterId);
+      const chapter = courseWithProgress.modules.flatMap((m: any) => m.chapters).find((c: any) => c.id === lesson.chapterId);
       if (chapter?.isLocked) {
         throw new ForbiddenError('This chapter is locked due to an uncompleted previous chapter or missed deadline.');
       }
     }
+
+    // Ensure deadline starts when they access the lesson (for free and paid)
+    await this.ensureChapterDeadlineStarted(userId, lesson.chapterId);
 
     if (lesson.type === 'TEXT') {
       return { content: lesson.content || '' };
@@ -459,7 +514,7 @@ export class CourseService {
     const courseId = lesson.chapter.module.course.id;
 
     const courseWithProgress = await this.getCourseBySlug(lesson.chapter.module.course.slug, userId);
-    const chapter = courseWithProgress.modules.flatMap(m => m.chapters).find(c => c.id === lesson.chapter.id);
+    const chapter = courseWithProgress.modules.flatMap((m: any) => m.chapters).find((c: any) => c.id === lesson.chapter.id);
     if (chapter?.isLocked) {
       throw new ForbiddenError('This chapter is locked due to an uncompleted previous chapter or missed deadline.');
     }

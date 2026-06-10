@@ -24,7 +24,7 @@ export default function AdminDashboard() {
   return (
     <div dir="rtl" className="space-y-8">
       <motion.div variants={fadeUp} initial="hidden" animate="visible">
-        <h1 className="text-2xl font-extrabold text-white mb-1">لوحة التحكم</h1>
+        <h1 className="text-2xl font-extrabold text-surface-50 mb-1">لوحة التحكم</h1>
         <p className="text-surface-400">مرحباً! إليك نظرة عامة على المنصة</p>
       </motion.div>
 
@@ -39,15 +39,15 @@ export default function AdminDashboard() {
             animate="visible"
             custom={i}
             whileHover={{ y: -2 }}
-            className="glass rounded-2xl p-5 border border-white/5 hover:border-primary-500/20 transition-all group cursor-pointer"
+            className="glass rounded-2xl p-5 border border-surface-200 hover:border-primary-500/20 transition-all group cursor-pointer"
           >
             <div className="flex items-center justify-between mb-4">
               <div className={cn('w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg', stat.color)}>
-                <stat.icon className="w-5 h-5 text-white" />
+                <stat.icon className="w-5 h-5 text-surface-50" />
               </div>
               <ArrowUpRight className="w-4 h-4 text-surface-600 group-hover:text-primary-400 transition-colors" />
             </div>
-            <div className="text-3xl font-extrabold text-white mb-1">
+            <div className="text-3xl font-extrabold text-surface-50 mb-1">
               {isLoading ? <div className="h-8 w-16 bg-surface-800 rounded animate-pulse" /> : stat.value}
             </div>
             <div className="text-sm font-medium text-surface-300 mb-0.5">{stat.label}</div>
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
             <Clock className="w-5 h-5 text-warning" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-white">
+            <p className="text-sm font-medium text-surface-50">
               {data.pendingStudents} طالب ينتظر الموافقة
             </p>
             <p className="text-xs text-surface-400">راجع طلبات التسجيل الجديدة</p>
@@ -85,8 +85,8 @@ export default function AdminDashboard() {
 
       {/* Recent users */}
       <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4}>
-        <h2 className="text-lg font-bold text-white mb-4">أحدث الطلاب المسجلين</h2>
-        <div className="glass rounded-2xl border border-white/5 overflow-hidden">
+        <h2 className="text-lg font-bold text-surface-50 mb-4">أحدث الطلاب المسجلين</h2>
+        <div className="glass rounded-2xl border border-surface-200 overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="border-b border-surface-800">
@@ -111,7 +111,7 @@ export default function AdminDashboard() {
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
                           {user.profile?.firstName?.charAt(0) || '?'}
                         </div>
-                        <span className="text-sm font-medium text-white">
+                        <span className="text-sm font-medium text-surface-50">
                           {user.profile?.firstName} {user.profile?.lastName}
                         </span>
                       </div>

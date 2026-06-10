@@ -70,7 +70,7 @@ export default function CreatePost() {
   };
 
   return (
-    <div className="glass rounded-2xl p-4 border border-white/5 mb-6">
+    <div className="glass rounded-2xl p-4 border border-surface-200 mb-6">
       <div className="flex gap-4">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white font-bold shrink-0 shadow-lg">
           {user?.profile?.firstName?.charAt(0) || 'U'}
@@ -82,7 +82,7 @@ export default function CreatePost() {
             onFocus={() => setIsFocused(true)}
             placeholder="بم تفكر؟ شارك أفكارك أو صورك مع المجتمع..."
             className={cn(
-              "w-full bg-surface-900/50 border border-surface-800 rounded-xl p-3 text-white placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all resize-none",
+              "w-full bg-surface-900/50 border border-surface-800 rounded-xl p-3 text-surface-50 placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all resize-none",
               isFocused || imageUrl ? "min-h-[120px]" : "min-h-[50px]"
             )}
           />
@@ -155,7 +155,7 @@ export default function CreatePost() {
                     setIsFocused(false);
                     setShowEmoji(false);
                   }}
-                  className="px-4 py-2 text-sm text-surface-400 hover:text-white transition-colors"
+                  className="px-4 py-2 text-sm text-surface-400 hover:text-surface-50 transition-colors"
                 >
                   إخفاء
                 </button>

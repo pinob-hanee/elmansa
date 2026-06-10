@@ -17,10 +17,12 @@ CMD ["npm", "run", "dev"]
 # ---- Builder ----
 FROM base AS builder
 COPY package*.json ./
-RUN npm ci --only=production && cp -r node_modules prod_modules
-RUN npm ci
-COPY . .
+COPY prisma ./prisma
+RUN npm install --omit=dev
 RUN npx prisma generate
+RUN cp -r node_modules prod_modules
+RUN npm install
+COPY . .
 RUN npm run build
 
 # ---- Production ----
@@ -30,6 +32,7 @@ COPY --from=builder /app/prod_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY package*.json ./
+RUN mkdir logs && chown node:node logs
 EXPOSE 5000
 USER node
 CMD ["node", "dist/index.js"]

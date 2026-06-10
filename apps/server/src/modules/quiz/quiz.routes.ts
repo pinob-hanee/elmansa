@@ -21,6 +21,24 @@ router.get('/lesson/:lessonId', authenticate, async (req, res, next) => {
     if (!quiz) {
       return successResponse(res, null); // Return null if no quiz exists yet
     }
+
+    // Ensure chapter deadline starts
+    const lesson = await prisma.lesson.findUnique({ where: { id: req.params.lessonId } });
+    if (lesson && req.user?.userId) {
+      const existingDeadline = await prisma.studentChapterDeadline.findUnique({
+        where: { userId_chapterId: { userId: req.user.userId, chapterId: lesson.chapterId } }
+      });
+      if (!existingDeadline) {
+        await prisma.studentChapterDeadline.create({
+          data: {
+            userId: req.user.userId,
+            chapterId: lesson.chapterId,
+            deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+          }
+        });
+      }
+    }
+
     successResponse(res, quiz);
   } catch (e) { next(e); }
 });

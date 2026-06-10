@@ -56,7 +56,7 @@ export default function StudentDashboard() {
     <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-8">
       {/* Welcome */}
       <motion.div variants={fadeUp} initial="hidden" animate="visible">
-        <h1 className="text-2xl font-extrabold text-white mb-1 font-mono">
+        <h1 className="text-2xl font-extrabold text-surface-50 mb-1 font-mono">
           <span className="text-primary-400">{'>'}</span> {t('dashboard.greeting', { name: user?.profile?.firstName || user?.email?.split('@')[0] })}
         </h1>
         <p className="text-surface-400 font-mono text-sm">{t('dashboard.subtitle')}</p>
@@ -100,14 +100,14 @@ export default function StudentDashboard() {
                 initial="hidden"
                 animate="visible"
                 custom={i}
-                className="glass rounded-2xl p-5 border border-white/5"
+                className="glass rounded-2xl p-5 border border-surface-200"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className={cn('w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center', stat.color)}>
-                    <stat.icon className="w-5 h-5 text-white" />
+                    <stat.icon className="w-5 h-5 text-surface-50" />
                   </div>
                 </div>
-                <div className="text-3xl font-extrabold text-white mb-1">
+                <div className="text-3xl font-extrabold text-surface-50 mb-1">
                   {isLoading ? <div className="h-8 w-12 bg-surface-800 rounded animate-pulse" /> : stat.value}
                 </div>
                 <div className="text-surface-400 text-sm">{stat.label}</div>
@@ -118,16 +118,16 @@ export default function StudentDashboard() {
           {/* Gamification Stats */}
           {gamification?.profile && (
             <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="glass rounded-2xl p-5 border border-white/5 md:col-span-2 flex flex-col justify-center relative overflow-hidden group">
+              <div className="glass rounded-2xl p-5 border border-surface-200 md:col-span-2 flex flex-col justify-center relative overflow-hidden group">
                 <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl group-hover:bg-primary-500/20 transition-all" />
                 <div className="relative flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
-                      <Star className="w-6 h-6 text-white" />
+                      <Star className="w-6 h-6 text-surface-50" />
                     </div>
                     <div>
                       <div className="text-surface-400 text-sm font-medium">المستوى الحالي</div>
-                      <div className="text-2xl font-extrabold text-white">مستوى {gamification.profile.level}</div>
+                      <div className="text-2xl font-extrabold text-surface-50">مستوى {gamification.profile.level}</div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -135,7 +135,7 @@ export default function StudentDashboard() {
                     <div className="text-xs text-surface-500">من أصل {gamification.profile.level * 1000}</div>
                   </div>
                 </div>
-                <div className="h-3 bg-surface-800 rounded-full overflow-hidden border border-white/5">
+                <div className="h-3 bg-surface-800 rounded-full overflow-hidden border border-surface-200">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${(gamification.profile.xp % 1000) / 10}%` }}
@@ -147,12 +147,12 @@ export default function StudentDashboard() {
                 </div>
               </div>
 
-              <div className="glass rounded-2xl p-5 border border-white/5 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+              <div className="glass rounded-2xl p-5 border border-surface-200 flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-all" />
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/20 mb-3 relative z-10">
-                  <Flame className="w-6 h-6 text-white" />
+                  <Flame className="w-6 h-6 text-surface-50" />
                 </div>
-                <div className="text-3xl font-extrabold text-white mb-1 relative z-10">
+                <div className="text-3xl font-extrabold text-surface-50 mb-1 relative z-10">
                   {gamification.profile.currentStreak} <span className="text-lg text-surface-400 font-medium">أيام</span>
                 </div>
                 <div className="text-sm font-medium text-orange-400 relative z-10">سلسلة التعلم الحالية</div>
@@ -163,7 +163,7 @@ export default function StudentDashboard() {
           {/* In Progress Courses */}
           <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white">الكورسات الجارية</h2>
+              <h2 className="text-lg font-bold text-surface-50">الكورسات الجارية</h2>
               <Link to="/courses" className="text-primary-400 hover:text-primary-300 text-sm transition-colors">
                 عرض الكل
               </Link>
@@ -180,7 +180,7 @@ export default function StudentDashboard() {
                 <p className="text-surface-400">حدث خطأ أثناء تحميل البيانات</p>
               </div>
             ) : !data?.inProgressCourses?.length ? (
-              <div className="glass rounded-2xl p-8 text-center border border-white/5">
+              <div className="glass rounded-2xl p-8 text-center border border-surface-200">
                 <BookOpen className="w-12 h-12 text-surface-600 mx-auto mb-3" />
                 <p className="text-surface-400 mb-4">لم تسجل في أي كورس بعد</p>
                 <Link
@@ -197,7 +197,7 @@ export default function StudentDashboard() {
                   <Link
                     key={enrollment.id}
                     to={`/courses/${enrollment.course.slug}`}
-                    className="glass rounded-2xl p-4 border border-white/5 hover:border-primary-500/30 transition-all group flex items-center gap-4"
+                    className="glass rounded-2xl p-4 border border-surface-200 hover:border-primary-500/30 transition-all group flex items-center gap-4"
                   >
                     <div className="w-16 h-16 rounded-xl bg-surface-800 overflow-hidden shrink-0">
                       {enrollment.course.thumbnailUrl ? (
@@ -209,7 +209,7 @@ export default function StudentDashboard() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-white text-sm truncate group-hover:text-primary-400 transition-colors">
+                      <p className="font-medium text-surface-50 text-sm truncate group-hover:text-primary-400 transition-colors">
                         {enrollment.course.title}
                       </p>
                       <div className="mt-2 h-1.5 bg-surface-700 rounded-full overflow-hidden">
@@ -228,24 +228,24 @@ export default function StudentDashboard() {
 
           {/* Recent Activity */}
           <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4}>
-            <h2 className="text-lg font-bold text-white mb-4">النشاط الأخير</h2>
+            <h2 className="text-lg font-bold text-surface-50 mb-4">النشاط الأخير</h2>
             {isLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map(i => <div key={i} className="h-12 rounded-xl bg-surface-800 animate-pulse" />)}
               </div>
             ) : !data?.recentActivity?.length ? (
-              <div className="glass rounded-xl p-6 text-center border border-white/5">
+              <div className="glass rounded-xl p-6 text-center border border-surface-200">
                 <Clock className="w-8 h-8 text-surface-600 mx-auto mb-2" />
                 <p className="text-surface-400 text-sm">لا يوجد نشاط مؤخراً</p>
               </div>
             ) : (
               <div className="space-y-2">
                 {data.recentActivity.map((activity: any) => (
-                  <div key={activity.id} className="glass rounded-xl p-4 border border-white/5 flex items-center gap-3">
+                  <div key={activity.id} className="glass rounded-xl p-4 border border-surface-200 flex items-center gap-3">
                     <PlayCircle className="w-5 h-5 text-primary-500 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-surface-300 truncate">
-                        شاهدت: <span className="text-white">{activity.lesson?.title}</span>
+                        شاهدت: <span className="text-surface-50">{activity.lesson?.title}</span>
                       </p>
                       <p className="text-xs text-surface-500">
                         {activity.lesson?.chapter?.module?.course?.title}
@@ -261,12 +261,12 @@ export default function StudentDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Achievements */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={5}>
-              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <h2 className="text-lg font-bold text-surface-50 mb-4 flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-400" />
                 إنجازاتي
               </h2>
               {!achievements?.length ? (
-                <div className="glass rounded-2xl p-6 border border-white/5 text-center">
+                <div className="glass rounded-2xl p-6 border border-surface-200 text-center">
                   <Trophy className="w-10 h-10 text-surface-600 mx-auto mb-2" />
                   <p className="text-surface-400 text-sm">أكمل دروساً لفتح الإنجازات</p>
                 </div>
@@ -279,7 +279,7 @@ export default function StudentDashboard() {
                         "glass rounded-xl p-3 border flex items-center gap-3 transition-all",
                         a.earned
                           ? "border-amber-500/30 bg-amber-500/5"
-                          : "border-white/5 opacity-50 grayscale"
+                          : "border-surface-200 opacity-50 grayscale"
                       )}
                     >
                       <div className="text-2xl shrink-0">{a.iconUrl}</div>
@@ -298,11 +298,11 @@ export default function StudentDashboard() {
 
             {/* Leaderboard */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={6}>
-              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <h2 className="text-lg font-bold text-surface-50 mb-4 flex items-center gap-2">
                 <Crown className="w-5 h-5 text-yellow-400" />
                 لوحة المتصدرين
               </h2>
-              <div className="glass rounded-2xl border border-white/5 overflow-hidden">
+              <div className="glass rounded-2xl border border-surface-200 overflow-hidden">
                 {!leaderboard?.length ? (
                   <div className="p-6 text-center">
                     <Medal className="w-10 h-10 text-surface-600 mx-auto mb-2" />
@@ -325,7 +325,7 @@ export default function StudentDashboard() {
                           {i < 3 ? ['🥇','🥈','🥉'][i] : leader.rank}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">
+                          <p className="text-sm font-medium text-surface-50 truncate">
                             {leader.name} {leader.userId === user?.id && <span className="text-primary-400 text-xs">(أنت)</span>}
                           </p>
                           <p className="text-xs text-surface-500">مستوى {leader.level} · {leader.city || ''}</p>
@@ -349,9 +349,9 @@ export default function StudentDashboard() {
       {/* Browse Courses CTA for pending users */}
       {isPending && (
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2}>
-          <div className="glass rounded-2xl p-8 border border-white/5 text-center">
+          <div className="glass rounded-2xl p-8 border border-surface-200 text-center">
             <CheckCircle2 className="w-12 h-12 text-surface-600 mx-auto mb-4" />
-            <h3 className="text-white font-bold text-lg mb-2">استعرض الكورسات بينما تنتظر</h3>
+            <h3 className="text-surface-50 font-bold text-lg mb-2">استعرض الكورسات بينما تنتظر</h3>
             <p className="text-surface-400 text-sm mb-6">يمكنك رؤية الكورسات المتاحة الآن وستتمكن من التسجيل بعد قبول حسابك</p>
             <Link
               to="/courses"

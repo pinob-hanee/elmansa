@@ -103,7 +103,8 @@ router.get('/chapters/:chapterId/student-deadlines', authenticate, requireRole('
 
 router.post('/chapters/:chapterId/student-deadlines', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const deadline = await svc.setStudentDeadline(req.params.chapterId, req.body.userId, new Date(req.body.deadline));
+    const deadlineDate = req.body.deadline ? new Date(req.body.deadline) : null;
+    const deadline = await svc.setStudentDeadline(req.params.chapterId, req.body.userId, deadlineDate);
     successResponse(res, deadline, 'Student deadline updated');
   } catch (e) { next(e); }
 });

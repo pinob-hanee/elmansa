@@ -42,11 +42,11 @@ function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => v
         className="bg-surface-900 border border-surface-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl"
       >
         <div className="flex items-center justify-between p-5 border-b border-surface-800 bg-surface-900/50">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-xl font-bold text-surface-50 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-primary-500" />
             كورسات الطالب: {student.profile?.firstName}
           </h2>
-          <button onClick={onClose} className="p-2 text-surface-400 hover:text-white rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 text-surface-400 hover:text-surface-50 rounded-lg transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -67,7 +67,7 @@ function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => v
                   )}
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-white font-medium text-sm line-clamp-1">{en.course.title}</h4>
+                  <h4 className="text-surface-50 font-medium text-sm line-clamp-1">{en.course.title}</h4>
                   <p className="text-xs text-surface-400 mt-1">الحالة: {en.status === 'ACTIVE' ? 'نشط' : en.status === 'DROPPED' ? 'موقوف' : en.status}</p>
                 </div>
                 {en.status === 'ACTIVE' && (
@@ -119,7 +119,7 @@ export default function AdminStudents() {
   return (
     <div dir="rtl" className="space-y-6">
       <div>
-        <h1 className="text-2xl font-extrabold text-white mb-1">إدارة الطلاب</h1>
+        <h1 className="text-2xl font-extrabold text-surface-50 mb-1">إدارة الطلاب</h1>
         <p className="text-surface-400">راجع وأدر طلبات التسجيل والطلاب</p>
       </div>
 
@@ -131,7 +131,7 @@ export default function AdminStudents() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="ابحث بالاسم أو البريد الإلكتروني..."
-            className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-surface-800 border border-surface-700 focus:border-primary-500 text-white placeholder-surface-500 text-sm outline-none transition-all"
+            className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-surface-800 border border-surface-700 focus:border-primary-500 text-surface-50 placeholder-surface-500 text-sm outline-none transition-all"
           />
         </div>
         <select
@@ -148,7 +148,7 @@ export default function AdminStudents() {
       </div>
 
       {/* Table */}
-      <div className="glass rounded-2xl border border-white/5 overflow-hidden">
+      <div className="glass rounded-2xl border border-surface-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -186,7 +186,7 @@ export default function AdminStudents() {
                             {student.profile?.firstName?.charAt(0) || '?'}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-white">
+                            <p className="text-sm font-medium text-surface-50">
                               {student.profile?.firstName} {student.profile?.lastName}
                             </p>
                             <p className="text-xs text-surface-500">{student.email}</p>
@@ -268,14 +268,14 @@ export default function AdminStudents() {
               <button
                 disabled={page === 1}
                 onClick={() => setPage(p => p - 1)}
-                className="px-3 py-1.5 rounded-lg border border-surface-700 text-surface-400 hover:text-white hover:border-surface-600 disabled:opacity-40 text-sm transition-all"
+                className="px-3 py-1.5 rounded-lg border border-surface-700 text-surface-400 hover:text-surface-50 hover:border-surface-600 disabled:opacity-40 text-sm transition-all"
               >
                 السابق
               </button>
               <button
                 disabled={page === data.meta.totalPages}
                 onClick={() => setPage(p => p + 1)}
-                className="px-3 py-1.5 rounded-lg border border-surface-700 text-surface-400 hover:text-white hover:border-surface-600 disabled:opacity-40 text-sm transition-all"
+                className="px-3 py-1.5 rounded-lg border border-surface-700 text-surface-400 hover:text-surface-50 hover:border-surface-600 disabled:opacity-40 text-sm transition-all"
               >
                 التالي
               </button>

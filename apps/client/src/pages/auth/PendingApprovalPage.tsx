@@ -20,12 +20,12 @@ export default function PendingApprovalPage() {
           <div className="w-24 h-24 rounded-full bg-warning/10 border border-warning/30 flex items-center justify-center mx-auto mb-6">
             <Clock className="w-12 h-12 text-warning" />
           </div>
-          <h1 className="text-3xl font-extrabold text-white mb-3">
+          <h1 className="text-3xl font-extrabold text-surface-50 mb-3">
             {isRtl ? 'جاري مراجعة طلبك' : 'Application Under Review'}
           </h1>
           <p className="text-surface-400 leading-relaxed mb-2">
             {isRtl ? 'مرحباً ' : 'Hello '}
-            <span className="text-white font-medium">{user?.profile?.firstName}</span>!
+            <span className="text-surface-50 font-medium">{user?.profile?.firstName}</span>!
           </p>
           <p className="text-surface-400 leading-relaxed mb-8">
             {isRtl
@@ -43,7 +43,7 @@ export default function PendingApprovalPage() {
               onClick={() => {
                 api.post('/auth/logout').finally(() => logout());
               }}
-              className="w-full py-3 rounded-xl border border-surface-700 text-surface-400 hover:text-white hover:border-surface-600 transition-all text-sm"
+              className="w-full py-3 rounded-xl border border-surface-700 text-surface-400 hover:text-surface-50 hover:border-surface-600 transition-all text-sm"
             >
               {t('nav.logout')}
             </button>

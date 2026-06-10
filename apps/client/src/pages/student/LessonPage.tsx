@@ -40,10 +40,35 @@ export default function LessonPage() {
 
   const updateProgressMutation = useMutation({
     mutationFn: (watchedTime: number) => studentCoursesApi.updateProgress(lessonId!, watchedTime),
-    onSuccess: (data) => {
-      // Always re-fetch course so sidebar checkmarks update
+    onMutate: async () => {
+      // Optimistic update
+      await queryClient.cancelQueries({ queryKey: ['course', slug] });
+      const previousCourse = queryClient.getQueryData(['course', slug]);
+      
+      queryClient.setQueryData(['course', slug], (oldData: any) => {
+        if (!oldData) return oldData;
+        const newData = { ...oldData };
+        newData.modules?.forEach((m: any) => {
+          m.chapters?.forEach((c: any) => {
+            c.lessons?.forEach((l: any) => {
+              if (l.id === lessonId) l.isCompleted = true;
+            });
+          });
+        });
+        return newData;
+      });
+      return { previousCourse };
+    },
+    onError: (_err, _newProgress, context) => {
+      // Rollback on error
+      if (context?.previousCourse) {
+        queryClient.setQueryData(['course', slug], context.previousCourse);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['course', slug] });
-
+    },
+    onSuccess: (data) => {
       if (data?.xpEarned > 0) {
         // Always refresh XP/level stats after earning XP
         queryClient.invalidateQueries({ queryKey: ['gamification-stats'] });
@@ -125,7 +150,7 @@ export default function LessonPage() {
     </div>
   );
   if (!course) return (
-    <div className="p-8 text-center text-white">
+    <div className="p-8 text-center text-surface-50">
       {isRtl ? 'لم يتم العثور على الكورس' : 'Course not found'}
     </div>
   );
@@ -137,12 +162,12 @@ export default function LessonPage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(`/courses/${slug}`)}
-            className="p-2 text-surface-400 hover:text-white transition-colors rounded-lg hover:bg-surface-800"
+            className="p-2 text-surface-400 hover:text-surface-50 transition-colors rounded-lg hover:bg-surface-800"
           >
             <ArrowRight className={cn('w-5 h-5', !isRtl && 'rotate-180')} />
           </button>
           <div className="w-px h-6 bg-surface-800" />
-          <h1 className="font-bold text-white line-clamp-1">{course.title}</h1>
+          <h1 className="font-bold text-surface-50 line-clamp-1">{course.title}</h1>
         </div>
 
         {/* Progress bar in header */}
@@ -160,7 +185,7 @@ export default function LessonPage() {
 
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden p-2 text-surface-400 hover:text-white"
+          className="lg:hidden p-2 text-surface-400 hover:text-surface-50"
         >
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -275,7 +300,7 @@ export default function LessonPage() {
 
           {currentLesson?.type !== 'QUIZ' && (
             <div className="p-6 max-w-4xl mx-auto">
-              <h2 className="text-2xl font-bold text-white mb-4">{currentLesson?.title}</h2>
+              <h2 className="text-2xl font-bold text-surface-50 mb-4">{currentLesson?.title}</h2>
             </div>
           )}
         </main>
@@ -292,7 +317,7 @@ export default function LessonPage() {
           {/* Sidebar header with progress */}
           <div className="p-4 border-b border-surface-800 shrink-0">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-white text-sm">
+              <h3 className="font-bold text-surface-50 text-sm">
                 {isRtl ? 'محتوى الكورس' : 'Course Content'}
               </h3>
               <span className="text-xs text-primary-400 font-mono font-bold">

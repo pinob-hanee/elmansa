@@ -179,11 +179,11 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
               <HelpCircle className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">{isRtl ? 'بناء الاختبار' : 'Quiz Builder'}</h2>
+              <h2 className="text-xl font-bold text-surface-50">{isRtl ? 'بناء الاختبار' : 'Quiz Builder'}</h2>
               <p className="text-sm text-surface-400">{isRtl ? 'أضف الأسئلة وحدد الإجابات الصحيحة' : 'Add questions and set correct answers'}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-surface-400 hover:text-white hover:bg-surface-800 rounded-xl transition-all">
+          <button onClick={onClose} className="p-2 text-surface-400 hover:text-surface-50 hover:bg-surface-800 rounded-xl transition-all">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -214,7 +214,7 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
                 type="text" 
                 value={title} 
                 onChange={e => setTitle(e.target.value)}
-                className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-white focus:border-amber-500 focus:outline-none transition-colors"
+                className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-surface-50 focus:border-amber-500 focus:outline-none transition-colors"
               />
             </div>
             <div>
@@ -227,7 +227,7 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
                 max={100}
                 value={passingScore} 
                 onChange={e => setPassingScore(Number(e.target.value))}
-                className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-white focus:border-amber-500 focus:outline-none transition-colors"
+                className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-surface-50 focus:border-amber-500 focus:outline-none transition-colors"
               />
             </div>
           </div>
@@ -237,7 +237,7 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
           {/* Questions */}
           <div className="space-y-5">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg text-white">
+              <h3 className="font-bold text-lg text-surface-50">
                 {isRtl ? `الأسئلة (${questions.length})` : `Questions (${questions.length})`}
               </h3>
               <button 
@@ -267,7 +267,7 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
                     placeholder={isRtl ? 'اكتب السؤال هنا...' : 'Type your question here...'}
                     value={q.question}
                     onChange={e => updateQuestion(qIndex, 'question', e.target.value)}
-                    className="flex-1 bg-transparent border-b border-surface-700 pb-2 text-white focus:border-amber-500 focus:outline-none placeholder:text-surface-600 transition-colors"
+                    className="flex-1 bg-transparent border-b border-surface-700 pb-2 text-surface-50 focus:border-amber-500 focus:outline-none placeholder:text-surface-600 transition-colors"
                   />
                   <button 
                     onClick={() => removeQuestion(qIndex)}
@@ -301,7 +301,7 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
                         value={opt.text}
                         onChange={e => updateOption(qIndex, oIndex, e.target.value)}
                         className={cn(
-                          "flex-1 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none transition-all border",
+                          "flex-1 rounded-xl px-3 py-2.5 text-sm text-surface-50 focus:outline-none transition-all border",
                           opt.isCorrect 
                             ? "bg-emerald-500/5 border-emerald-500/40 focus:border-emerald-500" 
                             : "bg-surface-800 border-surface-700 focus:border-amber-500/50"
@@ -342,7 +342,7 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
           <div className="flex gap-3">
             <button 
               onClick={onClose} 
-              className="px-6 py-2.5 rounded-xl bg-surface-800 hover:bg-surface-700 text-surface-300 hover:text-white transition-all"
+              className="px-6 py-2.5 rounded-xl bg-surface-800 hover:bg-surface-700 text-surface-300 hover:text-surface-50 transition-all"
             >
               {isRtl ? 'إلغاء' : 'Cancel'}
             </button>
@@ -352,7 +352,7 @@ export default function QuizBuilder({ lessonId, onClose }: QuizBuilderProps) {
               className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold transition-all disabled:opacity-50 shadow-lg shadow-amber-500/20"
             >
               {saveMutation.isPending 
-                ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ? <div className="w-4 h-4 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />
                 : <Save className="w-4 h-4" />}
               {saveMutation.isPending 
                 ? (isRtl ? 'جاري الحفظ...' : 'Saving...') 

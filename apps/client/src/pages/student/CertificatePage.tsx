@@ -23,7 +23,7 @@ export default function CertificatePage() {
   );
 
   if (isError || !cert) return (
-    <div className="min-h-screen bg-surface-950 flex items-center justify-center text-white text-center" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-surface-950 flex items-center justify-center text-surface-50 text-center" dir={isRtl ? 'rtl' : 'ltr'}>
       <div>
         <div className="text-6xl mb-4">😕</div>
         <h1 className="text-2xl font-bold mb-2">{t('certificate.notFound', 'الشهادة غير موجودة')}</h1>
@@ -49,17 +49,17 @@ export default function CertificatePage() {
             <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 p-8 text-center border-b border-amber-500/20 print:bg-none print:border-amber-500 print:text-black">
               <div className="flex justify-center mb-4">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center shadow-xl shadow-amber-500/30 print:shadow-none print:border print:border-amber-500">
-                  <Award className="w-10 h-10 text-white print:text-amber-600" />
+                  <Award className="w-10 h-10 text-surface-50 print:text-amber-600" />
                 </div>
               </div>
               <p className="text-amber-400 print:text-amber-600 font-semibold tracking-widest uppercase text-sm mb-1">{t('certificate.platformName', 'منصة المنسى التعليمية')}</p>
-              <h1 className="text-3xl font-bold text-white print:text-black">{t('certificate.title', 'شهادة إتمام')}</h1>
+              <h1 className="text-3xl font-bold text-surface-50 print:text-black">{t('certificate.title', 'شهادة إتمام')}</h1>
             </div>
 
             {/* Body */}
             <div className="p-10 text-center">
               <p className="text-surface-400 print:text-gray-600 text-lg mb-3">{t('certificate.certifiedTo', 'يُشهد بأن')}</p>
-              <h2 className="text-4xl font-extrabold text-white print:text-black mb-6 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+              <h2 className="text-4xl font-extrabold text-surface-50 print:text-black mb-6 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 {studentName || t('certificate.student', 'الطالب')}
               </h2>
               <p className="text-surface-300 print:text-gray-600 text-lg mb-2">{t('certificate.successfullyCompleted', 'قد أتمّ بنجاح كورس')}</p>
@@ -102,7 +102,7 @@ export default function CertificatePage() {
         <div className="flex justify-center gap-4 mt-6 print:hidden">
           <button
             onClick={() => window.print()}
-            className="px-6 py-3 bg-surface-800 hover:bg-surface-700 text-white rounded-xl font-medium transition-all border border-surface-700"
+            className="px-6 py-3 bg-surface-800 hover:bg-surface-700 text-surface-50 rounded-xl font-medium transition-all border border-surface-700"
           >
             🖨️ {t('certificate.print', 'طباعة الشهادة')}
           </button>

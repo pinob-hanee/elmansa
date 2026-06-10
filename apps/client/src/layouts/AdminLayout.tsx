@@ -39,14 +39,14 @@ export default function AdminLayout() {
   return (
     <div className="flex h-screen bg-surface-950 overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Admin Sidebar */}
-      <aside className={cn('w-64 flex flex-col bg-surface-900 shrink-0', isRtl ? 'border-l border-surface-800' : 'border-r border-surface-800')}>
+      <aside className={cn('w-64 flex flex-col bg-surface-900 shrink-0 shadow-2xl', isRtl ? 'border-l border-surface-800' : 'border-r border-surface-800')}>
         {/* Logo */}
         <div className="h-16 flex items-center gap-3 px-5 border-b border-surface-800">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg">
-            <Shield className="w-4 h-4 text-white" />
+            <Shield className="w-4 h-4 text-surface-50" />
           </div>
           <div>
-            <p className="font-extrabold text-white text-sm">{t('admin.title')}</p>
+            <p className="font-extrabold text-surface-50 text-sm">{t('admin.title')}</p>
             <p className="text-xs text-surface-500">Elmansa Admin</p>
           </div>
         </div>
@@ -65,7 +65,7 @@ export default function AdminLayout() {
                   'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm',
                   isActive
                     ? 'bg-primary-600/20 text-primary-400 border border-primary-500/30 font-medium'
-                    : 'text-surface-400 hover:text-white hover:bg-surface-800'
+                    : 'text-surface-400 hover:text-surface-50 hover:bg-surface-800'
                 )}
               >
                 <item.icon className="w-5 h-5 shrink-0" />
@@ -79,7 +79,7 @@ export default function AdminLayout() {
         <div className="px-2 pb-2">
           <Link
             to="/dashboard"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-surface-500 hover:text-white hover:bg-surface-800 transition-all text-sm"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-surface-500 hover:text-surface-50 hover:bg-surface-800 transition-all text-sm"
           >
             <BookOpenCheck className="w-5 h-5" />
             {t('nav.viewAsStudent')}
@@ -93,7 +93,7 @@ export default function AdminLayout() {
               {user?.profile?.firstName?.charAt(0) || 'A'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{user?.profile?.firstName} {user?.profile?.lastName}</p>
+              <p className="text-sm font-medium text-surface-50 truncate">{user?.profile?.firstName} {user?.profile?.lastName}</p>
               <p className="text-xs text-amber-500/80 truncate">{user?.role}</p>
             </div>
             <button onClick={handleLogout} className="text-surface-500 hover:text-error transition-colors" title={t('nav.logout')}>

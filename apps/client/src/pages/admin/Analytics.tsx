@@ -23,7 +23,7 @@ export default function AdminAnalytics() {
   return (
     <div dir="rtl" className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">التحليلات والإحصائيات</h1>
+        <h1 className="text-2xl font-bold text-surface-50 mb-1">التحليلات والإحصائيات</h1>
         <p className="text-surface-400 text-sm">متابعة أداء المنصة ونمو الطلاب</p>
       </div>
 
@@ -33,13 +33,13 @@ export default function AdminAnalytics() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass p-6 rounded-2xl border border-white/5"
+          className="glass p-6 rounded-2xl border border-surface-200"
         >
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-primary-500/10 rounded-lg text-primary-400">
               <TrendingUp className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-white">نمو الطلاب والتسجيلات</h2>
+            <h2 className="text-lg font-bold text-surface-50">نمو الطلاب والتسجيلات</h2>
           </div>
           
           <div className="h-[300px] w-full" dir="ltr">
@@ -65,13 +65,13 @@ export default function AdminAnalytics() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass p-6 rounded-2xl border border-white/5"
+          className="glass p-6 rounded-2xl border border-surface-200"
         >
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
               <BookOpen className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-white">الكورسات الأكثر شعبية</h2>
+            <h2 className="text-lg font-bold text-surface-50">الكورسات الأكثر شعبية</h2>
           </div>
           
           <div className="h-[300px] w-full" dir="ltr">

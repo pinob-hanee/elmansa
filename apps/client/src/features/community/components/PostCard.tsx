@@ -51,7 +51,7 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
   };
 
   return (
-    <div className="glass rounded-2xl p-5 border border-white/5 transition-all hover:border-white/10">
+    <div className="glass rounded-2xl p-5 border border-surface-200 transition-all hover:border-surface-200">
       {/* Post Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -60,7 +60,7 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-white">
+              <span className="font-bold text-surface-50">
                 {post.author?.profile?.firstName} {post.author?.profile?.lastName}
               </span>
               {post.author?.role === 'TEACHER' && (

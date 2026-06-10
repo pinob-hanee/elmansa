@@ -92,9 +92,9 @@ function CodeBlock() {
     <div className="relative w-full max-w-xl mx-auto">
       {/* Glow */}
       <div className="absolute -inset-4 bg-primary-500/10 rounded-3xl blur-2xl" />
-      <div className="relative glass rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+      <div className="relative glass rounded-2xl overflow-hidden border border-surface-200 shadow-2xl">
         {/* Title bar */}
-        <div className="flex items-center gap-2 px-4 py-3 bg-surface-900/80 border-b border-white/5">
+        <div className="flex items-center gap-2 px-4 py-3 bg-surface-900/80 border-b border-surface-200">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-red-500/80" />
             <div className="w-3 h-3 rounded-full bg-amber-500/80" />
@@ -121,7 +121,7 @@ function CodeBlock() {
           )}
         </div>
         {/* Status bar */}
-        <div className="px-4 py-2 bg-surface-900/60 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-surface-500">
+        <div className="px-4 py-2 bg-surface-900/60 border-t border-surface-200 flex items-center justify-between text-[10px] font-mono text-surface-500">
           <span>UTF-8 • LF</span>
           <span>Ln {lines.length}, Col {(lines[lines.length - 1]?.length || 0) + 1}</span>
           <span className="flex items-center gap-1">
@@ -157,22 +157,22 @@ function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-surface-950 text-white overflow-hidden" dir="rtl">
+    <div className="min-h-screen bg-surface-950 text-surface-50 overflow-hidden" dir="rtl">
       {/* Animated grid background */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.03)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
 
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 glass border-b border-white/10">
+      <nav className="fixed top-0 w-full z-50 glass border-b border-surface-200">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-md">
               <Code2 className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold gradient-text font-mono">Elmansa</span>
             <span className="hidden sm:block text-xs text-surface-500 font-mono border border-surface-800 px-2 py-0.5 rounded-md">{"<coding />"}</span>
           </motion.div>
           <div className="flex items-center gap-4">
-            <Link to="/login" className="text-surface-300 hover:text-white transition-colors text-sm font-mono">
+            <Link to="/login" className="text-surface-300 hover:text-surface-50 transition-colors text-sm font-mono">
               $ login
             </Link>
             <Link
@@ -232,7 +232,7 @@ export default function LandingPage() {
                   ابدأ رحلتك الآن
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <button className="group px-8 py-4 rounded-2xl border border-surface-700 text-surface-300 hover:text-white hover:border-primary-500/50 transition-all flex items-center gap-3">
+                <button className="group px-8 py-4 rounded-2xl border border-surface-700 text-surface-300 hover:text-surface-50 hover:border-primary-500/50 transition-all flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary-600/20 flex items-center justify-center group-hover:bg-primary-600/40 transition-colors">
                     <Play className="w-4 h-4 text-primary-400 ml-0.5" />
                   </div>
@@ -271,7 +271,7 @@ export default function LandingPage() {
             { to: 15, suffix: '', label: 'لغة برمجة' },
             { to: 98, suffix: '%', label: 'نسبة التوظيف' },
           ].map((stat) => (
-            <div key={stat.label} className="glass rounded-2xl p-6 text-center border border-white/5 hover:border-primary-500/20 transition-all group">
+            <div key={stat.label} className="glass rounded-2xl p-6 text-center border border-surface-200 hover:border-primary-500/20 transition-all group">
               <div className="text-3xl font-extrabold gradient-text mb-1 font-mono">
                 <Counter to={stat.to} suffix={stat.suffix} />
               </div>
@@ -303,9 +303,9 @@ export default function LandingPage() {
                 key={feat.title}
                 variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i}
                 whileHover={{ y: -6 }}
-                className="glass rounded-2xl p-6 border border-white/5 hover:border-primary-500/30 transition-all duration-300 group"
+                className="glass rounded-2xl p-6 border border-surface-200 hover:border-primary-500/30 transition-all duration-300 group"
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feat.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feat.color} flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform`}>
                   <feat.icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">{feat.title}</h3>
@@ -336,9 +336,9 @@ export default function LandingPage() {
                 key={path.title}
                 variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i}
                 whileHover={{ y: -4 }}
-                className="glass rounded-2xl p-6 border border-white/5 hover:border-primary-500/30 transition-all group"
+                className="glass rounded-2xl p-6 border border-surface-200 hover:border-primary-500/30 transition-all group"
               >
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${path.color} flex items-center justify-center text-2xl mb-4 shadow-lg group-hover:scale-105 transition-transform`}>
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${path.color} flex items-center justify-center text-2xl mb-4 shadow-md group-hover:scale-105 transition-transform text-white`}>
                   {path.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-4">{path.title}</h3>
@@ -377,7 +377,7 @@ export default function LandingPage() {
                 variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i}
                 className="text-center"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-600 to-purple-600 flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-primary-500/25">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-600 to-purple-600 flex items-center justify-center text-2xl mx-auto mb-4 shadow-md shadow-primary-500/25 text-white">
                   {s.icon}
                 </div>
                 <div className="text-primary-400 font-mono text-xs mb-2">{s.step}</div>
@@ -423,7 +423,7 @@ export default function LandingPage() {
       <footer className="border-t border-surface-800 py-8 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-sm">
               <Code2 className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold gradient-text font-mono">Elmansa</span>

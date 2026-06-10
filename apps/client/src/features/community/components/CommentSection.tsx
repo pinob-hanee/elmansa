@@ -49,12 +49,12 @@ export default function CommentSection({ postId, comments: initialComments }: Co
         ) : (
           comments.map((comment: any) => (
             <div key={comment.id} className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-surface-800 flex items-center justify-center text-xs font-bold text-white shrink-0 mt-1">
+              <div className="w-8 h-8 rounded-full bg-surface-800 flex items-center justify-center text-xs font-bold text-surface-50 shrink-0 mt-1">
                 {comment.author?.profile?.firstName?.charAt(0) || 'U'}
               </div>
               <div className="flex-1 bg-surface-900/50 rounded-2xl p-3 border border-surface-800">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-white text-sm">
+                  <span className="font-medium text-surface-50 text-sm">
                     {comment.author?.profile?.firstName} {comment.author?.profile?.lastName}
                   </span>
                   <span className="text-xs text-surface-500">
@@ -79,7 +79,7 @@ export default function CommentSection({ postId, comments: initialComments }: Co
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="اكتب تعليقاً..."
-            className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2 pl-12 pr-4 text-white text-sm placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all"
+            className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2 pl-12 pr-4 text-surface-50 text-sm placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all"
           />
           <button
             type="submit"

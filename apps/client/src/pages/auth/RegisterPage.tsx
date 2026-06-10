@@ -41,7 +41,7 @@ const InputField = ({ label, icon: Icon, error, isRtl, ...props }: any) => (
       <input
         {...props}
         className={cn(
-          'w-full py-2.5 rounded-xl bg-surface-800 border text-white placeholder-surface-500 text-sm outline-none transition-all',
+          'w-full py-2.5 rounded-xl bg-surface-800 border text-surface-50 placeholder-surface-500 text-sm outline-none transition-all',
           isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4',
           error ? 'border-error/50' : 'border-surface-700 focus:border-primary-500'
         )}
@@ -77,7 +77,7 @@ export default function RegisterPage() {
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-success/20 to-success/5 border border-success/30 flex items-center justify-center mx-auto mb-6">
             <div className="text-5xl">✅</div>
           </div>
-          <h2 className="text-3xl font-extrabold text-white mb-3">{t('auth.registrationSuccess')}</h2>
+          <h2 className="text-3xl font-extrabold text-surface-50 mb-3">{t('auth.registrationSuccess')}</h2>
           <p className="text-surface-400 mb-2">{t('auth.verificationSent')}</p>
           <p className="text-surface-400 mb-8">{t('auth.waitForApproval')}</p>
           <Link
@@ -105,19 +105,19 @@ export default function RegisterPage() {
           </div>
           <Link to="/" className="inline-flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <BookOpen className="w-6 h-6 text-white" />
+              <BookOpen className="w-6 h-6 text-surface-50" />
             </div>
             <span className="text-2xl font-extrabold gradient-text">Elmansa</span>
           </Link>
-          <h1 className="text-3xl font-extrabold text-white mb-2">{t('auth.createAccount')}</h1>
+          <h1 className="text-3xl font-extrabold text-surface-50 mb-2">{t('auth.createAccount')}</h1>
           <p className="text-surface-400">{t('auth.joinCommunity')}</p>
         </div>
 
-        <div className="glass rounded-3xl p-8 border border-white/10">
+        <div className="glass rounded-3xl p-8 border border-surface-200">
           {/* Google Sign up */}
           <a
             href="/api/v1/auth/google"
-            className="w-full flex items-center justify-center gap-3 px-6 py-2.5 rounded-xl border border-surface-700 hover:border-surface-500 bg-surface-800/50 hover:bg-surface-800 text-white transition-all mb-5 group"
+            className="w-full flex items-center justify-center gap-3 px-6 py-2.5 rounded-xl border border-surface-700 hover:border-surface-500 bg-surface-800/50 hover:bg-surface-800 text-surface-50 transition-all mb-5 group"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -125,7 +125,7 @@ export default function RegisterPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            <span className="text-sm font-medium group-hover:text-white/90">{t('auth.registerWithGoogle')}</span>
+            <span className="text-sm font-medium group-hover:text-surface-50/90">{t('auth.registerWithGoogle')}</span>
           </a>
 
           <div className="relative mb-5">
@@ -154,7 +154,7 @@ export default function RegisterPage() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   className={cn(
-                    'w-full py-2.5 rounded-xl bg-surface-800 border text-white placeholder-surface-500 text-sm outline-none transition-all',
+                    'w-full py-2.5 rounded-xl bg-surface-800 border text-surface-50 placeholder-surface-500 text-sm outline-none transition-all',
                     isRtl ? 'pr-10 pl-10' : 'pl-10 pr-10',
                     errors.password ? 'border-error/50' : 'border-surface-700 focus:border-primary-500'
                   )}
@@ -188,7 +188,7 @@ export default function RegisterPage() {
               className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 text-white font-bold hover:shadow-xl hover:shadow-primary-500/30 transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
             >
               {mutation.isPending ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />
               ) : (
                 <>
                   <UserPlus className="w-5 h-5" />

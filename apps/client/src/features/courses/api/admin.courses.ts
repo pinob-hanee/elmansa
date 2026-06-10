@@ -56,7 +56,7 @@ export const adminCoursesApi = {
     return res.data.data;
   },
 
-  setStudentDeadline: async (chapterId: string, userId: string, deadline: string) => {
+  setStudentDeadline: async (chapterId: string, userId: string, deadline: string | null) => {
     const res = await api.post(`/courses/chapters/${chapterId}/student-deadlines`, { userId, deadline });
     return res.data.data;
   },

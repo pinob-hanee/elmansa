@@ -44,7 +44,7 @@ export default function CourseDetailPage() {
     );
   }
 
-  if (!course) return <div className="text-white text-center py-20">{t('courses.notFound')}</div>;
+  if (!course) return <div className="text-surface-50 text-center py-20">{t('courses.notFound')}</div>;
 
   const isEnrolled = course.isEnrolled;
   const isCompleted = course.enrollmentStatus === 'COMPLETED';
@@ -79,7 +79,7 @@ export default function CourseDetailPage() {
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'} className="max-w-5xl mx-auto pb-20">
       {/* Hero Section */}
-      <div className="relative rounded-3xl overflow-hidden glass border border-white/5 mb-8">
+      <div className="relative rounded-3xl overflow-hidden glass border border-surface-200 mb-8">
         <div className="absolute inset-0 bg-gradient-to-r from-surface-950 via-surface-950/80 to-transparent z-10" />
         {course.thumbnail ? (
           <img src={course.thumbnail} alt={course.title} className="absolute inset-0 w-full h-full object-cover opacity-50" />
@@ -105,7 +105,7 @@ export default function CourseDetailPage() {
               )}
             </div>
             
-            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-surface-50 mb-4 leading-tight">
               {course.title}
             </h1>
             <p className="text-surface-300 text-lg mb-8 max-w-2xl leading-relaxed">
@@ -145,8 +145,8 @@ export default function CourseDetailPage() {
             </div>
           </div>
 
-          <div className="w-full md:w-80 glass rounded-2xl p-6 border border-white/5 shrink-0 bg-surface-900/50 backdrop-blur-xl">
-            <h3 className="font-bold text-white text-xl mb-4">{t('courses.includes')}</h3>
+          <div className="w-full md:w-80 glass rounded-2xl p-6 border border-surface-200 shrink-0 bg-surface-900/50 backdrop-blur-xl">
+            <h3 className="font-bold text-surface-50 text-xl mb-4">{t('courses.includes')}</h3>
             <ul className="space-y-4">
               {[
                 t('courses.includesVideo'),
@@ -166,12 +166,12 @@ export default function CourseDetailPage() {
 
       {/* Curriculum */}
       <div className="max-w-3xl">
-        <h2 className="text-2xl font-bold text-white mb-6">{t('courses.curriculum')}</h2>
+        <h2 className="text-2xl font-bold text-surface-50 mb-6">{t('courses.curriculum')}</h2>
         <div className="space-y-4">
           {course.modules?.map((module: any, index: number) => (
-            <div key={module.id} className="glass rounded-2xl border border-white/5 overflow-hidden">
+            <div key={module.id} className="glass rounded-2xl border border-surface-200 overflow-hidden">
               <div className="p-5 bg-surface-800/50 flex items-center justify-between">
-                <h3 className="font-bold text-white">{t('courses.unit')} {index + 1}: {module.title}</h3>
+                <h3 className="font-bold text-surface-50">{t('courses.unit')} {index + 1}: {module.title}</h3>
               </div>
               <div className="p-3 divide-y divide-surface-800/50">
                 {module.chapters?.map((chapter: any) => (

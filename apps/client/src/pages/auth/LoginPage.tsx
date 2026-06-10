@@ -64,9 +64,9 @@ export default function LoginPage() {
             transition={{ duration: 0.8 }}
           >
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-primary-500/40">
-              <BookOpen className="w-10 h-10 text-white" />
+              <BookOpen className="w-10 h-10 text-surface-50" />
             </div>
-            <h1 className="text-5xl font-extrabold text-white mb-4">Elmansa</h1>
+            <h1 className="text-5xl font-extrabold text-surface-50 mb-4">Elmansa</h1>
             <p className="text-surface-300 text-xl leading-relaxed max-w-sm">
               {t('auth.platformTagline')}
             </p>
@@ -88,14 +88,14 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-extrabold text-white mb-2">{t('auth.welcomeBack')}</h2>
+            <h2 className="text-3xl font-extrabold text-surface-50 mb-2">{t('auth.welcomeBack')}</h2>
             <p className="text-surface-400">{t('auth.loginSubtitle')}</p>
           </div>
 
           {/* Google Sign in */}
           <a
             href="/api/v1/auth/google"
-            className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl border border-surface-700 hover:border-surface-500 bg-surface-800/50 hover:bg-surface-800 text-white transition-all mb-6 group"
+            className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl border border-surface-700 hover:border-surface-500 bg-surface-800/50 hover:bg-surface-800 text-surface-50 transition-all mb-6 group"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -103,7 +103,7 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            <span className="text-sm font-medium group-hover:text-white/90">{t('auth.loginWithGoogle')}</span>
+            <span className="text-sm font-medium group-hover:text-surface-50/90">{t('auth.loginWithGoogle')}</span>
           </a>
 
           <div className="relative mb-6">
@@ -126,7 +126,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="you@example.com"
                   className={cn(
-                    'w-full py-3 rounded-xl bg-surface-800 border text-white placeholder-surface-500 outline-none transition-all',
+                    'w-full py-3 rounded-xl bg-surface-800 border text-surface-50 placeholder-surface-500 outline-none transition-all',
                     isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4',
                     errors.email ? 'border-error focus:border-error' : 'border-surface-700 focus:border-primary-500'
                   )}
@@ -145,7 +145,7 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   className={cn(
-                    'w-full py-3 rounded-xl bg-surface-800 border text-white placeholder-surface-500 outline-none transition-all',
+                    'w-full py-3 rounded-xl bg-surface-800 border text-surface-50 placeholder-surface-500 outline-none transition-all',
                     isRtl ? 'pr-11 pl-11' : 'pl-11 pr-11',
                     errors.password ? 'border-error' : 'border-surface-700 focus:border-primary-500'
                   )}
@@ -182,7 +182,7 @@ export default function LoginPage() {
               className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 text-white font-bold text-base hover:shadow-xl hover:shadow-primary-500/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {mutation.isPending ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />
               ) : (
                 <>
                   <LogIn className="w-5 h-5" />

@@ -536,7 +536,7 @@ model CommunityPost {
   updatedAt   DateTime @updatedAt
 
   author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  course    Course?    @relation(fields: [courseId], references: [id])
+  course    Course?    @relation(fields: [courseId], references: [id], onDelete: Cascade)
   comments  Comment[]
   reactions Reaction[]
   reports   Report[]
@@ -641,7 +641,7 @@ model Certificate {
   uniqueCode  String   @unique
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id])
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
 }

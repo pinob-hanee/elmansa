@@ -48,7 +48,7 @@ export default function AdminCommunity() {
     <div dir="rtl" className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">إدارة المجتمع</h1>
+          <h1 className="text-2xl font-bold text-surface-50 mb-1">إدارة المجتمع</h1>
           <p className="text-surface-400 text-sm">مراقبة وإدارة النقاشات ومنشورات الطلاب</p>
         </div>
       </div>
@@ -61,12 +61,12 @@ export default function AdminCommunity() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ابحث في المنشورات..."
-            className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2 pr-10 pl-4 text-white placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all"
+            className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2 pr-10 pl-4 text-surface-50 placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all"
           />
         </div>
       </div>
 
-      <div className="glass rounded-2xl border border-white/5 overflow-hidden">
+      <div className="glass rounded-2xl border border-surface-200 overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="border-b border-surface-800 bg-surface-900/50">
@@ -95,7 +95,7 @@ export default function AdminCommunity() {
                 <tr key={post.id} className="hover:bg-surface-800/30 transition-colors">
                   <td className="px-4 py-4">
                     <div className="flex flex-col gap-1 max-w-md">
-                      {post.title && <span className="font-bold text-white text-sm line-clamp-1">{post.title}</span>}
+                      {post.title && <span className="font-bold text-surface-50 text-sm line-clamp-1">{post.title}</span>}
                       <span className="text-surface-400 text-sm line-clamp-2">{post.content}</span>
                       {post.course && (
                         <span className="inline-flex items-center gap-1 text-[10px] text-primary-400 mt-1">
@@ -110,7 +110,7 @@ export default function AdminCommunity() {
                         {post.author.profile?.firstName?.charAt(0) || '?'}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-white line-clamp-1">
+                        <span className="text-sm font-medium text-surface-50 line-clamp-1">
                           {post.author.profile?.firstName} {post.author.profile?.lastName}
                         </span>
                         <span className="text-xs text-surface-500 line-clamp-1">{post.author.email}</span>

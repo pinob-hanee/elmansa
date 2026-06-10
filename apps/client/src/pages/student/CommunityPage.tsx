@@ -29,7 +29,7 @@ export default function CommunityPage() {
     <div dir={isRtl ? 'rtl' : 'ltr'} className="max-w-3xl mx-auto pb-12">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-extrabold text-white mb-2">{t('community.title', 'مجتمع المنصة')}</h1>
+        <h1 className="text-2xl font-extrabold text-surface-50 mb-2">{t('community.title', 'مجتمع المنصة')}</h1>
         <p className="text-surface-400">{t('community.subtitle', 'تواصل مع زملائك، اطرح أسئلة، وشارك المعرفة')}</p>
       </div>
 
@@ -43,12 +43,12 @@ export default function CommunityPage() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('community.searchPlaceholder', 'ابحث في المنشورات...')}
             className={cn(
-              "w-full bg-surface-900 border border-surface-800 rounded-xl py-3 text-white placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all",
+              "w-full bg-surface-900 border border-surface-800 rounded-xl py-3 text-surface-50 placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all",
               isRtl ? "pr-12 pl-4" : "pl-12 pr-4"
             )}
           />
         </div>
-        <button className="flex items-center gap-2 px-4 rounded-xl bg-surface-900 border border-surface-800 text-surface-300 hover:text-white transition-colors">
+        <button className="flex items-center gap-2 px-4 rounded-xl bg-surface-900 border border-surface-800 text-surface-300 hover:text-surface-50 transition-colors">
           <Filter className="w-5 h-5" />
           <span className="hidden sm:inline">{t('community.filter', 'تصفية')}</span>
         </button>
@@ -65,21 +65,21 @@ export default function CommunityPage() {
           ))}
         </div>
       ) : isError ? (
-        <div className="glass rounded-2xl p-12 text-center border border-white/5 mt-8">
+        <div className="glass rounded-2xl p-12 text-center border border-surface-200 mt-8">
           <div className="w-16 h-16 rounded-full bg-surface-800 flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-500/50" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">{t('common.loadError', 'حدث خطأ أثناء تحميل البيانات')}</h3>
-          <button onClick={() => refetch()} className="px-4 py-2 mt-4 bg-surface-800 hover:bg-surface-700 text-white rounded-lg">
+          <h3 className="text-xl font-bold text-surface-50 mb-2">{t('common.loadError', 'حدث خطأ أثناء تحميل البيانات')}</h3>
+          <button onClick={() => refetch()} className="px-4 py-2 mt-4 bg-surface-800 hover:bg-surface-700 text-surface-50 rounded-lg">
             {t('common.retry', 'حاول مرة أخرى')}
           </button>
         </div>
       ) : posts.length === 0 ? (
-        <div className="glass rounded-2xl p-12 text-center border border-white/5 mt-8">
+        <div className="glass rounded-2xl p-12 text-center border border-surface-200 mt-8">
           <div className="w-16 h-16 rounded-full bg-surface-800 flex items-center justify-center mx-auto mb-4">
             <Users className="w-8 h-8 text-surface-600" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">{t('community.noPosts', 'لا يوجد منشورات بعد')}</h3>
+          <h3 className="text-xl font-bold text-surface-50 mb-2">{t('community.noPosts', 'لا يوجد منشورات بعد')}</h3>
           <p className="text-surface-400">{t('community.beFirstToPost', 'كن أول من يشارك في المجتمع!')}</p>
         </div>
       ) : (

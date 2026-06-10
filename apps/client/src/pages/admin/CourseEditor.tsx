@@ -37,7 +37,7 @@ function AddItemForm({ placeholder, onAdd, onCancel, addLabel, cancelLabel }: {
           if (e.key === 'Escape') onCancel();
         }}
         placeholder={placeholder}
-        className="flex-1 bg-surface-950 border border-primary-500/50 rounded-lg px-3 py-2 text-white text-sm focus:outline-none"
+        className="flex-1 bg-surface-950 border border-primary-500/50 rounded-lg px-3 py-2 text-surface-50 text-sm focus:outline-none"
       />
       <button
         onClick={() => { if (value.trim()) onAdd(value.trim()); }}
@@ -134,13 +134,6 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
 
       {(lesson.type === 'VIDEO' || lesson.type === 'PDF') && (
         <div className="flex items-center gap-2">
-          {hasMedia && !isUploading && (
-            <span className="flex items-center gap-1.5 px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 text-xs font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              {t('courseEditor.attached')}
-            </span>
-          )}
-
           <input
             type="file"
             ref={fileInputRef}
@@ -149,37 +142,41 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
             onChange={handleFileChange}
           />
 
-          <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-            {(!hasMedia || isUploading) && (
+          <div className={cn("flex items-center gap-2 transition-opacity", (hasMedia || isUploading) ? "opacity-100" : "opacity-0 group-hover:opacity-100")}>
+            {isUploading ? (
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-surface-800 text-primary-400 relative overflow-hidden">
+                <div className="absolute inset-y-0 right-0 bg-primary-500/20 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  {uploadProgress === 100 ? (isRtl ? 'جاري المعالجة...' : 'Processing...') : t('courseEditor.uploading', { percent: uploadProgress })}
+                </span>
+              </div>
+            ) : hasMedia ? (
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 px-2 py-1.5 rounded bg-emerald-500/10 text-emerald-400 text-xs font-medium">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {t('courseEditor.attached')}
+                </span>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-surface-800 text-surface-300 hover:text-surface-50 hover:bg-surface-700 transition-colors"
+                >
+                  {isRtl ? 'تغيير' : 'Change'}
+                </button>
+                <button
+                  onClick={handleDeleteMedia}
+                  className="p-1.5 text-surface-400 hover:text-error hover:bg-error/10 rounded-lg transition-all"
+                  title={t('courseEditor.deleteFile')}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all relative overflow-hidden",
-                  isUploading ? "bg-surface-800 text-primary-400" :
-                    "bg-surface-800 text-surface-400 hover:text-white hover:bg-surface-700"
-                )}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all relative overflow-hidden bg-surface-800 text-surface-400 hover:text-surface-50 hover:bg-surface-700"
               >
-                {isUploading && (
-                  <div className="absolute inset-y-0 right-0 bg-primary-500/20 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-                )}
-                <span className="relative z-10 flex items-center gap-1.5">
-                  {isUploading ? (
-                    <><Loader2 className="w-3.5 h-3.5 animate-spin" />{t('courseEditor.uploading', { percent: uploadProgress })}</>
-                  ) : (
-                    <><UploadCloud className="w-3.5 h-3.5" />{t('courseEditor.upload')}</>
-                  )}
-                </span>
-              </button>
-            )}
-
-            {hasMedia && !isUploading && (
-              <button
-                onClick={handleDeleteMedia}
-                className="p-1.5 ml-1 text-surface-400 hover:text-error hover:bg-error/10 rounded-lg transition-all"
-                title={t('courseEditor.deleteFile')}
-              >
-                <Trash2 className="w-4 h-4" />
+                <UploadCloud className="w-3.5 h-3.5" />{t('courseEditor.upload')}
               </button>
             )}
           </div>
@@ -241,7 +238,6 @@ function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId:
     VIDEO: t('courseEditor.typeVideo'),
     QUIZ: t('courseEditor.typeQuiz'),
     PDF: t('courseEditor.typePdf'),
-    TEXT: t('courseEditor.typeText'),
   };
 
   return (
@@ -255,7 +251,7 @@ function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId:
         <span className="text-xs text-surface-500 mr-2">{chapter.lessons?.length || 0} {t('courseEditor.lessons')}</span>
         <button
           onClick={(e) => { e.stopPropagation(); setShowDeadlineModal(true); }}
-          className="p-1.5 bg-surface-700/50 hover:bg-surface-600 rounded-lg text-surface-400 hover:text-white transition-colors"
+          className="p-1.5 bg-surface-700/50 hover:bg-surface-600 rounded-lg text-surface-400 hover:text-surface-50 transition-colors"
           title="Manage Deadline"
         >
           <Calendar className="w-4 h-4" />
@@ -280,7 +276,7 @@ function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId:
           {addingLesson ? (
             <div className="px-2 py-2 space-y-2">
               <div className="flex gap-2 flex-wrap">
-                {(['VIDEO', 'QUIZ', 'PDF', 'TEXT'] as const).map(type => (
+                {(['VIDEO', 'QUIZ', 'PDF'] as const).map(type => (
                   <button
                     key={type}
                     onClick={() => setLessonType(type)}
@@ -327,14 +323,14 @@ function ModuleBlock({ module, courseId }: { module: any; courseId: string }) {
   });
 
   return (
-    <div className="glass rounded-2xl border border-white/5 overflow-hidden">
+    <div className="glass rounded-2xl border border-surface-200 overflow-hidden">
       <div
         className="flex items-center gap-3 px-5 py-4 bg-surface-800/40 cursor-pointer hover:bg-surface-800/60 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
         {expanded ? <ChevronDown className="w-4 h-4 text-primary-400" /> : <ChevronRight className="w-4 h-4 text-primary-400" />}
         <Layers className="w-4 h-4 text-primary-400" />
-        <h4 className="flex-1 font-bold text-white">{module.title}</h4>
+        <h4 className="flex-1 font-bold text-surface-50">{module.title}</h4>
         <span className="text-xs text-surface-500 bg-surface-800 px-2 py-1 rounded-lg">
           {module.chapters?.reduce((acc: number, c: any) => acc + (c.lessons?.length || 0), 0) || 0} {t('courseEditor.lessons')}
         </span>
@@ -357,7 +353,7 @@ function ModuleBlock({ module, courseId }: { module: any; courseId: string }) {
           ) : (
             <button
               onClick={() => setAddingChapter(true)}
-              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-surface-700 text-surface-500 hover:text-white hover:border-surface-500 text-sm transition-all"
+              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-surface-700 text-surface-500 hover:text-surface-50 hover:border-surface-500 text-sm transition-all"
             >
               <Plus className="w-4 h-4" />
               {t('courseEditor.addChapter')}
@@ -451,7 +447,7 @@ export default function CourseEditor() {
             <ArrowRight className={cn('w-5 h-5 text-surface-400', !isRtl && 'rotate-180')} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">
+            <h1 className="text-2xl font-bold text-surface-50 mb-1">
               {isNew ? t('courseEditor.createTitle') : t('courseEditor.editTitle')}
             </h1>
             <p className="text-surface-400 text-sm">
@@ -493,7 +489,7 @@ export default function CourseEditor() {
           onClick={() => setActiveTab('settings')}
           className={cn(
             'pb-4 flex items-center gap-2 text-sm font-medium transition-colors relative',
-            activeTab === 'settings' ? 'text-primary-400' : 'text-surface-400 hover:text-white'
+            activeTab === 'settings' ? 'text-primary-400' : 'text-surface-400 hover:text-surface-50'
           )}
         >
           <Settings className="w-4 h-4" />
@@ -506,7 +502,7 @@ export default function CourseEditor() {
           title={isNew ? t('courseEditor.tabCurriculumDisabled') : ''}
           className={cn(
             'pb-4 flex items-center gap-2 text-sm font-medium transition-colors relative',
-            activeTab === 'curriculum' ? 'text-primary-400' : 'text-surface-400 hover:text-white',
+            activeTab === 'curriculum' ? 'text-primary-400' : 'text-surface-400 hover:text-surface-50',
             isNew && 'opacity-40 cursor-not-allowed'
           )}
         >
@@ -525,7 +521,7 @@ export default function CourseEditor() {
       <div>
         {activeTab === 'settings' ? (
           <form onSubmit={handleSave} className="space-y-6">
-            <div className="glass rounded-2xl p-6 border border-white/5 space-y-5">
+            <div className="glass rounded-2xl p-6 border border-surface-200 space-y-5">
               <div>
                 <label className="block text-sm font-medium text-surface-300 mb-2">
                   {t('courseEditor.courseTitle')} <span className="text-red-400">*</span>
@@ -535,7 +531,7 @@ export default function CourseEditor() {
                   type="text"
                   value={formData.title}
                   onChange={e => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-white placeholder:text-surface-600 focus:border-primary-500 focus:outline-none transition-all"
+                  className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-surface-50 placeholder:text-surface-600 focus:border-primary-500 focus:outline-none transition-all"
                   placeholder={t('courseEditor.courseTitlePlaceholder')}
                 />
               </div>
@@ -549,7 +545,7 @@ export default function CourseEditor() {
                   rows={4}
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-white placeholder:text-surface-600 focus:border-primary-500 focus:outline-none transition-all resize-none"
+                  className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-surface-50 placeholder:text-surface-600 focus:border-primary-500 focus:outline-none transition-all resize-none"
                   placeholder={t('courseEditor.courseDescriptionPlaceholder')}
                 />
               </div>
@@ -560,7 +556,7 @@ export default function CourseEditor() {
                   <select
                     value={formData.level}
                     onChange={e => setFormData({ ...formData, level: e.target.value })}
-                    className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-white focus:border-primary-500 focus:outline-none transition-all"
+                    className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-surface-50 focus:border-primary-500 focus:outline-none transition-all"
                   >
                     {levelOptions.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -577,7 +573,7 @@ export default function CourseEditor() {
                     step="0.01"
                     value={formData.price}
                     onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
-                    className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-white focus:border-primary-500 focus:outline-none transition-all"
+                    className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-surface-50 focus:border-primary-500 focus:outline-none transition-all"
                   />
                 </div>
               </div>
@@ -648,9 +644,9 @@ export default function CourseEditor() {
                 {[1, 2].map(i => <div key={i} className="h-20 bg-surface-900 rounded-2xl animate-pulse" />)}
               </div>
             ) : courseData?.modules?.length === 0 || !courseData?.modules ? (
-              <div className="glass rounded-2xl p-12 border border-white/5 text-center">
+              <div className="glass rounded-2xl p-12 border border-surface-200 text-center">
                 <Layers className="w-14 h-14 text-surface-700 mx-auto mb-4" />
-                <h3 className="text-white font-bold text-lg mb-2">{t('courseEditor.noContent')}</h3>
+                <h3 className="text-surface-50 font-bold text-lg mb-2">{t('courseEditor.noContent')}</h3>
                 <p className="text-surface-500 text-sm mb-6">{t('courseEditor.noContentHint')}</p>
                 <button
                   onClick={() => setAddingModule(true)}

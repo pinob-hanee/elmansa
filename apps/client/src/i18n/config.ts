@@ -16,6 +16,7 @@ i18n
     fallbackLng: 'ar',
     supportedLngs: ['en', 'ar'],
     // CRITICAL: run synchronously so first render has translations
+    // @ts-ignore: initImmediate is not strictly typed in all versions
     initImmediate: false,
     interpolation: {
       escapeValue: false,
@@ -24,7 +25,7 @@ i18n
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
     },
-  });
+  } as any);
 
 // Update document direction whenever language changes
 const applyDirection = (lng: string) => {

@@ -61,13 +61,13 @@ export default function StudentLayout() {
       <motion.aside
         animate={{ width: sidebarOpen ? 256 : 72 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className={cn("relative flex flex-col bg-surface-900 border-surface-800 shrink-0 overflow-hidden", isRtl ? "border-l" : "border-r")}
+        className={cn("relative flex flex-col bg-surface-900 border-surface-800 shrink-0 overflow-hidden shadow-2xl z-50", isRtl ? "border-l" : "border-r")}
       >
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-surface-800 shrink-0">
           <Link to="/dashboard" className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shrink-0 shadow-lg">
-              <Code2 className="w-4 h-4 text-white" />
+              <Code2 className="w-4 h-4 text-surface-50" />
             </div>
             <AnimatePresence>
               {sidebarOpen && (
@@ -98,7 +98,7 @@ export default function StudentLayout() {
                   'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative',
                   isActive
                     ? 'bg-primary-600/20 text-primary-400 border border-primary-500/30'
-                    : 'text-surface-400 hover:text-white hover:bg-surface-800'
+                    : 'text-surface-400 hover:text-surface-50 hover:bg-surface-800'
                 )}
               >
                 <item.icon className={cn('w-5 h-5 shrink-0', isActive && 'text-primary-400')} />
@@ -134,7 +134,7 @@ export default function StudentLayout() {
                   {user?.profile?.firstName?.charAt(0) || 'U'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">
+                  <p className="text-sm font-medium text-surface-50 truncate">
                     {user?.profile?.firstName} {user?.profile?.lastName}
                   </p>
                   <p className="text-xs text-surface-500 truncate">{user?.email}</p>
@@ -184,7 +184,7 @@ export default function StudentLayout() {
           onClick={() => setSidebarOpen(!sidebarOpen)}
           aria-label={t('nav.toggleSidebar', 'Toggle Sidebar')}
           aria-expanded={sidebarOpen}
-          className={`absolute bottom-20 ${isRtl ? 'left-0 translate-x-1/2' : 'right-0 translate-x-1/2'} w-6 h-6 rounded-full bg-surface-700 border border-surface-600 flex items-center justify-center text-surface-400 hover:text-white transition-all z-10`}
+          className={`absolute bottom-20 ${isRtl ? 'left-0 translate-x-1/2' : 'right-0 translate-x-1/2'} w-6 h-6 rounded-full bg-surface-700 border border-surface-600 flex items-center justify-center text-surface-400 hover:text-surface-50 transition-all z-10`}
         >
           <ChevronRight className={cn('w-3 h-3 transition-transform', sidebarOpen ? (isRtl ? '' : 'rotate-180') : (isRtl ? 'rotate-180' : ''))} />
         </button>
@@ -203,7 +203,7 @@ export default function StudentLayout() {
         <div className="h-16 glass border-b border-surface-800 flex items-center px-6 gap-4 sticky top-0 z-40">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden text-surface-400 hover:text-white transition-colors"
+            className="lg:hidden text-surface-400 hover:text-surface-50 transition-colors"
           >
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>

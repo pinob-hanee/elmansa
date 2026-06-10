@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
           <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-500/20 shadow-lg">
             <AlertCircle className="w-8 h-8 text-red-400" />
           </div>
-          <h2 className="text-3xl font-extrabold text-white mb-2">
+          <h2 className="text-3xl font-extrabold text-surface-50 mb-2">
             {t('auth.invalidLink', 'Invalid Link')}
           </h2>
           <p className="text-surface-400 mb-8">
@@ -98,10 +98,10 @@ export default function ResetPasswordPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-center mb-8">
           <Link to="/" className="w-16 h-16 bg-gradient-to-br from-primary-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 group hover:scale-105 transition-transform duration-300">
-            <Code2 className="w-8 h-8 text-white group-hover:rotate-12 transition-transform duration-300" />
+            <Code2 className="w-8 h-8 text-surface-50 group-hover:rotate-12 transition-transform duration-300" />
           </Link>
         </div>
-        <h2 className="text-center text-3xl font-extrabold text-white tracking-tight">
+        <h2 className="text-center text-3xl font-extrabold text-surface-50 tracking-tight">
           {t('auth.resetPassword', 'Reset Password')}
         </h2>
         <p className="mt-3 text-center text-surface-400">
@@ -126,7 +126,7 @@ export default function ResetPasswordPage() {
                 <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
                   <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">
+                <h3 className="text-xl font-bold text-surface-50 mb-2">
                   {t('auth.passwordResetSuccess', 'Password Reset Successfully')}
                 </h3>
                 <p className="text-surface-400">
@@ -163,7 +163,7 @@ export default function ResetPasswordPage() {
                       {...register('password')}
                       type={showPassword ? 'text' : 'password'}
                       className={cn(
-                        "block w-full bg-surface-900/50 border border-surface-700 rounded-xl py-3 text-white placeholder-surface-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                        "block w-full bg-surface-900/50 border border-surface-700 rounded-xl py-3 text-surface-50 placeholder-surface-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                         isRtl ? "pr-12 pl-12 text-right" : "pl-12 pr-12"
                       )}
                       placeholder="••••••••"
@@ -172,7 +172,7 @@ export default function ResetPasswordPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className={cn("absolute inset-y-0 flex items-center text-surface-400 hover:text-white transition-colors", isRtl ? "left-0 pl-4" : "right-0 pr-4")}
+                      className={cn("absolute inset-y-0 flex items-center text-surface-400 hover:text-surface-50 transition-colors", isRtl ? "left-0 pl-4" : "right-0 pr-4")}
                       aria-label={showPassword ? t('auth.hidePassword', 'Hide password') : t('auth.showPassword', 'Show password')}
                     >
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -195,7 +195,7 @@ export default function ResetPasswordPage() {
                       {...register('confirmPassword')}
                       type={showConfirmPassword ? 'text' : 'password'}
                       className={cn(
-                        "block w-full bg-surface-900/50 border border-surface-700 rounded-xl py-3 text-white placeholder-surface-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                        "block w-full bg-surface-900/50 border border-surface-700 rounded-xl py-3 text-surface-50 placeholder-surface-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                         isRtl ? "pr-12 pl-12 text-right" : "pl-12 pr-12"
                       )}
                       placeholder="••••••••"
@@ -204,7 +204,7 @@ export default function ResetPasswordPage() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className={cn("absolute inset-y-0 flex items-center text-surface-400 hover:text-white transition-colors", isRtl ? "left-0 pl-4" : "right-0 pr-4")}
+                      className={cn("absolute inset-y-0 flex items-center text-surface-400 hover:text-surface-50 transition-colors", isRtl ? "left-0 pl-4" : "right-0 pr-4")}
                       aria-label={showConfirmPassword ? t('auth.hidePassword', 'Hide password') : t('auth.showPassword', 'Show password')}
                     >
                       {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -221,7 +221,7 @@ export default function ResetPasswordPage() {
                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-900 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {resetMutation.isPending ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />
                   ) : (
                     t('auth.resetPasswordButton', 'Reset Password')
                   )}

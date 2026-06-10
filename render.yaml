@@ -1,0 +1,55 @@
+services:
+  # PostgreSQL Database
+  - type: pgo
+    name: elmansa-db
+    plan: free
+    postgresMajorVersion: 16
+
+  # Redis Cache
+  - type: redis
+    name: elmansa-redis
+    plan: free
+
+  # Node.js API Server
+  - type: web
+    name: elmansa-api
+    env: node
+    plan: free
+    region: frankfurt # Can be changed
+    buildCommand: |
+      npm install -w @elmansa/server
+      cd apps/server
+      npx prisma generate
+      npm run build
+    startCommand: |
+      cd apps/server
+      npx prisma migrate deploy
+      npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elmansa-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: elmansa-redis
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REFRESH_TOKEN_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        value: "https://your-frontend-domain.com" # Update this once frontend is deployed
+      - key: CLOUDINARY_CLOUD_NAME
+        value: "dtjvl7x1v"
+      - key: CLOUDINARY_API_KEY
+        value: "572692382971952"
+      - key: CLOUDINARY_API_SECRET
+        value: "7uOLRyZrQY0l2mCo3_9Yr8DtYzo"
+      - key: APP_NAME
+        value: "Elmansa"
+      - key: APP_URL
+        value: "https://elmansa-api.onrender.com"

@@ -98,7 +98,7 @@ export default function ProfilePage() {
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'} className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-extrabold text-white mb-2">{t('profile.title')}</h1>
+        <h1 className="text-2xl font-extrabold text-surface-50 mb-2">{t('profile.title')}</h1>
         <p className="text-surface-400">{t('profile.subtitle')}</p>
       </div>
 
@@ -106,7 +106,7 @@ export default function ProfilePage() {
         {/* Left Column — Gamification */}
         <div className="space-y-4">
           {/* Avatar + Name */}
-          <div className="glass rounded-2xl p-6 border border-white/5 text-center">
+          <div className="glass rounded-2xl p-6 border border-surface-200 text-center">
             <div className="relative inline-block mb-4">
               <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-primary-500/20">
                 {user?.profile?.avatarUrl ? (
@@ -120,20 +120,20 @@ export default function ProfilePage() {
                 disabled={uploading}
                 className="absolute -bottom-2 -left-2 w-8 h-8 bg-primary-600 hover:bg-primary-500 rounded-full flex items-center justify-center text-white shadow-lg transition-all border-2 border-surface-900"
               >
-                {uploading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Camera className="w-4 h-4" />}
+                {uploading ? <div className="w-4 h-4 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" /> : <Camera className="w-4 h-4" />}
               </button>
               <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
             </div>
-            <h2 className="text-xl font-bold text-white">{user?.profile?.firstName} {user?.profile?.lastName}</h2>
+            <h2 className="text-xl font-bold text-surface-50">{user?.profile?.firstName} {user?.profile?.lastName}</h2>
             <p className="text-surface-400 text-sm">{user?.email}</p>
           </div>
 
           {/* XP & Level */}
-          <div className="glass rounded-2xl p-5 border border-white/5">
+          <div className="glass rounded-2xl p-5 border border-surface-200">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 text-primary-400" />
-                <span className="text-white font-bold">{t('profile.level', { level })}</span>
+                <span className="text-surface-50 font-bold">{t('profile.level', { level })}</span>
               </div>
               <span className="text-primary-400 text-sm font-bold">{xp.toLocaleString()} XP</span>
             </div>
@@ -149,12 +149,12 @@ export default function ProfilePage() {
           </div>
 
           {/* Streak */}
-          <div className="glass rounded-2xl p-5 border border-white/5 flex items-center gap-4">
+          <div className="glass rounded-2xl p-5 border border-surface-200 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg">
-              <Flame className="w-6 h-6 text-white" />
+              <Flame className="w-6 h-6 text-surface-50" />
             </div>
             <div>
-              <div className="text-2xl font-extrabold text-white">{streak} <span className="text-sm text-surface-400 font-medium">{t('profile.streak')}</span></div>
+              <div className="text-2xl font-extrabold text-surface-50">{streak} <span className="text-sm text-surface-400 font-medium">{t('profile.streak')}</span></div>
               <div className="text-sm text-orange-400 font-medium">{t('profile.streakLabel')}</div>
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function ProfilePage() {
 
         {/* Right Column — Form */}
         <div className="lg:col-span-2">
-          <div className="glass rounded-2xl p-6 border border-white/5">
+          <div className="glass rounded-2xl p-6 border border-surface-200">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {fields.map(field => (
@@ -177,7 +177,7 @@ export default function ProfilePage() {
                         onChange={handleChange}
                         required={(field as any).required}
                         className={cn(
-                          'w-full bg-surface-900 border border-surface-800 rounded-xl py-2.5 text-white text-sm focus:outline-none focus:border-primary-500/50 transition-all',
+                          'w-full bg-surface-900 border border-surface-800 rounded-xl py-2.5 text-surface-50 text-sm focus:outline-none focus:border-primary-500/50 transition-all',
                           isRtl ? 'pr-9 pl-4' : 'pl-9 pr-4'
                         )}
                       />
@@ -193,7 +193,7 @@ export default function ProfilePage() {
                   value={formData.bio}
                   onChange={handleChange}
                   rows={3}
-                  className="w-full bg-surface-900 border border-surface-800 rounded-xl p-4 text-white text-sm focus:outline-none focus:border-primary-500/50 transition-all resize-none"
+                  className="w-full bg-surface-900 border border-surface-800 rounded-xl p-4 text-surface-50 text-sm focus:outline-none focus:border-primary-500/50 transition-all resize-none"
                   placeholder={t('profile.bioPlaceholder')}
                 />
               </div>
@@ -204,7 +204,7 @@ export default function ProfilePage() {
                   disabled={loading}
                   className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium transition-all shadow-lg shadow-primary-500/20 disabled:opacity-50"
                 >
-                  {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Save className="w-5 h-5" /> {t('profile.saveChanges')}</>}
+                  {loading ? <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" /> : <><Save className="w-5 h-5" /> {t('profile.saveChanges')}</>}
                 </button>
               </div>
             </form>
@@ -215,7 +215,7 @@ export default function ProfilePage() {
       {/* Badges Row */}
       {earnedAchievements.length > 0 && (
         <div>
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-surface-50 mb-4 flex items-center gap-2">
             <Award className="w-5 h-5 text-amber-400" />
             {t('profile.achievements', { count: earnedAchievements.length })}
           </h2>
@@ -234,7 +234,7 @@ export default function ProfilePage() {
       {/* Certificates */}
       {certificates?.length > 0 && (
         <div>
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-surface-50 mb-4 flex items-center gap-2">
             <Award className="w-5 h-5 text-emerald-400" />
             {t('profile.certificates', { count: certificates.length })}
           </h2>
@@ -242,10 +242,10 @@ export default function ProfilePage() {
             {certificates.map((cert: any) => (
               <div key={cert.id} className="glass rounded-2xl p-4 border border-emerald-500/20 bg-emerald-500/5 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center shadow-lg shrink-0">
-                  <Award className="w-6 h-6 text-white" />
+                  <Award className="w-6 h-6 text-surface-50" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-white text-sm truncate">{cert.course?.title}</p>
+                  <p className="font-bold text-surface-50 text-sm truncate">{cert.course?.title}</p>
                   <p className="text-xs text-surface-400 mt-0.5">
                     {new Date(cert.issueDate).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </p>

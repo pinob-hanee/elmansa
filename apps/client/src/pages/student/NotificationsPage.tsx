@@ -43,7 +43,7 @@ export default function NotificationsPage() {
     <div dir={isRtl ? 'rtl' : 'ltr'} className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-extrabold text-white mb-2">{t('nav.notifications')}</h1>
+          <h1 className="text-2xl font-extrabold text-surface-50 mb-2">{t('nav.notifications')}</h1>
           <p className="text-surface-400">
             {isRtl ? 'تابع أحدث التنبيهات والأحداث الخاصة بك' : 'Stay up to date with your latest alerts and events'}
           </p>
@@ -52,7 +52,7 @@ export default function NotificationsPage() {
           <button
             onClick={() => markAllAsReadMutation.mutate()}
             disabled={markAllAsReadMutation.isPending}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-800 text-surface-300 hover:text-white hover:bg-surface-700 transition-all text-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-800 text-surface-300 hover:text-surface-50 hover:bg-surface-700 transition-all text-sm"
           >
             <CheckCheck className="w-4 h-4" />
             {isRtl ? 'تحديد الكل كمقروء' : 'Mark all as read'}
@@ -61,11 +61,11 @@ export default function NotificationsPage() {
       </div>
 
       {!notifications?.length ? (
-        <div className="glass rounded-2xl p-12 text-center border border-white/5">
+        <div className="glass rounded-2xl p-12 text-center border border-surface-200">
           <div className="w-16 h-16 rounded-full bg-surface-800 flex items-center justify-center mx-auto mb-4">
             <Bell className="w-8 h-8 text-surface-600" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-2">
+          <h3 className="text-lg font-bold text-surface-50 mb-2">
             {isRtl ? 'لا توجد إشعارات' : 'No Notifications'}
           </h3>
           <p className="text-surface-400">
@@ -85,7 +85,7 @@ export default function NotificationsPage() {
                 "glass rounded-2xl p-5 border transition-all cursor-pointer flex gap-4",
                 !notification.isRead
                   ? "border-primary-500/30 bg-primary-500/5"
-                  : "border-white/5 hover:border-white/10"
+                  : "border-surface-200 hover:border-surface-200"
               )}
             >
               <div className="mt-1">
@@ -98,7 +98,7 @@ export default function NotificationsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-4 mb-1">
-                  <h3 className={cn("font-bold", !notification.isRead ? "text-white" : "text-surface-300")}>
+                  <h3 className={cn("font-bold", !notification.isRead ? "text-surface-50" : "text-surface-300")}>
                     {notification.title}
                   </h3>
                   <div className="flex items-center gap-1.5 text-xs text-surface-500 shrink-0 mt-1">
