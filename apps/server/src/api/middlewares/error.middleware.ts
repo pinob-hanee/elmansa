@@ -57,8 +57,8 @@ export const errorHandler = (
   // Unknown errors
   res.status(500).json({
     success: false,
-    message: env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
-    ...(env.NODE_ENV !== 'production' ? { stack: err.stack } : {}),
+    message: err.message || 'Internal server error',
+    stack: err.stack,
   });
 };
 
