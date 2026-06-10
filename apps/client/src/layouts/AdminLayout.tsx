@@ -24,8 +24,7 @@ export default function AdminLayout() {
     { icon: Users, label: t('nav.students'), href: '/admin/students' },
     { icon: BookOpen, label: t('nav.courses'), href: '/admin/courses' },
     { icon: MessageSquare, label: t('nav.community'), href: '/admin/community' },
-    { icon: BarChart3, label: t('nav.analytics'), href: '/admin/analytics' },
-  ];
+      ];
 
   const handleLogout = async () => {
     if (isLoggingOut) return;

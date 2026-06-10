@@ -7,6 +7,7 @@ import { useAuthStore } from '../../../store/authStore';
 import { cn } from '../../../lib/utils';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 export default function CreatePost() {
   const [content, setContent] = useState('');
@@ -17,6 +18,7 @@ export default function CreatePost() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuthStore();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const createMutation = useMutation({
@@ -27,9 +29,9 @@ export default function CreatePost() {
       setIsFocused(false);
       setShowEmoji(false);
       queryClient.invalidateQueries({ queryKey: ['community-posts'] });
-      toast.success('تم نشر المنشور بنجاح');
+      toast.success(t('community.postSuccess', 'تم نشر المنشور بنجاح'));
     },
-    onError: () => toast.error('حدث خطأ أثناء النشر')
+    onError: () => toast.error(t('community.postError', 'حدث خطأ أثناء النشر'))
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,7 +49,7 @@ export default function CreatePost() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('حجم الصورة يجب أن لا يتجاوز 5 ميجابايت');
+      toast.error(t('community.imageSizeError', 'حجم الصورة يجب أن لا يتجاوز 5 ميجابايت'));
       return;
     }
 
@@ -60,9 +62,9 @@ export default function CreatePost() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setImageUrl(data.data.location); // S3 or Cloudinary URL
-      toast.success('تم رفع الصورة بنجاح');
+      toast.success(t('community.imageUploadSuccess', 'تم رفع الصورة بنجاح'));
     } catch (err) {
-      toast.error('فشل رفع الصورة');
+      toast.error(t('community.imageUploadError', 'فشل رفع الصورة'));
     } finally {
       setUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -103,7 +105,7 @@ export default function CreatePost() {
 
           {uploadingImage && (
             <div className="flex items-center gap-2 mt-3 text-sm text-primary-400">
-              <Loader2 className="w-4 h-4 animate-spin" /> جاري رفع الصورة...
+              <Loader2 className="w-4 h-4 animate-spin" /> {t('community.uploadingImage', 'جاري رفع الصورة...')}
             </div>
           )}
           
@@ -164,7 +166,7 @@ export default function CreatePost() {
                   disabled={(!content.trim() && !imageUrl) || createMutation.isPending || uploadingImage}
                   className="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-500/20"
                 >
-                  {createMutation.isPending ? 'جاري النشر...' : 'نشر'}
+                  {createMutation.isPending ? t('community.publishing', 'جاري النشر...') : t('community.publish', 'نشر')}
                   <Send className="w-4 h-4" />
                 </button>
               </div>

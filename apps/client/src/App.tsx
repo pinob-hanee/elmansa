@@ -31,7 +31,6 @@ const AdminStudents = lazy(() => import('./pages/admin/Students'));
 const AdminCourses = lazy(() => import('./pages/admin/Courses'));
 const AdminCourseEditor = lazy(() => import('./pages/admin/CourseEditor'));
 const AdminCommunity = lazy(() => import('./pages/admin/Community'));
-const AdminAnalytics = lazy(() => import('./pages/admin/Analytics'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,8 +115,7 @@ export default function App() {
               <Route path="courses/new" element={<AdminCourseEditor />} />
               <Route path="courses/:id/edit" element={<AdminCourseEditor />} />
               <Route path="community" element={<AdminCommunity />} />
-              <Route path="analytics" element={<AdminAnalytics />} />
-            </Route>
+                          </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

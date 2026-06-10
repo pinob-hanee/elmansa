@@ -196,7 +196,10 @@
     "edit": "Edit",
     "language": "العربية",
     "loading": "Loading...",
-    "error": "An error occurred"
+    "error": "An error occurred",
+    "teacher": "Teacher",
+    "loadError": "Error loading data",
+    "retry": "Retry"
   },
   "adminDashboard": {
     "title": "Dashboard",
@@ -251,8 +254,8 @@
     "dropCourse": "Drop Course"
   },
   "adminCourses": {
-    "title": "Course Management",
-    "subtitle": "Create, edit, and publish platform courses",
+    "title": "Courses",
+    "subtitle": "Manage courses, curriculum, and educational content",
     "createNew": "Create New Course",
     "searchPlaceholder": "Search courses by name...",
     "allLevels": "All Levels",
@@ -264,7 +267,7 @@
     "stats": "Stats",
     "status": "Status",
     "actions": "Actions",
-    "noCourses": "No courses match the search",
+    "noCourses": "No courses found",
     "students": "Students",
     "lessons": "Lessons",
     "published": "Published",
@@ -273,7 +276,15 @@
     "manage": "Manage",
     "showing": "Showing {{start}}–{{end}} of {{total}}",
     "prev": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "deleteConfirm": "Are you sure you want to delete? This action cannot be undone.",
+    "deleteYes": "Yes, delete",
+    "addNew": "Add New Course",
+    "search": "Search for a course...",
+    "noCoursesDesc": "You haven't added any courses yet.",
+    "createFirst": "Create your first course",
+    "noDescription": "No description available",
+    "student": "Student"
   },
   "adminAnalytics": {
     "title": "Analytics & Reports",
@@ -315,5 +326,35 @@
     "prev": "Previous",
     "next": "Next",
     "deletedSuccess": "Post deleted successfully"
+  },
+  "community": {
+    "title": "Platform Community",
+    "subtitle": "Connect with classmates, ask questions, and share knowledge",
+    "searchPlaceholder": "Search posts...",
+    "filter": "Filter",
+    "noPosts": "No posts yet",
+    "beFirstToPost": "Be the first to post!",
+    "postSuccess": "Post published successfully",
+    "postError": "Failed to publish post",
+    "imageSizeError": "Image size must not exceed 5MB",
+    "imageUploadSuccess": "Image uploaded successfully",
+    "imageUploadError": "Failed to upload image",
+    "whatAreYouThinking": "What's on your mind? Share thoughts or images...",
+    "uploadingImage": "Uploading image...",
+    "hide": "Hide",
+    "publishing": "Publishing...",
+    "publish": "Publish",
+    "reportConfirm": "Do you want to report this post as inappropriate?",
+    "reportYes": "Yes, Report",
+    "reportSuccess": "Report sent successfully",
+    "reportError": "Failed to report",
+    "pinned": "Pinned",
+    "like": "Like",
+    "comment": "Comment",
+    "reported": "Reported",
+    "reportAction": "Report as inappropriate",
+    "loadingComments": "Loading comments...",
+    "noComments": "No comments yet. Be the first to comment!",
+    "writeComment": "Write a comment..."
   }
 }

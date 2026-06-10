@@ -196,7 +196,10 @@
     "edit": "تعديل",
     "language": "English",
     "loading": "جاري التحميل...",
-    "error": "حدث خطأ"
+    "error": "حدث خطأ",
+    "teacher": "معلم",
+    "loadError": "حدث خطأ أثناء تحميل البيانات",
+    "retry": "حاول مرة أخرى"
   },
   "adminDashboard": {
     "title": "لوحة التحكم",
@@ -251,8 +254,8 @@
     "dropCourse": "إيقاف الكورس"
   },
   "adminCourses": {
-    "title": "إدارة الكورسات",
-    "subtitle": "إنشاء وتعديل ونشر كورسات المنصة",
+    "title": "الكورسات",
+    "subtitle": "إدارة الكورسات، المناهج، والمحتوى التعليمي",
     "createNew": "إنشاء كورس جديد",
     "searchPlaceholder": "ابحث عن الكورسات بالاسم...",
     "allLevels": "كل المستويات",
@@ -264,7 +267,7 @@
     "stats": "إحصائيات",
     "status": "الحالة",
     "actions": "الإجراءات",
-    "noCourses": "لا يوجد كورسات مطابقة للبحث",
+    "noCourses": "لا توجد كورسات",
     "students": "طلاب",
     "lessons": "دروس",
     "published": "منشور",
@@ -273,7 +276,15 @@
     "manage": "إدارة",
     "showing": "عرض {{start}}–{{end}} من {{total}}",
     "prev": "السابق",
-    "next": "التالي"
+    "next": "التالي",
+    "deleteConfirm": "هل أنت متأكد من الحذف؟ لا يمكن التراجع.",
+    "deleteYes": "نعم، احذف",
+    "addNew": "إضافة كورس جديد",
+    "search": "ابحث عن كورس...",
+    "noCoursesDesc": "لم تقم بإضافة أي كورسات بعد.",
+    "createFirst": "إنشاء الكورس الأول",
+    "noDescription": "لا يوجد وصف",
+    "student": "طالب"
   },
   "adminAnalytics": {
     "title": "التحليلات والتقارير",
@@ -315,5 +326,35 @@
     "prev": "السابق",
     "next": "التالي",
     "deletedSuccess": "تم حذف المنشور"
+  },
+  "community": {
+    "title": "مجتمع المنصة",
+    "subtitle": "تواصل مع زملائك، اطرح أسئلة، وشارك المعرفة",
+    "searchPlaceholder": "ابحث في المنشورات...",
+    "filter": "تصفية",
+    "noPosts": "لا يوجد منشورات بعد",
+    "beFirstToPost": "كن أول من يشارك في المجتمع!",
+    "postSuccess": "تم نشر المنشور بنجاح",
+    "postError": "حدث خطأ أثناء النشر",
+    "imageSizeError": "حجم الصورة يجب أن لا يتجاوز 5 ميجابايت",
+    "imageUploadSuccess": "تم رفع الصورة بنجاح",
+    "imageUploadError": "فشل رفع الصورة",
+    "whatAreYouThinking": "بم تفكر؟ شارك أفكارك أو صورك مع المجتمع...",
+    "uploadingImage": "جاري رفع الصورة...",
+    "hide": "إخفاء",
+    "publishing": "جاري النشر...",
+    "publish": "نشر",
+    "reportConfirm": "هل تريد إبلاغ الإدارة عن هذا المنشور كمحتوى غير لائق؟",
+    "reportYes": "نعم، أبلغ",
+    "reportSuccess": "تم إرسال البلاغ للإدارة",
+    "reportError": "حدث خطأ أثناء الإبلاغ",
+    "pinned": "مثبت",
+    "like": "إعجاب",
+    "comment": "تعليق",
+    "reported": "تم الإبلاغ",
+    "reportAction": "إبلاغ كمحتوى غير لائق",
+    "loadingComments": "جاري تحميل التعليقات...",
+    "noComments": "لا توجد تعليقات بعد. كن أول من يعلق!",
+    "writeComment": "اكتب تعليقاً..."
   }
 }

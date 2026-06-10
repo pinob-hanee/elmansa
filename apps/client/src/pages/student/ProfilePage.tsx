@@ -54,9 +54,9 @@ export default function ProfilePage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const { data } = await api.post('/media/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      await api.patch('/users/me/profile', { avatarUrl: data.data.url });
-      setUser({ ...user!, profile: { ...user!.profile!, avatarUrl: data.data.url } });
+      const { data } = await api.post('/media/file', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await api.patch('/users/me/profile', { avatarUrl: data.data.location });
+      setUser({ ...user!, profile: { ...user!.profile!, avatarUrl: data.data.location } });
       toast.success(t('profile.avatarUpdated'));
     } catch {
       toast.error(t('profile.avatarError'));

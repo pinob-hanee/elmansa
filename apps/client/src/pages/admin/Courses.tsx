@@ -30,19 +30,19 @@ export default function AdminCourses() {
   });
 
   const handleDelete = (id: string) => {
-    toast((t) => (
+    toast((toastItem) => (
       <div className="flex flex-col gap-3" dir="rtl">
-        <p className="font-medium text-surface-900">هل أنت متأكد من الحذف؟ لا يمكن التراجع.</p>
+        <p className="font-medium text-surface-900">{t('adminCourses.deleteConfirm', 'هل أنت متأكد من الحذف؟ لا يمكن التراجع.')}</p>
         <div className="flex gap-2 justify-end">
           <button 
-            onClick={() => toast.dismiss(t.id)} 
+            onClick={() => toast.dismiss(toastItem.id)} 
             className="px-3 py-1.5 text-xs font-medium bg-surface-200 hover:bg-surface-300 text-surface-700 rounded-lg transition-colors"
           >
             إلغاء
           </button>
           <button 
             onClick={() => {
-              toast.dismiss(t.id);
+              toast.dismiss(toastItem.id);
               deleteMutation.mutate(id);
             }} 
             className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
@@ -60,15 +60,15 @@ export default function AdminCourses() {
     <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-surface-50 mb-1">الكورسات</h1>
-          <p className="text-surface-400 text-sm">إدارة الكورسات، المناهج، والمحتوى التعليمي</p>
+          <h1 className="text-2xl font-bold text-surface-50 mb-1">{t('adminCourses.title', 'الكورسات')}</h1>
+          <p className="text-surface-400 text-sm">{t('adminCourses.subtitle', 'إدارة الكورسات، المناهج، والمحتوى التعليمي')}</p>
         </div>
         <Link
           to="/admin/courses/new"
           className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-xl transition-all font-medium"
         >
           <Plus className="w-5 h-5" />
-          إضافة كورس جديد
+          {t('adminCourses.addNew', 'إضافة كورس جديد')}
         </Link>
       </div>
 
@@ -79,7 +79,7 @@ export default function AdminCourses() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="ابحث عن كورس..."
+            placeholder={t('adminCourses.search', 'ابحث عن كورس...')}
             className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2 pr-10 pl-4 text-surface-50 placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all"
           />
         </div>
@@ -96,14 +96,14 @@ export default function AdminCourses() {
           <div className="w-16 h-16 rounded-full bg-surface-800 flex items-center justify-center mx-auto mb-4">
             <BookOpen className="w-8 h-8 text-surface-600" />
           </div>
-          <h3 className="text-lg font-bold text-surface-50 mb-2">لا توجد كورسات</h3>
-          <p className="text-surface-400 mb-6">لم تقم بإضافة أي كورسات بعد.</p>
+          <h3 className="text-lg font-bold text-surface-50 mb-2">{t('adminCourses.noCourses', 'لا توجد كورسات')}</h3>
+          <p className="text-surface-400 mb-6">{t('adminCourses.noCoursesDesc', 'لم تقم بإضافة أي كورسات بعد.')}</p>
           <Link
             to="/admin/courses/new"
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-500 text-white rounded-xl transition-all font-medium"
           >
             <Plus className="w-5 h-5" />
-            إنشاء الكورس الأول
+            {t('adminCourses.createFirst', 'إنشاء الكورس الأول')}
           </Link>
         </div>
       ) : (
@@ -123,7 +123,7 @@ export default function AdminCourses() {
                     "px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md",
                     course.isPublished ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"
                   )}>
-                    {course.isPublished ? 'منشور' : 'مسودة'}
+                    {course.isPublished ? t('adminCourses.published', 'منشور') : t('adminCourses.draft', 'مسودة')}
                   </span>
                 </div>
               </Link>
@@ -132,11 +132,11 @@ export default function AdminCourses() {
                   {course.title}
                 </Link>
                 <p className="text-surface-400 text-sm line-clamp-2 mb-4 flex-1">
-                  {course.description || 'لا يوجد وصف'}
+                  {course.description || t('adminCourses.noDescription', 'لا يوجد وصف')}
                 </p>
                 <div className="flex items-center justify-between pt-4 border-t border-surface-800 text-sm">
                   <div className="text-surface-400">
-                    {course._count?.enrollments || 0} طالب
+                    {course._count?.enrollments || 0} {t('adminCourses.student', 'طالب')}
                   </div>
                   <div className="flex gap-2">
                     <button

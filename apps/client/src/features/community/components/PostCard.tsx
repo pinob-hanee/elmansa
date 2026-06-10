@@ -7,6 +7,7 @@ import { cn } from '../../../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 interface PostCardProps {
   post: any;
@@ -18,6 +19,7 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
   const [showComments, setShowComments] = useState(false);
   const [isReported, setIsReported] = useState(false);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const isLiked = post.reactions?.some((r: any) => r.userId === currentUserId && r.type === 'LIKE');
   const likesCount = post.reactions?.filter((r: any) => r.type === 'LIKE').length || 0;
@@ -31,20 +33,20 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
 
   const handleReport = () => {
     if (isReported) return;
-    toast((t) => (
+    toast((toastItem) => (
       <div className="flex flex-col gap-3" dir="rtl">
-        <p className="font-medium text-surface-900">هل تريد إبلاغ الإدارة عن هذا المنشور كمحتوى غير لائق؟</p>
+        <p className="font-medium text-surface-900">{t('community.reportConfirm', 'هل تريد إبلاغ الإدارة عن هذا المنشور كمحتوى غير لائق؟')}</p>
         <div className="flex gap-2 justify-end">
-          <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1.5 text-xs font-medium bg-surface-200 hover:bg-surface-300 text-surface-700 rounded-lg">إلغاء</button>
+          <button onClick={() => toast.dismiss(toastItem.id)} className="px-3 py-1.5 text-xs font-medium bg-surface-200 hover:bg-surface-300 text-surface-700 rounded-lg">{t('common.cancel', 'إلغاء')}</button>
           <button onClick={() => {
-              toast.dismiss(t.id);
+              toast.dismiss(toastItem.id);
               communityApi.reportPost({ targetId: post.authorId, postId: post.id, reason: 'INAPPROPRIATE' })
                 .then(() => {
-                  toast.success('تم إرسال البلاغ للإدارة');
+                  toast.success(t('community.reportSuccess', 'تم إرسال البلاغ للإدارة'));
                   setIsReported(true);
                 })
-                .catch(() => toast.error('حدث خطأ أثناء الإبلاغ'));
-          }} className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg">نعم، أبلغ</button>
+                .catch(() => toast.error(t('community.reportError', 'حدث خطأ أثناء الإبلاغ')));
+          }} className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg">{t('community.reportYes', 'نعم، أبلغ')}</button>
         </div>
       </div>
     ), { duration: 5000 });
@@ -65,7 +67,7 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
               </span>
               {post.author?.role === 'TEACHER' && (
                 <span className="bg-primary-500/20 text-primary-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
-                  معلم
+                  {t('common.teacher', 'معلم')}
                 </span>
               )}
             </div>
@@ -76,7 +78,7 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
                   <span>•</span>
                   <span className="flex items-center gap-1 text-amber-500">
                     <Pin className="w-3 h-3" />
-                    مثبت
+                    {t('community.pinned', 'مثبت')}
                   </span>
                 </>
               )}
@@ -108,7 +110,7 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
         >
           <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
           {likesCount > 0 && <span>{likesCount}</span>}
-          إعجاب
+          {t('community.like', 'إعجاب')}
         </button>
 
         <button
@@ -117,7 +119,7 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
         >
           <MessageCircle className="w-5 h-5" />
           {post._count?.comments > 0 && <span>{post._count.comments}</span>}
-          تعليق
+          {t('community.comment', 'تعليق')}
         </button>
 
         <div className="flex-1" />
@@ -130,7 +132,7 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
               "flex items-center gap-2 text-sm transition-colors",
               isReported ? "text-amber-500 cursor-not-allowed" : "text-surface-500 hover:text-error"
             )}
-            title={isReported ? "تم الإبلاغ" : "إبلاغ كمحتوى غير لائق"}
+            title={isReported ? "{t('community.reported', 'تم الإبلاغ')}" : t('community.reportAction', 'إبلاغ كمحتوى غير لائق')}
           >
             <Flag className={cn("w-4 h-4", isReported && "fill-current")} />
             {isReported && <span className="text-xs">تم الإبلاغ</span>}

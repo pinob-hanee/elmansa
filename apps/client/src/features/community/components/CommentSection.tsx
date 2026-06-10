@@ -5,6 +5,7 @@ import { communityApi } from '../api/community';
 import { useAuthStore } from '../../../store/authStore';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 
 interface CommentSectionProps {
   postId: string;
@@ -15,6 +16,7 @@ export default function CommentSection({ postId, comments: initialComments }: Co
   const [content, setContent] = useState('');
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data: fetchedComments, isLoading } = useQuery({
     queryKey: ['comments', postId],
@@ -43,9 +45,9 @@ export default function CommentSection({ postId, comments: initialComments }: Co
       {/* Comments List */}
       <div className="space-y-4 mb-4">
         {isLoading ? (
-          <div className="text-center text-surface-500 text-sm py-4">جاري تحميل التعليقات...</div>
+          <div className="text-center text-surface-500 text-sm py-4">{t('community.loadingComments', 'جاري تحميل التعليقات...')}</div>
         ) : comments.length === 0 ? (
-          <div className="text-center text-surface-500 text-sm py-4">لا توجد تعليقات بعد. كن أول من يعلق!</div>
+          <div className="text-center text-surface-500 text-sm py-4">{t('community.noComments', 'لا توجد تعليقات بعد. كن أول من يعلق!')}</div>
         ) : (
           comments.map((comment: any) => (
             <div key={comment.id} className="flex gap-3">
@@ -78,7 +80,7 @@ export default function CommentSection({ postId, comments: initialComments }: Co
             type="text"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="اكتب تعليقاً..."
+            placeholder={t('community.writeComment', 'اكتب تعليقاً...')}
             className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2 pl-12 pr-4 text-surface-50 text-sm placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all"
           />
           <button
