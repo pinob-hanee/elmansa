@@ -1,9 +1,10 @@
-services:
+databases:
   # PostgreSQL Database
-  - type: pgo
-    name: elmansa-db
+  - name: elmansa-db
     plan: free
     postgresMajorVersion: 16
+
+services:
 
   # Redis Cache
   - type: redis
