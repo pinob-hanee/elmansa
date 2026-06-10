@@ -1,6 +1,6 @@
 databases:
   # PostgreSQL Database
-  - name: elmansa-db
+  - name: elmansa-db-eu
     plan: free
     region: frankfurt
     postgresMajorVersion: 16
@@ -10,14 +10,14 @@ services:
 
   # Redis Cache
   - type: redis
-    name: elmansa-redis
+    name: elmansa-redis-eu
     plan: free
     region: frankfurt
     ipAllowList: [] # Block external access, allow internal only
 
   # Node.js API Server
   - type: web
-    name: elmansa-api
+    name: elmansa-api-eu
     env: node
     plan: free
     region: frankfurt
@@ -35,12 +35,12 @@ services:
         value: production
       - key: DATABASE_URL
         fromDatabase:
-          name: elmansa-db
+          name: elmansa-db-eu
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: redis
-          name: elmansa-redis
+          name: elmansa-redis-eu
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
