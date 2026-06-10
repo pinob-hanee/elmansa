@@ -58,14 +58,3 @@ services:
         value: "Elmansa"
       - key: APP_URL
         value: "https://elmansa-api.onrender.com"
-
-  # React Frontend (Static Site)
-  - type: static
-    name: elmansa-client
-    buildCommand: |
-      npm install --include=dev
-      npm run build -w apps/client
-    staticPublishPath: apps/client/dist
-    envVars:
-      - key: VITE_API_URL
-        value: "https://elmansa-api.onrender.com/api/v1"
