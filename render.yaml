@@ -20,7 +20,7 @@ services:
     plan: free
     region: frankfurt # Can be changed
     buildCommand: |
-      npm install -w @elmansa/server
+      npm install --include=dev
       cd apps/server
       npx prisma generate
       npm run build
