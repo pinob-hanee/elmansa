@@ -65,7 +65,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'elmansa-auth',
       storage: createJSONStorage(() => sessionStorage),
-      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      partialize: (state) => ({ 
+        user: state.user, 
+        isAuthenticated: state.isAuthenticated,
+        accessToken: state.accessToken 
+      }),
     }
   )
 );
