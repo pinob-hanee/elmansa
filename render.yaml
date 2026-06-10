@@ -3,6 +3,7 @@ databases:
   - name: elmansa-db
     plan: free
     postgresMajorVersion: 16
+    ipAllowList: [] # Block external access, allow internal only
 
 services:
 
@@ -10,6 +11,7 @@ services:
   - type: redis
     name: elmansa-redis
     plan: free
+    ipAllowList: [] # Block external access, allow internal only
 
   # Node.js API Server
   - type: web
