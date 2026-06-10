@@ -3,8 +3,11 @@ import { motion } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, Users, BookOpen } from 'lucide-react';
 import api from '../../lib/api';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminAnalytics() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const { data, isLoading } = useQuery({
     queryKey: ['admin-charts'],
     queryFn: () => api.get('/admin/analytics/charts').then((r) => r.data.data),
@@ -21,7 +24,7 @@ export default function AdminAnalytics() {
   const { growthData, popularCoursesData } = data || { growthData: [], popularCoursesData: [] };
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-surface-50 mb-1">التحليلات والإحصائيات</h1>
         <p className="text-surface-400 text-sm">متابعة أداء المنصة ونمو الطلاب</p>

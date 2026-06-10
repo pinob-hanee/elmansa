@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Users, BookOpen, TrendingUp, Award, ArrowUpRight, Clock } from 'lucide-react';
 import api from '../../lib/api';
 import { cn } from '../../lib/utils';
+import { useTranslation } from 'react-i18next';
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -10,22 +11,24 @@ const fadeUp: Variants = {
 };
 
 export default function AdminDashboard() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const { data, isLoading } = useQuery({
     queryKey: ['admin-analytics'],
     queryFn: () => api.get('/admin/analytics').then((r) => r.data.data),
   });
 
   const stats = [
-    { label: 'إجمالي الطلاب', value: data?.totalStudents ?? 0, sub: `${data?.pendingStudents ?? 0} في الانتظار`, icon: Users, color: 'from-primary-500 to-purple-600', link: '/admin/students' },
-    { label: 'الكورسات', value: data?.totalCourses ?? 0, sub: `${data?.publishedCourses ?? 0} منشور`, icon: BookOpen, color: 'from-cyan-500 to-blue-600', link: '/admin/courses' },
-    { label: 'إجمالي التسجيلات', value: data?.totalEnrollments ?? 0, sub: 'عبر جميع الكورسات', icon: TrendingUp, color: 'from-emerald-500 to-teal-600', link: '/admin/analytics' },
+    { label: t('adminDashboard.totalStudents'), value: data?.totalStudents ?? 0, sub: `${data?.pendingStudents ?? 0} ${t('adminDashboard.pendingStudents')}`, icon: Users, color: 'from-primary-500 to-purple-600', link: '/admin/students' },
+    { label: t('adminDashboard.courses'), value: data?.totalCourses ?? 0, sub: `${data?.publishedCourses ?? 0} ${t('adminDashboard.publishedCourses')}`, icon: BookOpen, color: 'from-cyan-500 to-blue-600', link: '/admin/courses' },
+    { label: t('adminDashboard.totalEnrollments'), value: data?.totalEnrollments ?? 0, sub: t('adminDashboard.acrossAllCourses'), icon: TrendingUp, color: 'from-emerald-500 to-teal-600', link: '/admin/analytics' },
   ];
 
   return (
-    <div dir="rtl" className="space-y-8">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-8">
       <motion.div variants={fadeUp} initial="hidden" animate="visible">
-        <h1 className="text-2xl font-extrabold text-surface-50 mb-1">لوحة التحكم</h1>
-        <p className="text-surface-400">مرحباً! إليك نظرة عامة على المنصة</p>
+        <h1 className="text-2xl font-extrabold text-surface-50 mb-1">{t('adminDashboard.title')}</h1>
+        <p className="text-surface-400">{t('adminDashboard.subtitle')}</p>
       </motion.div>
 
       {/* Stats */}
@@ -72,7 +75,7 @@ export default function AdminDashboard() {
             <p className="text-sm font-medium text-surface-50">
               {data.pendingStudents} طالب ينتظر الموافقة
             </p>
-            <p className="text-xs text-surface-400">راجع طلبات التسجيل الجديدة</p>
+            <p className="text-xs text-surface-400">{t('adminDashboard.reviewRequests')}</p>
           </div>
           <a
             href="/admin/students?status=PENDING"
@@ -85,15 +88,15 @@ export default function AdminDashboard() {
 
       {/* Recent users */}
       <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4}>
-        <h2 className="text-lg font-bold text-surface-50 mb-4">أحدث الطلاب المسجلين</h2>
+        <h2 className="text-lg font-bold text-surface-50 mb-4">{t('adminDashboard.recentStudents')}</h2>
         <div className="glass rounded-2xl border border-surface-200 overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="border-b border-surface-800">
-                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">الطالب</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">البريد</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">تاريخ التسجيل</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">الحالة</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">{t('adminDashboard.student')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">{t('adminDashboard.email')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">{t('adminDashboard.registrationDate')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">{t('adminDashboard.status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-800">
@@ -118,7 +121,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-4 py-3 text-sm text-surface-400">{user.email}</td>
                     <td className="px-4 py-3 text-sm text-surface-400">
-                      {new Date(user.createdAt).toLocaleDateString('ar-EG')}
+                      {new Date(user.createdAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
                     </td>
                     <td className="px-4 py-3">
                       <span className={cn(

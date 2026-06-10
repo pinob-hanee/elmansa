@@ -5,10 +5,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { adminCoursesApi } from '../../features/courses/api/admin.courses';
 import toast from 'react-hot-toast';
 import { cn } from '../../lib/utils';
+import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
 export default function AdminCourses() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
@@ -54,7 +57,7 @@ export default function AdminCourses() {
   const courses = data?.data || [];
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-surface-50 mb-1">الكورسات</h1>

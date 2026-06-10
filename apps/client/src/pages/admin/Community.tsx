@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, MessageSquare, Trash2, AlertTriangle, User, BookOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import api from '../../lib/api';
 import { cn } from '../../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
 export default function AdminCommunity() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const qc = useQueryClient();
@@ -25,15 +28,15 @@ export default function AdminCommunity() {
   });
 
   const handleDelete = (id: string) => {
-    toast((t) => (
+    toast((toastItem) => (
       <div className="flex flex-col gap-3" dir="rtl">
-        <p className="font-medium text-surface-900">هل أنت متأكد من حذف هذا المنشور؟</p>
+        <p className="font-medium text-surface-900">{t('adminCommunity.deleteConfirm')}</p>
         <div className="flex gap-2 justify-end">
-          <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1.5 text-xs font-medium bg-surface-200 hover:bg-surface-300 text-surface-700 rounded-lg">إلغاء</button>
+          <button onClick={() => toast.dismiss(toastItem.id)} className="px-3 py-1.5 text-xs font-medium bg-surface-200 hover:bg-surface-300 text-surface-700 rounded-lg">إلغاء</button>
           <button onClick={() => {
-              toast.dismiss(t.id);
+              toast.dismiss(toastItem.id);
               deleteMutation.mutate(id, {
-                onSuccess: () => toast.success('تم حذف المنشور')
+                onSuccess: () => toast.success(t('adminCommunity.deletedSuccess'))
               });
           }} className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg">نعم، احذف</button>
         </div>
@@ -45,10 +48,10 @@ export default function AdminCommunity() {
   const meta = data?.meta || { totalPages: 1 };
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-surface-50 mb-1">إدارة المجتمع</h1>
+          <h1 className="text-2xl font-bold text-surface-50 mb-1">{t('adminCommunity.title')}</h1>
           <p className="text-surface-400 text-sm">مراقبة وإدارة النقاشات ومنشورات الطلاب</p>
         </div>
       </div>
@@ -60,7 +63,7 @@ export default function AdminCommunity() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="ابحث في المنشورات..."
+            placeholder={t('adminCommunity.searchPlaceholder')}
             className="w-full bg-surface-900 border border-surface-800 rounded-xl py-2 pr-10 pl-4 text-surface-50 placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all"
           />
         </div>
@@ -70,8 +73,8 @@ export default function AdminCommunity() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-surface-800 bg-surface-900/50">
-              <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">المنشور</th>
-              <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">الكاتب</th>
+              <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">{t('adminCommunity.post')}</th>
+              <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">{t('adminCommunity.author')}</th>
               <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">تاريخ النشر</th>
               <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">الإحصائيات</th>
               <th className="px-4 py-4 text-center text-xs font-medium text-surface-500 uppercase tracking-wider">إجراءات</th>

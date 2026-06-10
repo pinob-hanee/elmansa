@@ -8,6 +8,7 @@ import {
 import api from '../../lib/api';
 import { cn } from '../../lib/utils';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 const statusConfig = {
   PENDING: { label: 'في الانتظار', color: 'text-warning bg-warning/10 border-warning/30', icon: Clock },
@@ -18,6 +19,7 @@ const statusConfig = {
 };
 
 function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: enrollments, isLoading } = useQuery({
     queryKey: ['student-enrollments', student.id],
@@ -27,10 +29,10 @@ function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => v
   const dropMutation = useMutation({
     mutationFn: (courseId: string) => api.patch(`/admin/students/${student.id}/enrollments/${courseId}/drop`),
     onSuccess: () => {
-      toast.success('تم إيقاف الكورس للطالب');
+      toast.success(t('adminStudents.dropSuccess', 'تم إيقاف الكورس للطالب'));
       qc.invalidateQueries({ queryKey: ['student-enrollments', student.id] });
     },
-    onError: () => toast.error('حدث خطأ أثناء إيقاف الكورس'),
+    onError: () => toast.error(t('adminStudents.dropError', 'حدث خطأ أثناء إيقاف الكورس')),
   });
 
   return (
@@ -44,7 +46,7 @@ function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => v
         <div className="flex items-center justify-between p-5 border-b border-surface-800 bg-surface-900/50">
           <h2 className="text-xl font-bold text-surface-50 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-primary-500" />
-            كورسات الطالب: {student.profile?.firstName}
+            {t('adminStudents.courseList', { name: student.profile?.firstName })}
           </h2>
           <button onClick={onClose} className="p-2 text-surface-400 hover:text-surface-50 rounded-lg transition-colors">
             <X className="w-5 h-5" />
@@ -53,9 +55,9 @@ function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => v
         
         <div className="p-5 max-h-[60vh] overflow-y-auto space-y-4">
           {isLoading ? (
-            <div className="text-center text-surface-500 py-8">جاري التحميل...</div>
+            <div className="text-center text-surface-500 py-8">{t('common.loading')}</div>
           ) : !enrollments || enrollments.length === 0 ? (
-            <div className="text-center text-surface-500 py-8">لا يوجد كورسات مسجلة لهذا الطالب</div>
+            <div className="text-center text-surface-500 py-8">{t('adminStudents.noCourses')}</div>
           ) : (
             enrollments.map((en: any) => (
               <div key={en.id} className="flex items-center gap-4 p-3 rounded-xl border border-surface-800 bg-surface-800/30">
@@ -68,7 +70,7 @@ function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => v
                 </div>
                 <div className="flex-1">
                   <h4 className="text-surface-50 font-medium text-sm line-clamp-1">{en.course.title}</h4>
-                  <p className="text-xs text-surface-400 mt-1">الحالة: {en.status === 'ACTIVE' ? 'نشط' : en.status === 'DROPPED' ? 'موقوف' : en.status}</p>
+                  <p className="text-xs text-surface-400 mt-1">{t('adminStudents.courseStatus', { status: en.status === 'ACTIVE' ? t('adminStudents.active') : en.status === 'DROPPED' ? t('adminStudents.dropped') : en.status })}</p>
                 </div>
                 {en.status === 'ACTIVE' && (
                   <button
@@ -89,6 +91,8 @@ function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => v
 }
 
 export default function AdminStudents() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
@@ -117,10 +121,10 @@ export default function AdminStudents() {
   ];
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-extrabold text-surface-50 mb-1">إدارة الطلاب</h1>
-        <p className="text-surface-400">راجع وأدر طلبات التسجيل والطلاب</p>
+        <h1 className="text-2xl font-extrabold text-surface-50 mb-1">{t('adminStudents.title')}</h1>
+        <p className="text-surface-400">{t('adminStudents.subtitle')}</p>
       </div>
 
       {/* Filters */}
@@ -130,7 +134,7 @@ export default function AdminStudents() {
           <input
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+            placeholder={t('adminStudents.searchPlaceholder')}
             className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-surface-800 border border-surface-700 focus:border-primary-500 text-surface-50 placeholder-surface-500 text-sm outline-none transition-all"
           />
         </div>
@@ -139,11 +143,11 @@ export default function AdminStudents() {
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
           className="px-4 py-2.5 rounded-xl bg-surface-800 border border-surface-700 text-surface-300 text-sm outline-none transition-all focus:border-primary-500"
         >
-          <option value="">كل الحالات</option>
-          <option value="PENDING">في الانتظار</option>
-          <option value="APPROVED">مقبول</option>
-          <option value="REJECTED">مرفوض</option>
-          <option value="SUSPENDED">موقوف</option>
+          <option value="">{t('adminStudents.allStatuses')}</option>
+          <option value="PENDING">{t('adminStudents.pending')}</option>
+          <option value="APPROVED">{t('adminStudents.approved')}</option>
+          <option value="REJECTED">{t('adminStudents.rejected')}</option>
+          <option value="SUSPENDED">{t('adminStudents.suspended')}</option>
         </select>
       </div>
 
@@ -153,11 +157,11 @@ export default function AdminStudents() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-surface-800">
-                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">الطالب</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">التفاصيل</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">الحالة</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">تاريخ التسجيل</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">الإجراءات</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">{t('adminStudents.student')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">{t('adminStudents.details')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">{t('adminStudents.status')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">{t('adminStudents.registrationDate')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-surface-500">{t('adminStudents.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-800">
@@ -207,7 +211,7 @@ export default function AdminStudents() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-surface-400">
-                        {new Date(student.createdAt).toLocaleDateString('ar-EG')}
+                        {new Date(student.createdAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -216,7 +220,7 @@ export default function AdminStudents() {
                               onClick={() => updateStatus.mutate({ id: student.id, status: 'APPROVED' })}
                               disabled={updateStatus.isPending}
                               className="p-1.5 rounded-lg bg-success/10 hover:bg-success/20 text-success transition-all"
-                              title="قبول"
+                              title={t('adminStudents.approve')}
                             >
                               <Check className="w-4 h-4" />
                             </button>
@@ -226,7 +230,7 @@ export default function AdminStudents() {
                               onClick={() => updateStatus.mutate({ id: student.id, status: 'REJECTED' })}
                               disabled={updateStatus.isPending}
                               className="p-1.5 rounded-lg bg-error/10 hover:bg-error/20 text-error transition-all"
-                              title="رفض"
+                              title={t('adminStudents.reject')}
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -236,7 +240,7 @@ export default function AdminStudents() {
                               onClick={() => updateStatus.mutate({ id: student.id, status: 'SUSPENDED' })}
                               disabled={updateStatus.isPending}
                               className="p-1.5 rounded-lg bg-warning/10 hover:bg-warning/20 text-warning transition-all"
-                              title="توقيف"
+                              title={t('adminStudents.suspend')}
                             >
                               <AlertCircle className="w-4 h-4" />
                             </button>
@@ -244,7 +248,7 @@ export default function AdminStudents() {
                           <button
                             onClick={() => setSelectedStudent(student)}
                             className="p-1.5 rounded-lg bg-primary-500/10 hover:bg-primary-500/20 text-primary-400 transition-all ml-2"
-                            title="عرض الكورسات"
+                            title={t('adminStudents.viewCourses')}
                           >
                             <BookOpen className="w-4 h-4" />
                           </button>
@@ -262,7 +266,7 @@ export default function AdminStudents() {
         {data?.meta && data.meta.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-surface-800">
             <p className="text-sm text-surface-400">
-              عرض {((page - 1) * data.meta.limit) + 1}–{Math.min(page * data.meta.limit, data.meta.total)} من {data.meta.total}
+              {t('adminStudents.showing', { start: ((page - 1) * data.meta.limit) + 1, end: Math.min(page * data.meta.limit, data.meta.total), total: data.meta.total })}
             </p>
             <div className="flex gap-2">
               <button
