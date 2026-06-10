@@ -116,7 +116,7 @@ export default function RegisterPage() {
         <div className="glass rounded-3xl p-8 border border-surface-200">
           {/* Google Sign up */}
           <a
-            href="/api/v1/auth/google"
+            href={`${import.meta.env.VITE_API_URL}/auth/google`}
             className="w-full flex items-center justify-center gap-3 px-6 py-2.5 rounded-xl border border-surface-700 hover:border-surface-500 bg-surface-800/50 hover:bg-surface-800 text-surface-50 transition-all mb-5 group"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
