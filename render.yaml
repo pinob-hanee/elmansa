@@ -2,6 +2,7 @@ databases:
   # PostgreSQL Database
   - name: elmansa-db
     plan: free
+    region: frankfurt
     postgresMajorVersion: 16
     ipAllowList: [] # Block external access, allow internal only
 
@@ -11,6 +12,7 @@ services:
   - type: redis
     name: elmansa-redis
     plan: free
+    region: frankfurt
     ipAllowList: [] # Block external access, allow internal only
 
   # Node.js API Server
@@ -18,6 +20,7 @@ services:
     name: elmansa-api
     env: node
     plan: free
+    region: frankfurt
     buildCommand: |
       npm install --include=dev
       cd apps/server
