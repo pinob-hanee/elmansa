@@ -18,7 +18,6 @@ services:
     name: elmansa-api
     env: node
     plan: free
-    region: frankfurt # Can be changed
     buildCommand: |
       npm install --include=dev
       cd apps/server
