@@ -66,10 +66,6 @@ services:
       npm install --include=dev
       npm run build -w apps/client
     staticPublishPath: apps/client/dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
     envVars:
       - key: VITE_API_URL
         value: "https://elmansa-api.onrender.com/api/v1"
