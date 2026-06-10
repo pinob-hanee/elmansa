@@ -60,11 +60,8 @@ services:
         value: "https://elmansa-api.onrender.com"
 
   # React Frontend (Static Site)
-  - type: web
+  - type: static
     name: elmansa-client
-    env: static
-    plan: free
-    region: frankfurt
     buildCommand: |
       npm install --include=dev
       npm run build -w apps/client
