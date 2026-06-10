@@ -29,6 +29,7 @@ services:
     startCommand: |
       cd apps/server
       npx prisma db push --accept-data-loss
+      npm run db:seed
       npm start
     envVars:
       - key: NODE_ENV
