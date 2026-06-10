@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { env } from '../../config/env';
 import { AuthService } from './auth.service';
 import { successResponse, setRefreshTokenCookie, clearRefreshTokenCookie } from '../../utils/response';
 import {
@@ -111,8 +112,12 @@ export class AuthController {
       );
       setRefreshTokenCookie(res, result.refreshToken);
       // Redirect to frontend with token
+      let clientUrl = env.CLIENT_URL || process.env.CLIENT_URL || 'http://localhost:5173';
+      if (!clientUrl.startsWith('http://') && !clientUrl.startsWith('https://')) {
+        clientUrl = `https://${clientUrl}`;
+      }
       res.redirect(
-        `${process.env.CLIENT_URL}/auth/callback?token=${result.accessToken}`
+        `${clientUrl}/auth/callback?token=${result.accessToken}`
       );
     } catch (error) {
       next(error);
