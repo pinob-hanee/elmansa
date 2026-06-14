@@ -90,7 +90,7 @@ export class CodingService {
     if (!problem) throw new Error('Problem not found');
 
     // Strip hidden test cases for students
-    const testCases = (problem.testCases as TestCase[]).map((tc) => ({
+    const testCases = (problem.testCases as unknown as TestCase[]).map((tc) => ({
       ...tc,
       expectedOutput: tc.isHidden ? undefined : tc.expectedOutput,
     }));
@@ -141,7 +141,7 @@ export class CodingService {
     const problem = await prisma.codingProblem.findUnique({ where: { id: problemId } });
     if (!problem) throw new Error('Problem not found');
 
-    const testCases = problem.testCases as TestCase[];
+    const testCases = problem.testCases as unknown as TestCase[];
     const langId = LANGUAGE_IDS[language];
     if (!langId) throw new Error(`Unsupported language: ${language}`);
 
