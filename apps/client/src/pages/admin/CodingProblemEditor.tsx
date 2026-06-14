@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, Plus, Trash2, Eye, EyeOff, Save, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -58,14 +58,21 @@ export default function CodingProblemEditor({ problem, onClose }: Props) {
   );
   const [activeTab, setActiveTab] = useState<'details' | 'testcases' | 'starter'>('details');
 
+  const qc = useQueryClient();
+
   const saveMutation = useMutation({
     mutationFn: (data: any) =>
       problem?.id
         ? api.put(`/coding/admin/problems/${problem.id}`, data).then(r => r.data)
         : api.post('/coding/admin/problems', data).then(r => r.data),
     onSuccess: () => {
-      toast.success(problem?.id ? 'تم تحديث المسألة' : 'تم إنشاء المسألة');
-      onClose();
+      toast.success(problem?.id ? 'تم تحديث المسألة بنجاح' : 'تم إنشاء المسألة');
+      qc.invalidateQueries({ queryKey: ['admin-coding-problems'] });
+      
+      // Only close if it's a newly created problem
+      if (!problem?.id) {
+        onClose();
+      }
     },
     onError: (e: any) => toast.error(e.response?.data?.message || 'فشل حفظ المسألة'),
   });
