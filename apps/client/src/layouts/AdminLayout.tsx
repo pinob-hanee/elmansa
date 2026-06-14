@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Users, BookOpen, BarChart3,
-  MessageSquare, LogOut, Shield, BookOpenCheck
+  MessageSquare, LogOut, Shield, BookOpenCheck, Code2
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
@@ -24,7 +24,8 @@ export default function AdminLayout() {
     { icon: Users, label: t('nav.students'), href: '/admin/students' },
     { icon: BookOpen, label: t('nav.courses'), href: '/admin/courses' },
     { icon: MessageSquare, label: t('nav.community'), href: '/admin/community' },
-      ];
+    { icon: Code2, label: t('nav.coding', 'Coding'), href: '/admin/coding' },
+  ];
 
   const handleLogout = async () => {
     if (isLoggingOut) return;

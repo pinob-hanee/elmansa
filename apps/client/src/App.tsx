@@ -31,6 +31,10 @@ const AdminStudents = lazy(() => import('./pages/admin/Students'));
 const AdminCourses = lazy(() => import('./pages/admin/Courses'));
 const AdminCourseEditor = lazy(() => import('./pages/admin/CourseEditor'));
 const AdminCommunity = lazy(() => import('./pages/admin/Community'));
+const AdminCodingProblems = lazy(() => import('./pages/admin/CodingProblems'));
+// Student coding (standalone full-page, no layout)
+const CodingPage = lazy(() => import('./pages/student/CodingPage'));
+const CodingProblemPage = lazy(() => import('./pages/student/CodingProblemPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,7 +102,11 @@ export default function App() {
               <Route path="community" element={<CommunityPage />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="coding" element={<CodingPage />} />
             </Route>
+
+            {/* Coding problem — full-page, no StudentLayout chrome */}
+            <Route path="/coding/:id" element={<ProtectedRoute><CodingProblemPage /></ProtectedRoute>} />
 
             {/* Admin routes */}
             <Route
@@ -115,7 +123,8 @@ export default function App() {
               <Route path="courses/new" element={<AdminCourseEditor />} />
               <Route path="courses/:id/edit" element={<AdminCourseEditor />} />
               <Route path="community" element={<AdminCommunity />} />
-                          </Route>
+              <Route path="coding" element={<AdminCodingProblems />} />
+            </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

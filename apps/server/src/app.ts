@@ -26,6 +26,7 @@ import mediaRoutes from './modules/media/media.routes';
 import notificationRoutes from './modules/notifications/notification.routes';
 import quizRoutes from './modules/quiz/quiz.routes';
 import gamificationRoutes from './modules/gamification/gamification.routes';
+import codingRoutes from './modules/coding/coding.routes';
 
 const app = express();
 const httpServer = createServer(app);
@@ -148,6 +149,7 @@ app.use('/api/v1/media', mediaRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/quizzes', quizRoutes);
 app.use('/api/v1/gamification', gamificationRoutes);
+app.use('/api/v1/coding', codingRoutes);
 
 // ============================================================
 // Error Handling

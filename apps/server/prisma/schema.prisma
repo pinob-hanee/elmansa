@@ -138,6 +138,7 @@ model User {
   achievements       UserAchievement[]
   xpLogs             XpLog[]
   studentDeadlines   StudentChapterDeadline[]
+  codingSubmissions  CodingSubmission[]
 
   @@index([email])
   @@index([role, approvalStatus])
@@ -267,11 +268,12 @@ model Course {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
-  category    Category?    @relation(fields: [categoryId], references: [id])
-  modules     Module[]
-  enrollments Enrollment[]
-  posts       CommunityPost[]
-  certificates Certificate[]
+  category       Category?       @relation(fields: [categoryId], references: [id])
+  modules        Module[]
+  enrollments    Enrollment[]
+  posts          CommunityPost[]
+  certificates   Certificate[]
+  codingProblems CodingProblem[]
 
   @@index([slug])
   @@index([isPublished, isFeatured])
@@ -686,6 +688,74 @@ model XpLog {
 // ============================================================
 // AUDIT & LOGGING
 // ============================================================
+
+// ============================================================
+// CODING CHALLENGES
+// ============================================================
+
+enum CodingDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SubmissionStatus {
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  COMPILE_ERROR
+  RUNTIME_ERROR
+  PENDING
+}
+
+model CodingProblem {
+  id          String            @id @default(uuid())
+  courseId    String?
+  lessonId    String?
+  title       String
+  titleAr     String?
+  description String            // Markdown content
+  descriptionAr String?
+  starterCode Json              // { python: "...", javascript: "...", cpp: "..." }
+  testCases   Json              // [{ input, expectedOutput, isHidden }]
+  languages   String[]          // Supported languages
+  difficulty  CodingDifficulty  @default(EASY)
+  tags        String[]
+  isPublished Boolean           @default(false)
+  timeLimit   Int               @default(5)   // seconds
+  memoryLimit Int               @default(256) // MB
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  course      Course?           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submissions CodingSubmission[]
+
+  @@index([courseId])
+  @@index([isPublished])
+}
+
+model CodingSubmission {
+  id          String           @id @default(uuid())
+  problemId   String
+  userId      String
+  code        String
+  language    String
+  status      SubmissionStatus @default(PENDING)
+  runtimeMs   Int?             // execution time in ms
+  memoryKb    Int?             // memory used in KB
+  testsPassed Int              @default(0)
+  testsTotal  Int              @default(0)
+  output      String?          // last test output or error
+  errorMsg    String?          // compile/runtime error
+  createdAt   DateTime         @default(now())
+
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, problemId])
+  @@index([problemId])
+  @@index([userId, createdAt])
+}
 
 model AuditLog {
   id         String   @id @default(uuid())
