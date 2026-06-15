@@ -175,9 +175,17 @@ export class CodingService {
   ) {
     let testsPassed = 0;
     let finalStatus: SubmissionStatus = 'ACCEPTED';
-    let lastOutput = '';
     let errorMsg = '';
     let totalRuntime = 0;
+
+    // Collect per-test-case results for rich UI display
+    const testResults: Array<{
+      passed: boolean;
+      input: string | null;
+      expected: string | null;
+      output: string;
+      error?: string;
+    }> = [];
 
     for (const tc of testCases) {
       try {
@@ -202,10 +210,18 @@ export class CodingService {
           } else {
             finalStatus = 'WRONG_ANSWER';
           }
-          lastOutput = stdout;
         }
 
         if (result.time) totalRuntime += parseFloat(result.time) * 1000;
+
+        testResults.push({
+          passed,
+          // Only show input/expected for non-hidden test cases
+          input: tc.isHidden ? null : tc.input,
+          expected: tc.isHidden ? null : tc.expectedOutput,
+          output: stdout,
+          error: result.stderr || result.compile_output || undefined,
+        });
       } catch (err: any) {
         console.error('Judge0 error:', err.response?.data || err.message);
         finalStatus = 'RUNTIME_ERROR';
@@ -214,6 +230,13 @@ export class CodingService {
         } else {
           errorMsg = 'Execution failed: ' + (err.response?.data?.error || err.message);
         }
+        testResults.push({
+          passed: false,
+          input: tc.isHidden ? null : tc.input,
+          expected: tc.isHidden ? null : tc.expectedOutput,
+          output: '',
+          error: errorMsg,
+        });
       }
     }
 
@@ -222,9 +245,10 @@ export class CodingService {
       data: {
         status: finalStatus,
         testsPassed,
-        output: lastOutput,
+        // Store detailed per-test-case results as JSON
+        output: JSON.stringify(testResults),
         errorMsg: errorMsg || null,
-        runtimeMs: Math.round(totalRuntime / testCases.length),
+        runtimeMs: testCases.length > 0 ? Math.round(totalRuntime / testCases.length) : 0,
       },
     });
   }
@@ -241,7 +265,7 @@ export class CodingService {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-    
+
     // Bypass Ngrok's free tier browser warning screen
     if (JUDGE0_URL.includes('ngrok')) {
       headers['ngrok-skip-browser-warning'] = 'true';

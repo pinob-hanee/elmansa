@@ -332,8 +332,9 @@ export default function CodingProblemPage() {
 
           {/* Result panel */}
           {result && (
-            <div className="h-44 border-t border-surface-800 bg-surface-900 overflow-y-auto">
-              <div className="flex items-center gap-3 px-4 py-2.5 border-b border-surface-800">
+            <div className="border-t border-surface-800 bg-surface-900 overflow-hidden flex flex-col" style={{ maxHeight: '280px' }}>
+              {/* Status bar */}
+              <div className="flex items-center gap-3 px-4 py-2.5 border-b border-surface-800 shrink-0">
                 {statusConfig && (
                   <>
                     <statusConfig.icon className={cn('w-4 h-4 shrink-0', statusConfig.color, result.status === 'PENDING' && 'animate-spin')} />
@@ -341,36 +342,129 @@ export default function CodingProblemPage() {
                   </>
                 )}
                 {result.testsPassed !== undefined && result.status !== 'PENDING' && (
-                  <span className="text-xs text-surface-500 ml-2">
+                  <span className="text-xs bg-surface-800 px-2 py-0.5 rounded-full text-surface-400">
                     {result.testsPassed}/{result.testsTotal} {t('coding.testsPassed', 'اختبارات')}
                   </span>
                 )}
-                {result.runtimeMs && (
+                {result.runtimeMs > 0 && (
                   <span className="flex items-center gap-1 text-xs text-surface-500 ml-auto">
                     <Clock className="w-3 h-3" /> {result.runtimeMs}ms
                   </span>
                 )}
               </div>
-              <div className="p-4 font-mono text-xs text-surface-300 whitespace-pre-wrap">
+
+              <div className="overflow-y-auto flex-1 p-3 space-y-2">
                 {result.status === 'PENDING' && (
-                  <span className="text-blue-400">{t('coding.running', 'جاري التنفيذ...')}</span>
-                )}
-                {result.errorMsg && <span className="text-red-400">{result.errorMsg}</span>}
-                {result.output && !result.errorMsg && (
-                  <div>
-                    <span className="text-surface-500">{t('coding.yourOutput', 'مخرجاتك')}: </span>
-                    <span>{result.output}</span>
+                  <div className="flex items-center gap-2 text-blue-400 text-sm p-3">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t('coding.running', 'جاري التنفيذ...')}
                   </div>
                 )}
+
+                {/* Compile / Runtime error (no per-test breakdown) */}
+                {result.errorMsg && result.status !== 'WRONG_ANSWER' && (() => {
+                  // Try to check if it's a JSON result with errors
+                  try {
+                    const parsed = JSON.parse(result.output || '[]');
+                    if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].error) {
+                      return (
+                        <div className="rounded-xl overflow-hidden border border-red-500/30 bg-red-500/5">
+                          <div className="px-3 py-1.5 bg-red-500/10 text-red-400 text-xs font-mono font-semibold">
+                            {result.status === 'COMPILE_ERROR' ? 'Compile Error' : 'Runtime Error'}
+                          </div>
+                          <pre className="p-3 text-xs text-red-300 font-mono whitespace-pre-wrap overflow-x-auto">
+                            {parsed[0].error}
+                          </pre>
+                        </div>
+                      );
+                    }
+                  } catch { /* not json */ }
+                  return (
+                    <div className="rounded-xl overflow-hidden border border-red-500/30 bg-red-500/5">
+                      <div className="px-3 py-1.5 bg-red-500/10 text-red-400 text-xs font-mono font-semibold">Error</div>
+                      <pre className="p-3 text-xs text-red-300 font-mono whitespace-pre-wrap">{result.errorMsg}</pre>
+                    </div>
+                  );
+                })()}
+
+                {/* Per-test-case results */}
+                {result.output && result.status !== 'PENDING' && (() => {
+                  try {
+                    const testResults: Array<{
+                      passed: boolean;
+                      input: string | null;
+                      expected: string | null;
+                      output: string;
+                      error?: string;
+                    }> = JSON.parse(result.output);
+                    if (!Array.isArray(testResults)) return null;
+                    return (
+                      <div className="space-y-2">
+                        {testResults.map((tc, i) => (
+                          <div key={i} className={cn(
+                            'rounded-xl border overflow-hidden',
+                            tc.passed ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'
+                          )}>
+                            {/* Test case header */}
+                            <div className={cn(
+                              'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold',
+                              tc.passed ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                            )}>
+                              {tc.passed
+                                ? <CheckCircle2 className="w-3.5 h-3.5" />
+                                : <XCircle className="w-3.5 h-3.5" />
+                              }
+                              {t('coding.testCase', 'اختبار')} {i + 1}
+                              {tc.input === null && (
+                                <span className="ml-auto opacity-60 text-[10px] font-normal">{t('coding.hidden', 'مخفي')}</span>
+                              )}
+                            </div>
+
+                            {/* Test case details */}
+                            <div className="p-3 grid gap-2 font-mono text-xs">
+                              {tc.input !== null && (
+                                <div className="flex gap-2">
+                                  <span className="text-surface-500 shrink-0 w-16">{t('coding.input', 'مدخل')}:</span>
+                                  <span className="text-surface-300 break-all">{tc.input || '(none)'}</span>
+                                </div>
+                              )}
+                              {tc.expected !== null && (
+                                <div className="flex gap-2">
+                                  <span className="text-surface-500 shrink-0 w-16">{t('coding.expected', 'متوقع')}:</span>
+                                  <span className="text-emerald-300 break-all">{tc.expected}</span>
+                                </div>
+                              )}
+                              <div className="flex gap-2">
+                                <span className="text-surface-500 shrink-0 w-16">{t('coding.yourOutput', 'مخرجاتك')}:</span>
+                                <span className={cn('break-all', tc.passed ? 'text-emerald-300' : 'text-red-300')}>
+                                  {tc.output || (tc.error ? <span className="text-red-400 whitespace-pre-wrap">{tc.error}</span> : '(empty)')}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  } catch {
+                    // Fallback for old plain-text output
+                    return (
+                      <div className="font-mono text-xs text-surface-300 p-2 whitespace-pre-wrap">
+                        {result.output}
+                      </div>
+                    );
+                  }
+                })()}
+
                 {result.status === 'ACCEPTED' && (
-                  <div className="flex items-center gap-2 text-emerald-400">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-emerald-400 text-sm p-2 font-medium">
+                    <CheckCircle2 className="w-5 h-5" />
                     {t('coding.allPassed', 'جميع الاختبارات اجتازت بنجاح! 🎉')}
                   </div>
                 )}
               </div>
             </div>
           )}
+
         </div>
       </div>
     </div>
