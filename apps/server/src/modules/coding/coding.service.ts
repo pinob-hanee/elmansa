@@ -301,6 +301,56 @@ export class CodingService {
     });
   }
 
+  // Run code against visible test cases only — returns result immediately, no DB record
+  async runCode(problemId: string, code: string, language: string) {
+    const problem = await prisma.codingProblem.findUnique({ where: { id: problemId } });
+    if (!problem) throw new Error('Problem not found');
+
+    const allTestCases = problem.testCases as unknown as TestCase[];
+    const visibleCases = allTestCases.filter(tc => !tc.isHidden);
+
+    const langId = LANGUAGE_IDS[language];
+    if (!langId) throw new Error(`Unsupported language: ${language}`);
+
+    const testResults: Array<{
+      passed: boolean;
+      input: string;
+      expected: string;
+      output: string;
+      error?: string;
+    }> = [];
+
+    for (const tc of visibleCases) {
+      try {
+        const result = await this.executeOnJudge0(code, langId, tc.input, problem.timeLimit, problem.memoryLimit);
+        const stdout = (result.stdout || '').trim();
+        const passed = stdout === tc.expectedOutput.trim();
+        testResults.push({
+          passed,
+          input: tc.input,
+          expected: tc.expectedOutput,
+          output: stdout,
+          error: result.stderr || result.compile_output || undefined,
+        });
+      } catch (err: any) {
+        testResults.push({
+          passed: false,
+          input: tc.input,
+          expected: tc.expectedOutput,
+          output: '',
+          error: err.response?.data?.error || err.message,
+        });
+      }
+    }
+
+    return {
+      testsPassed: testResults.filter(r => r.passed).length,
+      testsTotal: visibleCases.length,
+      testResults,
+      isRun: true, // flag so frontend can label it differently
+    };
+  }
+
   async getMySubmissions(problemId: string, userId: string) {
     return prisma.codingSubmission.findMany({
       where: { problemId, userId },
@@ -313,6 +363,7 @@ export class CodingService {
         testsPassed: true,
         testsTotal: true,
         runtimeMs: true,
+        code: true,
         createdAt: true,
       },
     });

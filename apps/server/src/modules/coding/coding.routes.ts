@@ -45,6 +45,15 @@ router.post('/problems/:id/submit', authenticate, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// Run code against visible test cases only (no submission saved)
+router.post('/problems/:id/run', authenticate, async (req, res, next) => {
+  try {
+    const { code, language } = req.body;
+    const result = await svc.runCode(req.params.id, code, language);
+    successResponse(res, result);
+  } catch (e) { next(e); }
+});
+
 // Poll submission result
 router.get('/submissions/:submissionId', authenticate, async (req, res, next) => {
   try {
