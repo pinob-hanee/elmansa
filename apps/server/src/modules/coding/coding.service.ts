@@ -206,9 +206,14 @@ export class CodingService {
         }
 
         if (result.time) totalRuntime += parseFloat(result.time) * 1000;
-      } catch {
+      } catch (err: any) {
+        console.error('Judge0 error:', err.response?.data || err.message);
         finalStatus = 'RUNTIME_ERROR';
-        errorMsg = 'Execution failed';
+        if (err.response?.status === 422) {
+          errorMsg = '422 Validation Error: ' + JSON.stringify(err.response.data);
+        } else {
+          errorMsg = 'Execution failed: ' + (err.response?.data?.error || err.message);
+        }
       }
     }
 
