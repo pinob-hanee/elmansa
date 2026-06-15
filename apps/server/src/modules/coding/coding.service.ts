@@ -256,8 +256,9 @@ export class CodingService {
       source_code: code,
       language_id: languageId,
       stdin: stdin,
-      cpu_time_limit: timeLimit,
-      memory_limit: memoryLimit * 1024, // KB
+      // RapidAPI Judge0 CE caps: cpu_time_limit <= 20s, memory_limit <= 256000 KB
+      cpu_time_limit: Math.min(timeLimit, 20),
+      memory_limit: Math.min(memoryLimit * 1024, 256000),
     };
 
     // Submit
