@@ -236,6 +236,12 @@ export class CodingService {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
+    
+    // Bypass Ngrok's free tier browser warning screen
+    if (JUDGE0_URL.includes('ngrok')) {
+      headers['ngrok-skip-browser-warning'] = 'true';
+    }
+
     if (isRapidApi) {
       headers['X-RapidAPI-Key'] = JUDGE0_API_KEY;
       headers['X-RapidAPI-Host'] = 'judge0-ce.p.rapidapi.com';
