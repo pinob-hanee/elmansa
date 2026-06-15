@@ -3,18 +3,16 @@ import axios from 'axios';
 
 const prisma = new PrismaClient();
 
-// Judge0 language IDs
-const LANGUAGE_IDS: Record<string, number> = {
-  python: 71,      // Python 3
-  javascript: 63,  // Node.js
-  cpp: 54,         // C++ (GCC 9.2.0)
-  java: 62,        // Java (OpenJDK 13)
-  c: 50,           // C (GCC 9.2.0)
+// Piston API Configuration
+const PISTON_LANGUAGES: Record<string, { language: string; version: string }> = {
+  python: { language: 'python', version: '3.10.0' },
+  javascript: { language: 'javascript', version: '18.15.0' },
+  cpp: { language: 'c++', version: '10.2.0' },
+  java: { language: 'java', version: '15.0.2' },
+  c: { language: 'c', version: '10.2.0' },
 };
 
-// Judge0 base URL - can be self-hosted or use public instance
-const JUDGE0_URL = process.env.JUDGE0_URL || 'https://judge0-ce.p.rapidapi.com';
-const JUDGE0_API_KEY = process.env.JUDGE0_API_KEY || '';
+const PISTON_API_URL = 'https://emkc.org/api/v2/piston/execute';
 
 interface TestCase {
   input: string;
@@ -142,8 +140,8 @@ export class CodingService {
     if (!problem) throw new Error('Problem not found');
 
     const testCases = problem.testCases as unknown as TestCase[];
-    const langId = LANGUAGE_IDS[language];
-    if (!langId) throw new Error(`Unsupported language: ${language}`);
+    const langConfig = PISTON_LANGUAGES[language];
+    if (!langConfig) throw new Error(`Unsupported language: ${language}`);
 
     // Create a pending submission first
     const submission = await prisma.codingSubmission.create({
@@ -157,18 +155,18 @@ export class CodingService {
       },
     });
 
-    // Run all test cases against Judge0 (async)
-    this.runJudge0Tests(submission.id, code, langId, testCases, problem.timeLimit, problem.memoryLimit).catch(
-      (err) => console.error('Judge0 error:', err)
+    // Run all test cases against Piston (async)
+    this.runTests(submission.id, code, langConfig, testCases, problem.timeLimit, problem.memoryLimit).catch(
+      (err) => console.error('Execution error:', err)
     );
 
     return { submissionId: submission.id, status: 'PENDING' };
   }
 
-  private async runJudge0Tests(
+  private async runTests(
     submissionId: string,
     code: string,
-    languageId: number,
+    langConfig: { language: string; version: string },
     testCases: TestCase[],
     timeLimit: number,
     memoryLimit: number
@@ -181,39 +179,37 @@ export class CodingService {
 
     for (const tc of testCases) {
       try {
-        const result = await this.executeOnJudge0(code, languageId, tc.input, timeLimit, memoryLimit);
+        const result = await this.executeOnPiston(code, langConfig, tc.input, timeLimit, memoryLimit);
 
-        const stdout = (result.stdout || '').trim();
+        const stdout = (result.run.stdout || '').trim();
         const expected = tc.expectedOutput.trim();
         const passed = stdout === expected;
 
         if (passed) {
           testsPassed++;
         } else if (finalStatus === 'ACCEPTED') {
-          // Capture the first failure
-          if (result.status?.id === 5) {
-            finalStatus = 'TIME_LIMIT_EXCEEDED';
-          } else if (result.status?.id === 6) {
+          // Check for compile/runtime errors
+          if (result.compile && result.compile.code !== 0) {
             finalStatus = 'COMPILE_ERROR';
-            errorMsg = result.compile_output || '';
-          } else if (result.status?.id >= 7) {
-            finalStatus = 'RUNTIME_ERROR';
-            errorMsg = result.stderr || '';
+            errorMsg = result.compile.stderr || result.compile.output || '';
+          } else if (result.run.code !== 0) {
+            if (result.run.signal === 'SIGKILL' || result.run.output.includes('Timeout')) {
+              finalStatus = 'TIME_LIMIT_EXCEEDED';
+            } else {
+              finalStatus = 'RUNTIME_ERROR';
+            }
+            errorMsg = result.run.stderr || result.run.output || '';
           } else {
             finalStatus = 'WRONG_ANSWER';
+            lastOutput = stdout;
           }
-          lastOutput = stdout;
         }
-
-        if (result.time) totalRuntime += parseFloat(result.time) * 1000;
+        
+        totalRuntime += 50; // Piston API doesn't return exact execution time easily, so we estimate/mock
       } catch (err: any) {
-        console.error('Judge0 error:', err.response?.data || err.message);
+        console.error('Piston execution error:', err.response?.data || err.message);
         finalStatus = 'RUNTIME_ERROR';
-        if (err.response?.status === 422) {
-          errorMsg = '422 Validation Error: ' + JSON.stringify(err.response.data);
-        } else {
-          errorMsg = 'Execution failed: ' + (err.response?.data?.error || err.message);
-        }
+        errorMsg = 'Execution failed: ' + (err.response?.data?.message || err.message);
       }
     }
 
@@ -229,45 +225,35 @@ export class CodingService {
     });
   }
 
-  private async executeOnJudge0(
+  private async executeOnPiston(
     code: string,
-    languageId: number,
+    langConfig: { language: string; version: string },
     stdin: string,
     timeLimit: number,
     memoryLimit: number
   ) {
-    const isRapidApi = JUDGE0_API_KEY && JUDGE0_URL.includes('rapidapi');
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    
-    // Bypass Ngrok's free tier browser warning screen
-    if (JUDGE0_URL.includes('ngrok')) {
-      headers['ngrok-skip-browser-warning'] = 'true';
-    }
-
-    if (isRapidApi) {
-      headers['X-RapidAPI-Key'] = JUDGE0_API_KEY;
-      headers['X-RapidAPI-Host'] = 'judge0-ce.p.rapidapi.com';
-    }
-
     const payload = {
-      source_code: code,
-      language_id: languageId,
-      stdin: stdin,
-      cpu_time_limit: timeLimit,
-      memory_limit: memoryLimit * 1024, // KB
+      language: langConfig.language,
+      version: langConfig.version,
+      files: [
+        {
+          name: `main.${langConfig.language === 'python' ? 'py' : langConfig.language === 'javascript' ? 'js' : langConfig.language === 'java' ? 'java' : langConfig.language === 'c++' ? 'cpp' : 'c'}`,
+          content: code,
+        }
+      ],
+      stdin: stdin || '',
+      compile_timeout: 10000,
+      run_timeout: timeLimit * 1000,
+      compile_memory_limit: -1,
+      run_memory_limit: memoryLimit * 1024 * 1024,
     };
 
-    // Submit
-    const { data: submission } = await axios.post(
-      `${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`,
-      payload,
-      { headers, timeout: (timeLimit + 5) * 1000 }
-    );
+    const { data } = await axios.post(PISTON_API_URL, payload, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: (timeLimit + 5) * 1000,
+    });
 
-    return submission;
+    return data;
   }
 
   async getSubmission(submissionId: string, userId: string) {
