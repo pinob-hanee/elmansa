@@ -10,13 +10,13 @@ import { cn } from '../../lib/utils';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
-const statusConfig = {
-  PENDING: { label: 'في الانتظار', color: 'text-warning bg-warning/10 border-warning/30', icon: Clock },
-  APPROVED: { label: 'مقبول', color: 'text-success bg-success/10 border-success/30', icon: UserCheck },
-  REJECTED: { label: 'مرفوض', color: 'text-error bg-error/10 border-error/30', icon: UserX },
-  SUSPENDED: { label: 'موقوف', color: 'text-orange-400 bg-orange-400/10 border-orange-400/30', icon: AlertCircle },
-  BANNED: { label: 'محظور', color: 'text-red-500 bg-red-500/10 border-red-500/30', icon: Ban },
-};
+const getStatusConfig = (t: any) => ({
+  PENDING: { label: t('adminStudents.pending', 'في الانتظار'), color: 'text-warning bg-warning/10 border-warning/30', icon: Clock },
+  APPROVED: { label: t('adminStudents.approved', 'مقبول'), color: 'text-success bg-success/10 border-success/30', icon: UserCheck },
+  REJECTED: { label: t('adminStudents.rejected', 'مرفوض'), color: 'text-error bg-error/10 border-error/30', icon: UserX },
+  SUSPENDED: { label: t('adminStudents.suspended', 'موقوف'), color: 'text-orange-400 bg-orange-400/10 border-orange-400/30', icon: AlertCircle },
+  BANNED: { label: t('adminStudents.banned', 'محظور'), color: 'text-red-500 bg-red-500/10 border-red-500/30', icon: Ban },
+});
 
 function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => void }) {
   const { t } = useTranslation();
@@ -78,7 +78,7 @@ function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => v
                     disabled={dropMutation.isPending}
                     className="px-3 py-1.5 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors"
                   >
-                    إيقاف الكورس
+                    {t('adminStudents.dropCourseBtn', 'إيقاف الكورس')}
                   </button>
                 )}
               </div>
@@ -113,12 +113,6 @@ export default function AdminStudents() {
       api.patch(`/admin/students/${id}/status`, { status, reason }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-students'] }),
   });
-
-  const stats = [
-    { label: 'إجمالي الطلاب', value: data?.meta?.total || 0, icon: Users, color: 'from-primary-500 to-purple-600' },
-    { label: 'في الانتظار', value: 0, icon: Clock, color: 'from-amber-500 to-orange-600' },
-    { label: 'مقبولون', value: 0, icon: UserCheck, color: 'from-emerald-500 to-teal-600' },
-  ];
 
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-6">
@@ -176,12 +170,12 @@ export default function AdminStudents() {
               ) : data?.data?.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-12 text-center text-surface-500">
-                    لا يوجد طلاب مطابقون للبحث
+                    {t('adminStudents.noStudentsFound', 'لا يوجد طلاب مطابقون للبحث')}
                   </td>
                 </tr>
               ) : (
                 data?.data?.map((student: any) => {
-                  const StatusIcon = statusConfig[student.approvalStatus as keyof typeof statusConfig]?.icon || Clock;
+                  const conf = getStatusConfig(t)[student.approvalStatus as keyof ReturnType<typeof getStatusConfig>];
                   return (
                     <tr key={student.id} className="hover:bg-surface-800/30 transition-colors">
                       <td className="px-4 py-3">
@@ -202,13 +196,15 @@ export default function AdminStudents() {
                         <p className="text-xs text-surface-500">{student.profile?.city || '—'}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={cn(
-                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border',
-                          statusConfig[student.approvalStatus as keyof typeof statusConfig]?.color
-                        )}>
-                          <StatusIcon className="w-3 h-3" />
-                          {statusConfig[student.approvalStatus as keyof typeof statusConfig]?.label}
-                        </span>
+                        {(() => {
+                          const conf = getStatusConfig(t)[student.approvalStatus as keyof ReturnType<typeof getStatusConfig>];
+                          return (
+                            <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border', conf?.color)}>
+                              {conf?.icon && <conf.icon className="w-3.5 h-3.5" />}
+                              {conf?.label}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3 text-sm text-surface-400">
                         {new Date(student.createdAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
@@ -269,20 +265,23 @@ export default function AdminStudents() {
               {t('adminStudents.showing', { start: ((page - 1) * data.meta.limit) + 1, end: Math.min(page * data.meta.limit, data.meta.total), total: data.meta.total })}
             </p>
             <div className="flex gap-2">
-              <button
-                disabled={page === 1}
-                onClick={() => setPage(p => p - 1)}
-                className="px-3 py-1.5 rounded-lg border border-surface-700 text-surface-400 hover:text-surface-50 hover:border-surface-600 disabled:opacity-40 text-sm transition-all"
-              >
-                السابق
-              </button>
-              <button
-                disabled={page === data.meta.totalPages}
-                onClick={() => setPage(p => p + 1)}
-                className="px-3 py-1.5 rounded-lg border border-surface-700 text-surface-400 hover:text-surface-50 hover:border-surface-600 disabled:opacity-40 text-sm transition-all"
-              >
-                التالي
-              </button>
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-4 py-2 bg-surface-900 border border-surface-800 rounded-xl text-sm text-surface-300 disabled:opacity-50"
+          >
+            {t('common.previous', 'السابق')}
+          </button>
+          <span className="px-4 py-2 text-sm text-surface-400">
+            {t('common.pageOf', `صفحة ${page} من ${data.meta.totalPages}`, { current: page, total: data.meta.totalPages })}
+          </span>
+          <button
+            onClick={() => setPage(p => Math.min(data.meta.totalPages, p + 1))}
+            disabled={page === data.meta.totalPages}
+            className="px-4 py-2 bg-surface-900 border border-surface-800 rounded-xl text-sm text-surface-300 disabled:opacity-50"
+          >
+            {t('common.next', 'التالي')}
+          </button>
             </div>
           </div>
         )}

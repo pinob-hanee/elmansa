@@ -31,14 +31,14 @@ export default function AdminCourses() {
 
   const handleDelete = (id: string) => {
     toast((toastItem) => (
-      <div className="flex flex-col gap-4 p-1" dir="rtl">
+      <div className="flex flex-col gap-4 p-1" dir={isRtl ? "rtl" : "ltr"}>
         <p className="font-semibold text-surface-900 text-sm">{t('adminCourses.deleteConfirm', 'هل أنت متأكد من الحذف؟ لا يمكن التراجع.')}</p>
         <div className="flex gap-3 justify-end mt-1">
           <button 
             onClick={() => toast.dismiss(toastItem.id)} 
             className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200"
           >
-            إلغاء
+            {isRtl ? 'إلغاء' : 'Cancel'}
           </button>
           <button 
             onClick={() => {
@@ -47,7 +47,7 @@ export default function AdminCourses() {
             }} 
             className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors shadow-sm shadow-red-500/20"
           >
-            نعم، احذف
+            {isRtl ? 'نعم، احذف' : 'Yes, Delete'}
           </button>
         </div>
       </div>

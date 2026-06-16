@@ -73,7 +73,7 @@ export default function AdminDashboard() {
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium text-surface-50">
-              {data.pendingStudents} طالب ينتظر الموافقة
+              {isRtl ? `${data.pendingStudents} طالب ينتظر الموافقة` : `${data.pendingStudents} students pending approval`}
             </p>
             <p className="text-xs text-surface-400">{t('adminDashboard.reviewRequests')}</p>
           </div>
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
             href="/admin/students?status=PENDING"
             className="px-4 py-2 rounded-xl bg-warning/20 hover:bg-warning/30 text-warning text-sm font-medium transition-all"
           >
-            مراجعة
+            {isRtl ? 'مراجعة' : 'Review'}
           </a>
         </motion.div>
       )}
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
                         user.approvalStatus === 'PENDING' ? 'text-warning bg-warning/10 border-warning/30' :
                         'text-error bg-error/10 border-error/30'
                       )}>
-                        {user.approvalStatus === 'APPROVED' ? 'مقبول' : user.approvalStatus === 'PENDING' ? 'منتظر' : 'مرفوض'}
+                        {user.approvalStatus === 'APPROVED' ? (isRtl ? 'مقبول' : 'Approved') : user.approvalStatus === 'PENDING' ? (isRtl ? 'منتظر' : 'Pending') : (isRtl ? 'مرفوض' : 'Rejected')}
                       </span>
                     </td>
                   </tr>

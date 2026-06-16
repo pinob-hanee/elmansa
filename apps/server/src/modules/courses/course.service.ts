@@ -299,9 +299,47 @@ export class CourseService {
   }
 
   async createChapter(moduleId: string, data: any) {
-    return prisma.chapter.create({
+    const chapter = await prisma.chapter.create({
       data: { ...data, moduleId, isPublished: true },
     });
+    await cache.delPattern('course:*');
+    return chapter;
+  }
+
+  async moveChapter(chapterId: string, targetModuleId: string) {
+    const updated = await prisma.chapter.update({
+      where: { id: chapterId },
+      data: { moduleId: targetModuleId },
+    });
+    await cache.delPattern('course:*');
+    return updated;
+  }
+
+  async deleteChapter(chapterId: string) {
+    const chapter = await prisma.chapter.findUnique({
+      where: { id: chapterId },
+      include: { module: true, lessons: true },
+    });
+    if (!chapter) throw new NotFoundError('Chapter not found');
+
+    const totalLessons = chapter.lessons.length;
+    const totalDuration = chapter.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0);
+
+    await prisma.chapter.delete({ where: { id: chapterId } });
+
+    const courseId = chapter.module?.courseId;
+    if (courseId && (totalLessons > 0 || totalDuration > 0)) {
+      await prisma.course.update({
+        where: { id: courseId },
+        data: {
+          totalLessons: { decrement: totalLessons },
+          totalDuration: { decrement: totalDuration },
+        },
+      });
+    }
+
+    await cache.delPattern('course:*');
+    return { deleted: true };
   }
 
   async updateChapterDeadline(chapterId: string, deadline: Date | null) {

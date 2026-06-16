@@ -109,6 +109,20 @@ router.post('/chapters/:chapterId/student-deadlines', authenticate, requireRole(
   } catch (e) { next(e); }
 });
 
+router.patch('/chapters/:chapterId/move', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+  try {
+    const updated = await svc.moveChapter(req.params.chapterId, req.body.moduleId);
+    successResponse(res, updated, 'Chapter moved');
+  } catch (e) { next(e); }
+});
+
+router.delete('/chapters/:chapterId', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+  try {
+    await svc.deleteChapter(req.params.chapterId);
+    successResponse(res, null, 'Chapter deleted');
+  } catch (e) { next(e); }
+});
+
 router.post('/chapters/:chapterId/lessons', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
     const lesson = await svc.createLesson(req.params.chapterId, req.body);

@@ -267,13 +267,32 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
   );
 }
 
-function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId: string; courseId: string }) {
-  const { t } = useTranslation();
+function ChapterBlock({ chapter, moduleId, courseId, allModules }: { chapter: any; moduleId: string; courseId: string; allModules: any[] }) {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const [expanded, setExpanded] = useState(true);
   const [addingLesson, setAddingLesson] = useState(false);
   const [showDeadlineModal, setShowDeadlineModal] = useState(false);
   const [lessonType, setLessonType] = useState<'VIDEO' | 'QUIZ' | 'PDF' | 'TEXT'>('VIDEO');
   const qc = useQueryClient();
+
+  const deleteChapterMutation = useMutation({
+    mutationFn: () => adminCoursesApi.deleteChapter(chapter.id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['course-admin', courseId] });
+      toast.success(isRtl ? 'تم حذف الفصل' : 'Chapter deleted');
+    },
+    onError: () => toast.error(isRtl ? 'حدث خطأ أثناء الحذف' : 'Error deleting chapter'),
+  });
+
+  const moveChapterMutation = useMutation({
+    mutationFn: (targetModuleId: string) => adminCoursesApi.moveChapter(chapter.id, targetModuleId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['course-admin', courseId] });
+      toast.success(isRtl ? 'تم النقل بنجاح' : 'Moved successfully');
+    },
+    onError: () => toast.error(isRtl ? 'حدث خطأ أثناء النقل' : 'Error moving chapter'),
+  });
 
   const addLessonMutation = useMutation({
     mutationFn: (title: string) => adminCoursesApi.createLesson(chapter.id, { title, type: lessonType, isFree: false }),
@@ -301,6 +320,36 @@ function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId:
           title="Manage Deadline"
         >
           <Calendar className="w-4 h-4" />
+        </button>
+
+        {/* Move Chapter Dropdown (Inline Select) */}
+        {allModules?.length > 1 && (
+          <select
+            className="text-xs bg-surface-700 text-surface-300 border-none rounded-md px-2 py-1 outline-none"
+            onClick={(e) => e.stopPropagation()}
+            value={moduleId}
+            onChange={(e) => moveChapterMutation.mutate(e.target.value)}
+            disabled={moveChapterMutation.isPending}
+            title={isRtl ? 'نقل الفصل إلى وحدة أخرى' : 'Move chapter to another module'}
+          >
+            {allModules.map(m => (
+              <option key={m.id} value={m.id}>{m.title}</option>
+            ))}
+          </select>
+        )}
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (window.confirm(isRtl ? 'هل أنت متأكد من حذف هذا الفصل؟ سيتم حذف جميع الدروس بداخله.' : 'Are you sure you want to delete this chapter? All lessons inside will be deleted.')) {
+              deleteChapterMutation.mutate();
+            }
+          }}
+          disabled={deleteChapterMutation.isPending}
+          className="p-1.5 text-surface-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+          title={isRtl ? 'حذف الفصل' : 'Delete chapter'}
+        >
+          {deleteChapterMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
         </button>
       </div>
 
@@ -357,7 +406,7 @@ function ChapterBlock({ chapter, moduleId, courseId }: { chapter: any; moduleId:
   );
 }
 
-function ModuleBlock({ module, courseId }: { module: any; courseId: string }) {
+function ModuleBlock({ module, courseId, allModules }: { module: any; courseId: string; allModules: any[] }) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(true);
   const [addingChapter, setAddingChapter] = useState(false);
@@ -385,7 +434,7 @@ function ModuleBlock({ module, courseId }: { module: any; courseId: string }) {
       {expanded && (
         <div className="p-4 space-y-3">
           {module.chapters?.map((chapter: any) => (
-            <ChapterBlock key={chapter.id} chapter={chapter} moduleId={module.id} courseId={courseId} />
+            <ChapterBlock key={chapter.id} chapter={chapter} moduleId={module.id} courseId={courseId} allModules={allModules} />
           ))}
 
           {addingChapter ? (
@@ -704,7 +753,7 @@ export default function CourseEditor() {
               </div>
             ) : (
               courseData.modules.map((module: any) => (
-                <ModuleBlock key={module.id} module={module} courseId={id!} />
+                <ModuleBlock key={module.id} module={module} courseId={courseData.id} allModules={courseData.modules} />
               ))
             )}
           </div>

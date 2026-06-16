@@ -8,11 +8,11 @@ import { cn } from '../../lib/utils';
 import toast from 'react-hot-toast';
 import CodingProblemEditor from './CodingProblemEditor';
 
-const DIFFICULTY_CONFIG: Record<string, { label: string; color: string }> = {
-  EASY: { label: 'سهل', color: 'text-emerald-400' },
-  MEDIUM: { label: 'متوسط', color: 'text-amber-400' },
-  HARD: { label: 'صعب', color: 'text-red-400' },
-};
+const getDifficultyConfig = (t: any) => ({
+  EASY: { label: t('coding.difficulty.easy', 'سهل'), color: 'text-emerald-400' },
+  MEDIUM: { label: t('coding.difficulty.medium', 'متوسط'), color: 'text-amber-400' },
+  HARD: { label: t('coding.difficulty.hard', 'صعب'), color: 'text-red-400' },
+});
 
 export default function AdminCodingProblems() {
   const { t, i18n } = useTranslation();
@@ -32,18 +32,24 @@ export default function AdminCodingProblems() {
     mutationFn: (id: string) => api.delete(`/coding/admin/problems/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-coding-problems'] });
-      toast.success('تم حذف المسألة');
+      toast.success(isRtl ? 'تم حذف المسألة' : 'Problem deleted');
     },
-    onError: () => toast.error('فشل حذف المسألة'),
+    onError: () => toast.error(isRtl ? 'فشل حذف المسألة' : 'Failed to delete problem'),
   });
 
   const handleDelete = (id: string) => {
     toast((toastItem) => (
-      <div className="flex flex-col gap-4 p-1" dir="rtl">
-        <p className="font-semibold text-surface-900 text-sm">هل أنت متأكد من حذف هذه المسألة؟</p>
+      <div className="flex flex-col gap-4 p-1" dir={isRtl ? "rtl" : "ltr"}>
+        <p className="font-semibold text-surface-900 text-sm">
+          {isRtl ? 'هل أنت متأكد من حذف هذه المسألة؟' : 'Are you sure you want to delete this problem?'}
+        </p>
         <div className="flex gap-3 justify-end mt-1">
-          <button onClick={() => toast.dismiss(toastItem.id)} className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200">إلغاء</button>
-          <button onClick={() => { toast.dismiss(toastItem.id); deleteMutation.mutate(id); }} className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors shadow-sm shadow-red-500/20">نعم، احذف</button>
+          <button onClick={() => toast.dismiss(toastItem.id)} className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200">
+            {isRtl ? 'إلغاء' : 'Cancel'}
+          </button>
+          <button onClick={() => { toast.dismiss(toastItem.id); deleteMutation.mutate(id); }} className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors shadow-sm shadow-red-500/20">
+            {isRtl ? 'نعم، احذف' : 'Yes, Delete'}
+          </button>
         </div>
       </div>
     ), { duration: Infinity });
@@ -112,7 +118,7 @@ export default function AdminCodingProblems() {
               </tr>
             ) : (
               problems.map((p: any) => {
-                const diff = DIFFICULTY_CONFIG[p.difficulty];
+                const diff = getDifficultyConfig(t)[p.difficulty as keyof ReturnType<typeof getDifficultyConfig>];
                 return (
                   <tr key={p.id} className="hover:bg-surface-800/30 transition-colors">
                     <td className="px-4 py-4">

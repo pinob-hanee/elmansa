@@ -29,16 +29,16 @@ export default function AdminCommunity() {
 
   const handleDelete = (id: string) => {
     toast((toastItem) => (
-      <div className="flex flex-col gap-4 p-1" dir="rtl">
+      <div className="flex flex-col gap-4 p-1" dir={isRtl ? "rtl" : "ltr"}>
         <p className="font-semibold text-surface-900 text-sm">{t('adminCommunity.deleteConfirm')}</p>
         <div className="flex gap-3 justify-end mt-1">
-          <button onClick={() => toast.dismiss(toastItem.id)} className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200">إلغاء</button>
+          <button onClick={() => toast.dismiss(toastItem.id)} className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200">{isRtl ? 'إلغاء' : 'Cancel'}</button>
           <button onClick={() => {
               toast.dismiss(toastItem.id);
               deleteMutation.mutate(id, {
                 onSuccess: () => toast.success(t('adminCommunity.deletedSuccess'))
               });
-          }} className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors shadow-sm shadow-red-500/20">نعم، احذف</button>
+          }} className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors shadow-sm shadow-red-500/20">{isRtl ? 'نعم، احذف' : 'Yes, Delete'}</button>
         </div>
       </div>
     ), { duration: Infinity });
@@ -52,7 +52,7 @@ export default function AdminCommunity() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-surface-50 mb-1">{t('adminCommunity.title')}</h1>
-          <p className="text-surface-400 text-sm">مراقبة وإدارة النقاشات ومنشورات الطلاب</p>
+          <p className="text-surface-400 text-sm">{isRtl ? 'مراقبة وإدارة النقاشات ومنشورات الطلاب' : 'Monitor and manage student discussions and posts'}</p>
         </div>
       </div>
 
@@ -75,9 +75,9 @@ export default function AdminCommunity() {
             <tr className="border-b border-surface-800 bg-surface-900/50">
               <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">{t('adminCommunity.post')}</th>
               <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">{t('adminCommunity.author')}</th>
-              <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">تاريخ النشر</th>
-              <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">الإحصائيات</th>
-              <th className="px-4 py-4 text-center text-xs font-medium text-surface-500 uppercase tracking-wider">إجراءات</th>
+              <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">{isRtl ? 'تاريخ النشر' : 'Publish Date'}</th>
+              <th className="px-4 py-4 text-right text-xs font-medium text-surface-500 uppercase tracking-wider">{isRtl ? 'الإحصائيات' : 'Stats'}</th>
+              <th className="px-4 py-4 text-center text-xs font-medium text-surface-500 uppercase tracking-wider">{isRtl ? 'إجراءات' : 'Actions'}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-800">
@@ -90,7 +90,7 @@ export default function AdminCommunity() {
             ) : posts.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-surface-500">
-                  لا توجد منشورات مطابقة للبحث
+                  {isRtl ? 'لا توجد منشورات مطابقة للبحث' : 'No posts match your search'}
                 </td>
               </tr>
             ) : (
@@ -136,7 +136,7 @@ export default function AdminCommunity() {
                       onClick={() => handleDelete(post.id)}
                       disabled={deleteMutation.isPending}
                       className="p-2 text-surface-500 hover:text-error hover:bg-error/10 rounded-lg transition-all"
-                      title="حذف المنشور"
+                      title={isRtl ? "حذف المنشور" : "Delete Post"}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -156,17 +156,17 @@ export default function AdminCommunity() {
             disabled={page === 1}
             className="px-4 py-2 bg-surface-900 border border-surface-800 rounded-xl text-sm text-surface-300 disabled:opacity-50"
           >
-            السابق
+            {isRtl ? 'السابق' : 'Previous'}
           </button>
           <span className="px-4 py-2 text-sm text-surface-400">
-            صفحة {page} من {meta.totalPages}
+            {isRtl ? `صفحة ${page} من ${meta.totalPages}` : `Page ${page} of ${meta.totalPages}`}
           </span>
           <button
             onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
             disabled={page === meta.totalPages}
             className="px-4 py-2 bg-surface-900 border border-surface-800 rounded-xl text-sm text-surface-300 disabled:opacity-50"
           >
-            التالي
+            {isRtl ? 'التالي' : 'Next'}
           </button>
         </div>
       )}
