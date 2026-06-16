@@ -186,7 +186,7 @@ export default function AdminStudents() {
                     <tr key={student.id} className="hover:bg-surface-800/30 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-sm font-bold shrink-0">
                             {student.profile?.firstName?.charAt(0) || '?'}
                           </div>
                           <div>

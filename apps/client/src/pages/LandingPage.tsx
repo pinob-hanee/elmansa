@@ -186,7 +186,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative pt-28 pb-20 px-6">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-primary-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-20 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-20 right-0 w-96 h-96 bg-surface-800 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -224,7 +224,7 @@ export default function LandingPage() {
               >
                 <Link
                   to="/register"
-                  className="group px-8 py-4 rounded-2xl bg-gradient-to-r from-primary-600 to-purple-600 text-white font-bold text-lg hover:shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 hover:-translate-y-1 flex items-center gap-2"
+                  className="group px-8 py-4 rounded-2xl bg-surface-800 border border-surface-700 text-white font-bold text-lg hover:shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 hover:-translate-y-1 flex items-center gap-2"
                 >
                   <Terminal className="w-5 h-5" />
                   ابدأ رحلتك الآن
@@ -375,7 +375,7 @@ export default function LandingPage() {
                 variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i}
                 className="text-center"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-600 to-purple-600 flex items-center justify-center text-2xl mx-auto mb-4 shadow-md shadow-primary-500/25 text-white">
+                <div className="w-16 h-16 rounded-2xl bg-surface-800 border border-surface-700 flex items-center justify-center text-2xl mx-auto mb-4 shadow-md shadow-primary-500/25 text-white">
                   {s.icon}
                 </div>
                 <div className="text-primary-400 font-mono text-xs mb-2">{s.step}</div>
@@ -406,7 +406,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   to="/register"
-                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 text-white font-bold hover:shadow-xl hover:shadow-primary-500/30 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                  className="px-8 py-4 rounded-xl bg-surface-800 border border-surface-700 text-white font-bold hover:shadow-xl hover:shadow-primary-500/30 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
                 >
                   <CheckCircle className="w-5 h-5" />
                   سجّل الآن — مجانًا

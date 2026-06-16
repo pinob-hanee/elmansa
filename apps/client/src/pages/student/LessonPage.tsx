@@ -174,7 +174,7 @@ export default function LessonPage() {
         <div className="hidden md:flex items-center gap-3">
           <div className="w-32 h-2 bg-surface-800 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-primary-500 to-purple-500 rounded-full transition-all duration-700"
+              className="h-full bg-surface-800 border border-surface-700 rounded-full transition-all duration-700"
               style={{ width: `${completionPercent}%` }}
             />
           </div>
@@ -386,7 +386,7 @@ export default function LessonPage() {
                             ) : lesson.type === 'QUIZ' ? (
                               <HelpCircle className={cn('w-4 h-4', isActive ? 'text-amber-400' : 'text-surface-500')} />
                             ) : (
-                              <FileText className={cn('w-4 h-4', isActive ? 'text-purple-400' : 'text-surface-500')} />
+                              <FileText className={cn('w-4 h-4', isActive ? 'text-surface-50' : 'text-surface-500')} />
                             )}
                           </div>
 

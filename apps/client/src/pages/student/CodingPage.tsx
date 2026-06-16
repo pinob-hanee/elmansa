@@ -33,7 +33,7 @@ export default function CodingPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-surface-800 border border-surface-700 flex items-center justify-center shadow-lg">
             <Code2 className="w-5 h-5 text-white" />
           </div>
           <h1 className="text-2xl font-extrabold text-surface-50">

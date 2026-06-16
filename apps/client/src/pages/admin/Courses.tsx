@@ -31,12 +31,12 @@ export default function AdminCourses() {
 
   const handleDelete = (id: string) => {
     toast((toastItem) => (
-      <div className="flex flex-col gap-3" dir="rtl">
-        <p className="font-medium text-surface-900">{t('adminCourses.deleteConfirm', 'هل أنت متأكد من الحذف؟ لا يمكن التراجع.')}</p>
-        <div className="flex gap-2 justify-end">
+      <div className="flex flex-col gap-4 p-1" dir="rtl">
+        <p className="font-semibold text-surface-900 text-sm">{t('adminCourses.deleteConfirm', 'هل أنت متأكد من الحذف؟ لا يمكن التراجع.')}</p>
+        <div className="flex gap-3 justify-end mt-1">
           <button 
             onClick={() => toast.dismiss(toastItem.id)} 
-            className="px-3 py-1.5 text-xs font-medium bg-surface-200 hover:bg-surface-300 text-surface-700 rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200"
           >
             إلغاء
           </button>
@@ -45,7 +45,7 @@ export default function AdminCourses() {
               toast.dismiss(toastItem.id);
               deleteMutation.mutate(id);
             }} 
-            className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors shadow-sm shadow-red-500/20"
           >
             نعم، احذف
           </button>

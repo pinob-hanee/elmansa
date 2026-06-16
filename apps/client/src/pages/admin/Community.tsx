@@ -29,16 +29,16 @@ export default function AdminCommunity() {
 
   const handleDelete = (id: string) => {
     toast((toastItem) => (
-      <div className="flex flex-col gap-3" dir="rtl">
-        <p className="font-medium text-surface-900">{t('adminCommunity.deleteConfirm')}</p>
-        <div className="flex gap-2 justify-end">
-          <button onClick={() => toast.dismiss(toastItem.id)} className="px-3 py-1.5 text-xs font-medium bg-surface-200 hover:bg-surface-300 text-surface-700 rounded-lg">إلغاء</button>
+      <div className="flex flex-col gap-4 p-1" dir="rtl">
+        <p className="font-semibold text-surface-900 text-sm">{t('adminCommunity.deleteConfirm')}</p>
+        <div className="flex gap-3 justify-end mt-1">
+          <button onClick={() => toast.dismiss(toastItem.id)} className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200">إلغاء</button>
           <button onClick={() => {
               toast.dismiss(toastItem.id);
               deleteMutation.mutate(id, {
                 onSuccess: () => toast.success(t('adminCommunity.deletedSuccess'))
               });
-          }} className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg">نعم، احذف</button>
+          }} className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors shadow-sm shadow-red-500/20">نعم، احذف</button>
         </div>
       </div>
     ), { duration: Infinity });
@@ -109,7 +109,7 @@ export default function AdminCommunity() {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-xs font-bold shrink-0">
                         {post.author.profile?.firstName?.charAt(0) || '?'}
                       </div>
                       <div className="flex flex-col">

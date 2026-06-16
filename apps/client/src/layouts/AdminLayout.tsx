@@ -63,7 +63,7 @@ export default function AdminLayout() {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm',
                   isActive
-                    ? 'bg-primary-600/20 text-primary-400 border border-primary-500/30 font-medium'
+                    ? 'bg-surface-800 text-surface-50 border border-surface-700 font-medium'
                     : 'text-surface-400 hover:text-surface-50 hover:bg-surface-800'
                 )}
               >

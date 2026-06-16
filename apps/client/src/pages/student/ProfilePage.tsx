@@ -108,7 +108,7 @@ export default function ProfilePage() {
           {/* Avatar + Name */}
           <div className="glass rounded-2xl p-6 border border-surface-200 text-center">
             <div className="relative inline-block mb-4">
-              <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-primary-500/20">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-primary-500/20">
                 {user?.profile?.avatarUrl ? (
                   <img src={user.profile.avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -139,7 +139,7 @@ export default function ProfilePage() {
             </div>
             <div className="h-2.5 bg-surface-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-primary-500 to-purple-500 rounded-full transition-all duration-700"
+                className="h-full bg-surface-800 border border-surface-700 rounded-full transition-all duration-700"
                 style={{ width: `${xpProgress}%` }}
               />
             </div>

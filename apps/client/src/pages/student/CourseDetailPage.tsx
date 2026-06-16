@@ -193,7 +193,7 @@ export default function CourseDetailPage() {
                         {lesson.type === 'VIDEO' ? (
                           <PlayCircle className="w-5 h-5 text-primary-500 shrink-0" />
                         ) : (
-                          <FileText className="w-5 h-5 text-purple-500 shrink-0" />
+                          <FileText className="w-5 h-5 text-surface-50 shrink-0" />
                         )}
                         <span className="flex-1 text-surface-200">{lesson.title}</span>
                         {lesson.isFree && (

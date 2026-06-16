@@ -74,7 +74,7 @@ export default function CreatePost() {
   return (
     <div className="glass rounded-2xl p-4 border border-surface-200 mb-6">
       <div className="flex gap-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white font-bold shrink-0 shadow-lg">
+        <div className="w-10 h-10 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white font-bold shrink-0 shadow-lg">
           {user?.profile?.firstName?.charAt(0) || 'U'}
         </div>
         <form onSubmit={handleSubmit} className="flex-1 relative">

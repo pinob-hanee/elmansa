@@ -22,7 +22,7 @@ const CourseCard = React.memo(({ course, index, t }: { course: any; index: numbe
         {course.thumbnailUrl ? (
           <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-900 to-purple-900">
+          <div className="w-full h-full flex items-center justify-center bg-surface-800 border border-surface-700">
             <BookOpen className="w-12 h-12 text-primary-400/50" />
           </div>
         )}

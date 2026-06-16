@@ -122,7 +122,7 @@ export default function StudentDashboard() {
                 <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl group-hover:bg-primary-500/20 transition-all" />
                 <div className="relative flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
+                    <div className="w-12 h-12 rounded-xl bg-surface-800 border border-surface-700 flex items-center justify-center shadow-lg shadow-primary-500/20">
                       <Star className="w-6 h-6 text-surface-50" />
                     </div>
                     <div>
@@ -140,7 +140,7 @@ export default function StudentDashboard() {
                     initial={{ width: 0 }}
                     animate={{ width: `${(gamification.profile.xp % 1000) / 10}%` }}
                     transition={{ duration: 1, delay: 0.5 }}
-                    className="h-full bg-gradient-to-r from-primary-500 to-purple-500 rounded-full relative"
+                    className="h-full bg-surface-800 border border-surface-700 rounded-full relative"
                   >
                     <div className="absolute inset-0 bg-white/20 w-full h-full animate-pulse" />
                   </motion.div>
@@ -203,7 +203,7 @@ export default function StudentDashboard() {
                       {enrollment.course.thumbnailUrl ? (
                         <img src={enrollment.course.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-900 to-purple-900">
+                        <div className="w-full h-full flex items-center justify-center bg-surface-800 border border-surface-700">
                           <BookOpen className="w-6 h-6 text-primary-400/50" />
                         </div>
                       )}
@@ -214,7 +214,7 @@ export default function StudentDashboard() {
                       </p>
                       <div className="mt-2 h-1.5 bg-surface-700 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-primary-500 to-purple-600 rounded-full transition-all"
+                          className="h-full bg-surface-800 border border-surface-700 rounded-full transition-all"
                           style={{ width: `${Number(enrollment.progress) || 0}%` }}
                         />
                       </div>

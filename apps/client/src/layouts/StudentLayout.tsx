@@ -97,11 +97,11 @@ export default function StudentLayout() {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative',
                   isActive
-                    ? 'bg-primary-600/20 text-primary-400 border border-primary-500/30'
+                    ? 'bg-surface-800 text-surface-50 border border-surface-700'
                     : 'text-surface-400 hover:text-surface-50 hover:bg-surface-800'
                 )}
               >
-                <item.icon className={cn('w-5 h-5 shrink-0', isActive && 'text-primary-400')} />
+                <item.icon className={cn('w-5 h-5 shrink-0', isActive && 'text-surface-50')} />
                 <AnimatePresence>
                   {sidebarOpen && (
                     <motion.span
@@ -117,7 +117,7 @@ export default function StudentLayout() {
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
-                    className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary-500 rounded-full`}
+                    className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-1/2 -translate-y-1/2 w-0.5 h-6 bg-surface-50 rounded-full`}
                   />
                 )}
               </Link>
@@ -130,7 +130,7 @@ export default function StudentLayout() {
           {sidebarOpen ? (
             <div className="space-y-2">
               <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-800 transition-all group">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                <div className="w-9 h-9 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-sm font-bold shrink-0">
                   {user?.profile?.firstName?.charAt(0) || 'U'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -210,7 +210,7 @@ export default function StudentLayout() {
           <div className="flex-1" />
           <LanguageSwitcher />
           <NotificationBell />
-          <Link to="/profile" className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+          <Link to="/profile" className="w-9 h-9 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-sm font-bold">
             {user?.profile?.firstName?.charAt(0) || 'U'}
           </Link>
         </div>

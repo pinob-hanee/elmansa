@@ -56,7 +56,7 @@ function AddItemForm({ placeholder, onAdd, onCancel, addLabel, cancelLabel }: {
 function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
-  const typeColor = lesson.type === 'VIDEO' ? 'text-primary-400' : lesson.type === 'QUIZ' ? 'text-amber-400' : lesson.type === 'TEXT' ? 'text-blue-400' : 'text-purple-400';
+  const typeColor = lesson.type === 'VIDEO' ? 'text-primary-400' : lesson.type === 'QUIZ' ? 'text-amber-400' : lesson.type === 'TEXT' ? 'text-blue-400' : 'text-surface-50';
   const TypeIcon = lesson.type === 'VIDEO' ? Video : lesson.type === 'TEXT' ? Edit2 : FileText;
 
   const [isUploading, setIsUploading] = useState(false);

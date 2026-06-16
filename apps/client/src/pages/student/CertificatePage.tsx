@@ -46,7 +46,7 @@ export default function CertificatePage() {
           {/* Inner card */}
           <div className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl overflow-hidden print:bg-none print:bg-white print:rounded-none">
             {/* Top decoration */}
-            <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 p-8 text-center border-b border-amber-500/20 print:bg-none print:border-amber-500 print:text-black">
+            <div className="bg-surface-800 border border-surface-700 p-8 text-center border-b border-amber-500/20 print:bg-none print:border-amber-500 print:text-black">
               <div className="flex justify-center mb-4">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center shadow-xl shadow-amber-500/30 print:shadow-none print:border print:border-amber-500">
                   <Award className="w-10 h-10 text-surface-50 print:text-amber-600" />

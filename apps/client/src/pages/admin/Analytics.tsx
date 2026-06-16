@@ -71,7 +71,7 @@ export default function AdminAnalytics() {
           className="glass p-6 rounded-2xl border border-surface-200"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+            <div className="p-2 bg-surface-800 rounded-lg text-surface-50">
               <BookOpen className="w-5 h-5" />
             </div>
             <h2 className="text-lg font-bold text-surface-50">الكورسات الأكثر شعبية</h2>

@@ -72,7 +72,7 @@ export default function CommentSection({ postId, comments: initialComments }: Co
 
       {/* Add Comment */}
       <form onSubmit={handleSubmit} className="flex gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+        <div className="w-8 h-8 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
           {user?.profile?.firstName?.charAt(0) || 'U'}
         </div>
         <div className="flex-1 relative">

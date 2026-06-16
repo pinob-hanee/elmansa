@@ -88,7 +88,7 @@ export default function ResetPasswordPage() {
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
         <div className="absolute -top-[40%] -right-[10%] w-[70%] h-[70%] rounded-full bg-primary-600/10 blur-[120px]" />
-        <div className="absolute -bottom-[40%] -left-[10%] w-[70%] h-[70%] rounded-full bg-purple-600/10 blur-[120px]" />
+        <div className="absolute -bottom-[40%] -left-[10%] w-[70%] h-[70%] rounded-full bg-surface-800 blur-[120px]" />
       </div>
 
       <div className="absolute top-4 right-4 z-50">
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-center mb-8">
-          <Link to="/" className="w-16 h-16 bg-gradient-to-br from-primary-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 group hover:scale-105 transition-transform duration-300">
+          <Link to="/" className="w-16 h-16 bg-surface-800 border border-surface-700 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 group hover:scale-105 transition-transform duration-300">
             <Code2 className="w-8 h-8 text-surface-50 group-hover:rotate-12 transition-transform duration-300" />
           </Link>
         </div>
@@ -218,7 +218,7 @@ export default function ResetPasswordPage() {
                 <button
                   type="submit"
                   disabled={resetMutation.isPending}
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-900 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-surface-800 border border-surface-700 hover:from-primary-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-900 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {resetMutation.isPending ? (
                     <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />

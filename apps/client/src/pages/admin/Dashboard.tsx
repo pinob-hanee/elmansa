@@ -111,7 +111,7 @@ export default function AdminDashboard() {
                   <tr key={user.id} className="hover:bg-surface-800/30 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                        <div className="w-8 h-8 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-sm font-bold">
                           {user.profile?.firstName?.charAt(0) || '?'}
                         </div>
                         <span className="text-sm font-medium text-surface-50">

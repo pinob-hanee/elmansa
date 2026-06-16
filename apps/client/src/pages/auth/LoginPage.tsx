@@ -55,9 +55,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-surface-950 flex" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Left/Right side — branding */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-900 via-surface-900 to-purple-900" />
+        <div className="absolute inset-0 bg-surface-800 border border-surface-700" />
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary-600/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-surface-800 rounded-full blur-3xl" />
         <div className="relative z-10 flex flex-col justify-center items-center w-full px-16 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -178,7 +178,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 text-white font-bold text-base hover:shadow-xl hover:shadow-primary-500/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-surface-800 border border-surface-700 text-white font-bold text-base hover:shadow-xl hover:shadow-primary-500/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {mutation.isPending ? (
                 <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />
