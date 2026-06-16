@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../../lib/api';
 import { cn } from '../../lib/utils';
 import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
+import Logo from '../../components/layout/Logo';
 
 function makeSchema(t: any) {
   return z.object({
@@ -104,9 +105,7 @@ export default function RegisterPage() {
             <LanguageSwitcher />
           </div>
           <Link to="/" className="inline-flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <BookOpen className="w-6 h-6 text-surface-50" />
-            </div>
+            <Logo size="lg" />
             <span className="text-2xl font-extrabold gradient-text">Elmansa</span>
           </Link>
           <h1 className="text-3xl font-extrabold text-surface-50 mb-2">{t('auth.createAccount')}</h1>

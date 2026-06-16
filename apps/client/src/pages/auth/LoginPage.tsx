@@ -4,13 +4,14 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { BookOpen, Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import api from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import { cn } from '../../lib/utils';
 import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
+import Logo from '../../components/layout/Logo';
 
 function makeSchema(t: any) {
   return z.object({
@@ -63,9 +64,7 @@ export default function LoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-primary-500/40">
-              <BookOpen className="w-10 h-10 text-surface-50" />
-            </div>
+            <Logo size="xl" className="mx-auto mb-8" />
             <h1 className="text-5xl font-extrabold text-surface-50 mb-4">Elmansa</h1>
             <p className="text-surface-300 text-xl leading-relaxed max-w-sm">
               {t('auth.platformTagline')}

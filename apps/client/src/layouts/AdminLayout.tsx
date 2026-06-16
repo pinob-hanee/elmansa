@@ -10,6 +10,7 @@ import { useAuthStore } from '../store/authStore';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
 import LanguageSwitcher from '../components/layout/LanguageSwitcher';
+import Logo from '../components/layout/Logo';
 
 export default function AdminLayout() {
   const { t, i18n } = useTranslation();
@@ -42,9 +43,7 @@ export default function AdminLayout() {
       <aside className={cn('w-64 flex flex-col bg-surface-900 shrink-0 shadow-2xl', isRtl ? 'border-l border-surface-800' : 'border-r border-surface-800')}>
         {/* Logo */}
         <div className="h-16 flex items-center gap-3 px-5 border-b border-surface-800">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg">
-            <Shield className="w-4 h-4 text-surface-50" />
-          </div>
+          <Logo size="md" />
           <div>
             <p className="font-extrabold text-surface-50 text-sm">{t('admin.title')}</p>
             <p className="text-xs text-surface-500">Elmansa Admin</p>

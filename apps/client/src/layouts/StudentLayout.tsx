@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { gamificationApi } from '../features/gamification/api/gamification';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../components/layout/LanguageSwitcher';
+import Logo from '../components/layout/Logo';
 
 export default function StudentLayout() {
   const { t, i18n } = useTranslation();
@@ -67,9 +68,7 @@ export default function StudentLayout() {
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-surface-800 shrink-0">
           <Link to="/dashboard" className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shrink-0 shadow-lg">
-              <Code2 className="w-4 h-4 text-surface-50" />
-            </div>
+            <Logo size="md" />
             <AnimatePresence>
               {sidebarOpen && (
                 <motion.span

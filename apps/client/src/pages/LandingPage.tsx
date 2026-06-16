@@ -165,9 +165,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 glass border-b border-surface-200">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-md">
-              <Code2 className="w-5 h-5 text-white" />
-            </div>
+            <Logo size="md" />
             <span className="text-xl font-bold gradient-text font-mono">Elmansa</span>
             <span className="hidden sm:block text-xs text-surface-500 font-mono border border-surface-800 px-2 py-0.5 rounded-md">{"<coding />"}</span>
           </motion.div>
@@ -423,9 +421,7 @@ export default function LandingPage() {
       <footer className="border-t border-surface-800 py-8 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-sm">
-              <Code2 className="w-4 h-4 text-white" />
-            </div>
+            <Logo size="sm" />
             <span className="font-bold gradient-text font-mono">Elmansa</span>
             <span className="text-surface-600 font-mono text-xs">{"<coding />"}</span>
           </div>
