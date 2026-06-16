@@ -5,6 +5,8 @@ import {
   Code2, Terminal, Cpu, GitBranch, Layers, Zap,
   ChevronRight, Play, Star, CheckCircle, Braces, ArrowRight
 } from 'lucide-react';
+import Logo from '../components/layout/Logo';
+import LanguageSwitcher from '../components/layout/LanguageSwitcher';
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
