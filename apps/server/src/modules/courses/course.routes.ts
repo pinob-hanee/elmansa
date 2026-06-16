@@ -123,6 +123,13 @@ router.put('/lessons/:lessonId', authenticate, requireRole('TEACHER', 'SUPER_ADM
   } catch (e) { next(e); }
 });
 
+router.delete('/lessons/:lessonId', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+  try {
+    await svc.deleteLesson(req.params.lessonId);
+    successResponse(res, null, 'Lesson deleted');
+  } catch (e) { next(e); }
+});
+
 router.post('/:id/enroll', authenticate, requireApprovedStudent, async (req, res, next) => {
   try {
     const enrollment = await svc.enrollStudent(req.params.id, req.user!.userId);

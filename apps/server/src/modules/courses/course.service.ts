@@ -381,6 +381,32 @@ export class CourseService {
     return lesson;
   }
 
+  async deleteLesson(lessonId: string) {
+    // Fetch the lesson first to get duration and chapterId
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: lessonId },
+      include: { chapter: { include: { module: true } } },
+    });
+    if (!lesson) throw new Error('Lesson not found');
+
+    await prisma.lesson.delete({ where: { id: lessonId } });
+
+    // Decrement totalLessons (and duration if applicable) on the course
+    const courseId = lesson.chapter?.module?.courseId;
+    if (courseId) {
+      await prisma.course.update({
+        where: { id: courseId },
+        data: {
+          totalLessons: { decrement: 1 },
+          totalDuration: { decrement: lesson.duration || 0 },
+        },
+      });
+    }
+
+    await cache.delPattern('course:*');
+    return { deleted: true };
+  }
+
   async enrollStudent(courseId: string, userId: string) {
     const existing = await prisma.enrollment.findUnique({
       where: { userId_courseId: { userId, courseId } },

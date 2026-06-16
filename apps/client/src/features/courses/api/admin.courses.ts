@@ -46,6 +46,11 @@ export const adminCoursesApi = {
     return res.data.data;
   },
 
+  deleteLesson: async (lessonId: string) => {
+    const res = await api.delete(`/courses/lessons/${lessonId}`);
+    return res.data.data;
+  },
+
   updateChapterDeadline: async (chapterId: string, deadline: string | null) => {
     const res = await api.put(`/courses/chapters/${chapterId}/deadline`, { deadline });
     return res.data.data;

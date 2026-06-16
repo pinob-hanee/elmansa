@@ -66,6 +66,39 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
 
+  const deleteLessonMutation = useMutation({
+    mutationFn: () => adminCoursesApi.deleteLesson(lesson.id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['course-admin', courseId] });
+      toast.success(isRtl ? 'تم حذف الدرس' : 'Lesson deleted');
+    },
+    onError: () => toast.error(isRtl ? 'فشل حذف الدرس' : 'Failed to delete lesson'),
+  });
+
+  const handleDeleteLesson = () => {
+    toast((toastObj) => (
+      <div className="flex flex-col gap-4 p-1" dir={isRtl ? 'rtl' : 'ltr'}>
+        <p className="font-semibold text-surface-900 text-sm">
+          {isRtl ? `هل تريد حذف درس "${lesson.title}"؟` : `Delete lesson "${lesson.title}"?`}
+        </p>
+        <div className="flex gap-3 justify-end mt-1">
+          <button
+            onClick={() => toast.dismiss(toastObj.id)}
+            className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200"
+          >
+            {isRtl ? 'إلغاء' : 'Cancel'}
+          </button>
+          <button
+            onClick={() => { toast.dismiss(toastObj.id); deleteLessonMutation.mutate(); }}
+            className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors shadow-sm shadow-red-500/20"
+          >
+            {isRtl ? 'نعم، احذف' : 'Yes, Delete'}
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -217,6 +250,19 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
           )}
         </>
       )}
+
+      {/* Delete lesson button - always visible on hover */}
+      <button
+        onClick={handleDeleteLesson}
+        disabled={deleteLessonMutation.isPending}
+        className="p-1.5 text-surface-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50"
+        title={isRtl ? 'حذف الدرس' : 'Delete lesson'}
+      >
+        {deleteLessonMutation.isPending
+          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          : <Trash2 className="w-3.5 h-3.5" />
+        }
+      </button>
     </div>
   );
 }
