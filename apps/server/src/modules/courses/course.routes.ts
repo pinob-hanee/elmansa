@@ -146,6 +146,14 @@ router.delete('/lessons/:lessonId', authenticate, requireRole('TEACHER', 'SUPER_
   } catch (e) { next(e); }
 });
 
+router.put('/chapters/:chapterId/lessons/reorder', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+  try {
+    const { lessonIds } = req.body;
+    await svc.reorderLessons(req.params.chapterId, lessonIds);
+    successResponse(res, null, 'Lessons reordered');
+  } catch (e) { next(e); }
+});
+
 router.post('/:id/enroll', authenticate, requireApprovedStudent, async (req, res, next) => {
   try {
     const enrollment = await svc.enrollStudent(req.params.id, req.user!.userId);

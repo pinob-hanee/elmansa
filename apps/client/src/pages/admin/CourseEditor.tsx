@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Settings, Layers, Save, ArrowRight, Plus, Video,
-  FileText, ChevronDown, ChevronRight, Trash2, AlertCircle, CheckCircle2, UploadCloud, Loader2, Edit2, Calendar
+  FileText, ChevronDown, ChevronUp, ChevronRight, Trash2, AlertCircle, CheckCircle2, UploadCloud, Loader2, Edit2, Calendar
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { adminCoursesApi } from '../../features/courses/api/admin.courses';
@@ -54,7 +54,7 @@ function AddItemForm({ placeholder, onAdd, onCancel, addLabel, cancelLabel }: {
   );
 }
 
-function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
+function LessonRow({ lesson, courseId, onMoveUp, onMoveDown, isFirst, isLast }: { lesson: any; courseId: string; onMoveUp?: () => void; onMoveDown?: () => void; isFirst?: boolean; isLast?: boolean; }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
   const typeColor = lesson.type === 'VIDEO' ? 'text-primary-400' : lesson.type === 'QUIZ' ? 'text-amber-400' : lesson.type === 'TEXT' ? 'text-blue-400' : lesson.type === 'ASSIGNMENT' ? 'text-indigo-400' : 'text-surface-50';
@@ -268,6 +268,26 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
         </>
       )}
 
+      {/* Reorder buttons */}
+      <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button 
+          onClick={onMoveUp} 
+          disabled={isFirst}
+          className="p-0.5 text-surface-500 hover:text-surface-300 disabled:opacity-30 transition-colors"
+          title={isRtl ? 'تحريك لأعلى' : 'Move Up'}
+        >
+          <ChevronUp className="w-4 h-4" />
+        </button>
+        <button 
+          onClick={onMoveDown} 
+          disabled={isLast}
+          className="p-0.5 text-surface-500 hover:text-surface-300 disabled:opacity-30 transition-colors"
+          title={isRtl ? 'تحريك لأسفل' : 'Move Down'}
+        >
+          <ChevronDown className="w-4 h-4" />
+        </button>
+      </div>
+
       {/* Delete lesson button - always visible on hover */}
       <button
         onClick={handleDeleteLesson}
@@ -276,8 +296,8 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
         title={isRtl ? 'حذف الدرس' : 'Delete lesson'}
       >
         {deleteLessonMutation.isPending
-          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          : <Trash2 className="w-3.5 h-3.5" />
+          ? <Loader2 className="w-4 h-4 animate-spin" />
+          : <Trash2 className="w-4 h-4" />
         }
       </button>
     </div>
@@ -315,6 +335,25 @@ function ChapterBlock({ chapter, moduleId, courseId, allModules }: { chapter: an
     mutationFn: (title: string) => adminCoursesApi.createLesson(chapter.id, { title, type: lessonType, isFree: false }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['course-admin', courseId] }); setAddingLesson(false); },
   });
+
+  const reorderLessonsMutation = useMutation({
+    mutationFn: (lessonIds: string[]) => adminCoursesApi.reorderLessons(chapter.id, lessonIds),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['course-admin', courseId] }); },
+  });
+
+  const handleMoveLesson = (index: number, direction: 'up' | 'down') => {
+    if (!chapter.lessons) return;
+    const newLessons = [...chapter.lessons];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newLessons.length) return;
+    
+    const temp = newLessons[index];
+    newLessons[index] = newLessons[targetIndex];
+    newLessons[targetIndex] = temp;
+    
+    const newLessonIds = newLessons.map(l => l.id);
+    reorderLessonsMutation.mutate(newLessonIds);
+  };
 
   const lessonTypeLabels: Record<string, string> = {
     VIDEO: t('courseEditor.typeVideo'),
@@ -382,9 +421,22 @@ function ChapterBlock({ chapter, moduleId, courseId, allModules }: { chapter: an
       )}
 
       {expanded && (
-        <div className="p-2 space-y-1">
-          {chapter.lessons?.map((lesson: any) => (
-            <LessonRow key={lesson.id} lesson={lesson} courseId={courseId} />
+        <div className="p-2 space-y-1 relative">
+          {reorderLessonsMutation.isPending && (
+            <div className="absolute inset-0 z-10 bg-surface-900/20 backdrop-blur-[1px] flex items-center justify-center rounded-lg">
+              <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
+            </div>
+          )}
+          {chapter.lessons?.map((lesson: any, index: number) => (
+            <LessonRow 
+              key={lesson.id} 
+              lesson={lesson} 
+              courseId={courseId} 
+              isFirst={index === 0}
+              isLast={index === (chapter.lessons?.length || 0) - 1}
+              onMoveUp={() => handleMoveLesson(index, 'up')}
+              onMoveDown={() => handleMoveLesson(index, 'down')}
+            />
           ))}
 
           {addingLesson ? (

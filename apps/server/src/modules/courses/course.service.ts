@@ -502,6 +502,18 @@ export class CourseService {
     return { deleted: true };
   }
 
+  async reorderLessons(chapterId: string, lessonIds: string[]) {
+    const queries = lessonIds.map((id, index) => 
+      prisma.lesson.update({
+        where: { id, chapterId },
+        data: { sortOrder: index }
+      })
+    );
+    await prisma.$transaction(queries);
+    await cache.delPattern('course:*');
+    return { success: true };
+  }
+
   async enrollStudent(courseId: string, userId: string) {
     const existing = await prisma.enrollment.findUnique({
       where: { userId_courseId: { userId, courseId } },

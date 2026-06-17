@@ -61,6 +61,11 @@ export const adminCoursesApi = {
     return res.data.data;
   },
 
+  reorderLessons: async (chapterId: string, lessonIds: string[]) => {
+    const res = await api.put(`/courses/chapters/${chapterId}/lessons/reorder`, { lessonIds });
+    return res.data.data;
+  },
+
   updateChapterDeadline: async (chapterId: string, deadline: string | null) => {
     const res = await api.put(`/courses/chapters/${chapterId}/deadline`, { deadline });
     return res.data.data;
