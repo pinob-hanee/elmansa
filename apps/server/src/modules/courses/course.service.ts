@@ -279,6 +279,7 @@ export class CourseService {
 
     const updated = await prisma.course.update({ where: { id: courseId }, data });
     await cache.del(`course:${course.slug}`);
+    await cache.delPattern('courses:*');
     return updated;
   }
 
@@ -311,6 +312,7 @@ export class CourseService {
 
     await prisma.course.delete({ where: { id: courseId } });
     await cache.del(`course:${course.slug}`);
+    await cache.delPattern('courses:*');
   }
 
   // Curriculum Building
