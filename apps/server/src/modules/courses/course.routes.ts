@@ -3,6 +3,8 @@ import { CourseService } from './course.service';
 import { authenticate, requireRole, requireApprovedStudent, optionalAuthenticate } from '../../api/middlewares/auth.middleware';
 import { successResponse, paginatedResponse } from '../../utils/response';
 import { fileUpload } from '../media/media.service';
+import { validate } from '../../api/middlewares/validate.middleware';
+import { createCourseSchema, updateCourseSchema, createChapterSchema, createLessonSchema } from './course.schema';
 
 const router = Router();
 const svc = new CourseService();
@@ -43,14 +45,14 @@ router.get('/admin/list', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), a
 });
 
 // Protected routes
-router.post('/', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.post('/', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(createCourseSchema), async (req, res, next) => {
   try {
     const course = await svc.createCourse(req.user!.userId, req.body);
     successResponse(res, course, 'Course created', 201);
   } catch (e) { next(e); }
 });
 
-router.put('/:id', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.put('/:id', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(updateCourseSchema), async (req, res, next) => {
   try {
     const course = await svc.updateCourse(req.params.id, req.user!.userId, req.body);
     successResponse(res, course, 'Course updated');
@@ -80,7 +82,7 @@ router.post('/:id/modules', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'),
   } catch (e) { next(e); }
 });
 
-router.post('/modules/:moduleId/chapters', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.post('/modules/:moduleId/chapters', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(createChapterSchema), async (req, res, next) => {
   try {
     const chapter = await svc.createChapter(req.params.moduleId, req.body);
     successResponse(res, chapter, 'Chapter created', 201);
@@ -123,7 +125,7 @@ router.delete('/chapters/:chapterId', authenticate, requireRole('TEACHER', 'SUPE
   } catch (e) { next(e); }
 });
 
-router.post('/chapters/:chapterId/lessons', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.post('/chapters/:chapterId/lessons', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(createLessonSchema), async (req, res, next) => {
   try {
     const lesson = await svc.createLesson(req.params.chapterId, req.body);
     successResponse(res, lesson, 'Lesson created', 201);

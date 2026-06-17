@@ -79,7 +79,8 @@ describe('AuthService', () => {
 
       await expect(authService.login({
         email: 'wrong@test.com',
-        password: 'password'
+        password: 'password',
+        rememberMe: false
       })).rejects.toThrow(UnauthorizedError);
     });
 
@@ -89,7 +90,8 @@ describe('AuthService', () => {
 
       await expect(authService.login({
         email: 'user@test.com',
-        password: 'wrong_password'
+        password: 'wrong_password',
+        rememberMe: false
       })).rejects.toThrow(UnauthorizedError);
     });
   });

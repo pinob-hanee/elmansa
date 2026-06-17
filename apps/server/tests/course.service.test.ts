@@ -1,6 +1,6 @@
 import { CourseService } from '../src/modules/courses/course.service';
 import { prisma } from '../src/config/database';
-import { cache } from '../src/config/cache';
+import { cache } from '../src/config/redis';
 
 // Mock dependencies
 jest.mock('../src/config/database', () => ({
@@ -22,7 +22,7 @@ jest.mock('../src/config/database', () => ({
   },
 }));
 
-jest.mock('../src/config/cache', () => ({
+jest.mock('../src/config/redis', () => ({
   cache: {
     get: jest.fn(),
     set: jest.fn(),
@@ -90,7 +90,7 @@ describe('CourseService', () => {
 
       const result = await courseService.getCourseBySlug('my-course');
 
-      expect(cache.get).toHaveBeenCalledWith('course:my-course:public');
+      expect(cache.get).toHaveBeenCalledWith('course:my-course');
       expect(result).toEqual(mockCached);
       expect(prisma.course.findUnique).not.toHaveBeenCalled();
     });
