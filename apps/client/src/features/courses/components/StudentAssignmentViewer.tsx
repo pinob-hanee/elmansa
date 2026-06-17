@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { studentCoursesApi } from '../api/student.courses';
 import { useTranslation } from 'react-i18next';
 import { Send, Link as LinkIcon, Code2, FileText, CheckCircle, Clock } from 'lucide-react';
-import { cn } from '../../../utils/cn';
+import { cn } from '../../../lib/utils';
 import toast from 'react-hot-toast';
 
 export default function StudentAssignmentViewer({ lessonId, onComplete }: { lessonId: string, onComplete: () => void }) {

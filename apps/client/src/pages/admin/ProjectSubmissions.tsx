@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminCoursesApi } from '../../features/courses/api/admin.courses';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle, XCircle, Clock, Link as LinkIcon, FileText, Code2, AlertCircle, X, ExternalLink } from 'lucide-react';
-import { cn } from '../../utils/cn';
+import { cn } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 export default function AdminProjectSubmissions() {
@@ -106,7 +106,7 @@ export default function AdminProjectSubmissions() {
                         {sub.status === 'PENDING' && <Clock className="w-3.5 h-3.5" />}
                         {sub.status === 'GRADED' && <CheckCircle className="w-3.5 h-3.5" />}
                         {sub.status === 'REJECTED' && <XCircle className="w-3.5 h-3.5" />}
-                        {t(`adminCourses.status${sub.status}`, sub.status)}
+                        {t(`adminCourses.status${sub.status}`, sub.status) as string}
                       </span>
                     </td>
                     <td className="px-6 py-4">

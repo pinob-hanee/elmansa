@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { ArrowRight, Menu, X, PlayCircle, FileText, CheckCircle2, HelpCircle, Lock } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import CourseSidebar from './components/CourseSidebar';
+
 import { studentCoursesApi } from '../../features/courses/api/student.courses';
 import StudentQuizViewer from '../../features/quiz/components/StudentQuizViewer';
 import StudentAssignmentViewer from '../../features/courses/components/StudentAssignmentViewer';
