@@ -80,13 +80,13 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
   const handleDeleteLesson = () => {
     toast((toastObj) => (
       <div className="flex flex-col gap-4 p-1" dir={isRtl ? 'rtl' : 'ltr'}>
-        <p className="font-semibold text-surface-900 text-sm">
+        <p className="font-semibold text-surface-50 text-sm">
           {isRtl ? `هل تريد حذف درس "${lesson.title}"؟` : `Delete lesson "${lesson.title}"?`}
         </p>
         <div className="flex gap-3 justify-end mt-1">
           <button
             onClick={() => toast.dismiss(toastObj.id)}
-            className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200"
+            className="px-4 py-2 text-xs font-bold bg-surface-800 hover:bg-surface-700 text-surface-50 rounded-xl transition-colors border border-surface-200"
           >
             {isRtl ? 'إلغاء' : 'Cancel'}
           </button>
@@ -129,9 +129,9 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
   const handleDeleteMedia = () => {
     toast((toastObj) => (
       <div className="flex flex-col gap-3" dir={isRtl ? 'rtl' : 'ltr'}>
-        <p className="font-medium text-surface-900">{t('courseEditor.deleteFileConfirm')}</p>
+        <p className="font-medium text-surface-50">{t('courseEditor.deleteFileConfirm')}</p>
         <div className="flex gap-2 justify-end">
-          <button onClick={() => toast.dismiss(toastObj.id)} className="px-3 py-1.5 text-xs font-medium bg-surface-200 hover:bg-surface-300 text-surface-700 rounded-lg">
+          <button onClick={() => toast.dismiss(toastObj.id)} className="px-3 py-1.5 text-xs font-medium bg-surface-800 hover:bg-surface-700 text-surface-50 rounded-lg">
             {t('courseEditor.cancel')}
           </button>
           <button onClick={async () => {

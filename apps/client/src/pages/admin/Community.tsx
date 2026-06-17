@@ -30,9 +30,9 @@ export default function AdminCommunity() {
   const handleDelete = (id: string) => {
     toast((toastItem) => (
       <div className="flex flex-col gap-4 p-1" dir={isRtl ? "rtl" : "ltr"}>
-        <p className="font-semibold text-surface-900 text-sm">{t('adminCommunity.deleteConfirm')}</p>
+        <p className="font-semibold text-surface-50 text-sm">{isRtl ? 'هل تريد بالتأكيد حذف هذا المنشور؟' : 'Are you sure you want to delete this post?'}</p>
         <div className="flex gap-3 justify-end mt-1">
-          <button onClick={() => toast.dismiss(toastItem.id)} className="px-4 py-2 text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-600 rounded-xl transition-colors border border-surface-200">{isRtl ? 'إلغاء' : 'Cancel'}</button>
+          <button onClick={() => toast.dismiss(toastItem.id)} className="px-4 py-2 text-xs font-bold bg-surface-800 hover:bg-surface-700 text-surface-50 rounded-xl transition-colors border border-surface-200">{isRtl ? 'إلغاء' : 'Cancel'}</button>
           <button onClick={() => {
               toast.dismiss(toastItem.id);
               deleteMutation.mutate(id, {
