@@ -1,4 +1,4 @@
-import { prisma } from '../../config/prisma';
+import { prisma } from '../../config/database';
 import { NotFoundError } from '../../utils/errors';
 
 export class AssignmentService {

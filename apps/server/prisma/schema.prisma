@@ -710,6 +710,8 @@ enum SubmissionStatus {
   COMPILE_ERROR
   RUNTIME_ERROR
   PENDING
+  GRADED
+  REJECTED
 }
 
 model CodingProblem {

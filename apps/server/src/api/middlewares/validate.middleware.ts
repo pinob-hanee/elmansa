@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject, ZodError } from 'zod';
-import { ValidationError } from '../../utils/errors';
+import { UnprocessableError } from '../../utils/errors';
 
 export const validate = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -13,7 +13,7 @@ export const validate = (schema: AnyZodObject) => {
       return next();
     } catch (error) {
       if (error instanceof ZodError) {
-        return next(new ValidationError('Invalid input data', error.errors));
+        return next(new UnprocessableError('Invalid input data', error.errors));
       }
       return next(error);
     }

@@ -10,6 +10,7 @@ export const generalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore({
+    // @ts-expect-error - Known issue with ioredis types
     sendCommand: (...args: string[]) => redis.call(...args),
   }),
   handler: (_req, _res, next) => {
@@ -23,6 +24,7 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore({
+    // @ts-expect-error - Known issue with ioredis types
     sendCommand: (...args: string[]) => redis.call(...args),
   }),
   handler: (_req, _res, next) => {
@@ -34,6 +36,7 @@ export const uploadLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,
   store: new RedisStore({
+    // @ts-expect-error - Known issue with ioredis types
     sendCommand: (...args: string[]) => redis.call(...args),
   }),
   handler: (_req, _res, next) => {
