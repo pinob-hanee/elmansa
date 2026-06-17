@@ -2,8 +2,17 @@ import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  LayoutDashboard, Users, BookOpen, BarChart3,
-  MessageSquare, LogOut, Shield, BookOpenCheck, Code2
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  BarChart3,
+  Settings,
+  Shield,
+  MessageSquare,
+  Code2,
+  ClipboardCheck,
+  LogOut,
+  BookOpenCheck
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
@@ -24,6 +33,7 @@ export default function AdminLayout() {
     { icon: LayoutDashboard, label: t('nav.dashboard'), href: '/admin' },
     { icon: Users, label: t('nav.students'), href: '/admin/students' },
     { icon: BookOpen, label: t('nav.courses'), href: '/admin/courses' },
+    { icon: ClipboardCheck, label: t('adminCourses.projectSubmissions', 'Project Submissions'), href: '/admin/submissions' },
     { icon: MessageSquare, label: t('nav.community'), href: '/admin/community' },
     { icon: Code2, label: t('nav.coding', 'Coding'), href: '/admin/coding' },
   ];

@@ -98,5 +98,25 @@ export const adminCoursesApi = {
   upsertQuiz: async (lessonId: string, data: any) => {
     const res = await api.put(`/quizzes/lesson/${lessonId}`, data);
     return res.data.data;
+  },
+
+  getAssignment: async (lessonId: string) => {
+    const res = await api.get(`/courses/lessons/${lessonId}/assignment`);
+    return res.data.data;
+  },
+
+  upsertAssignment: async (lessonId: string, data: any) => {
+    const res = await api.put(`/courses/lessons/${lessonId}/assignment`, data);
+    return res.data.data;
+  },
+
+  getAllSubmissions: async () => {
+    const res = await api.get(`/courses/admin/submissions`);
+    return res.data.data;
+  },
+
+  gradeSubmission: async (submissionId: string, data: any) => {
+    const res = await api.put(`/courses/admin/submissions/${submissionId}/grade`, data);
+    return res.data.data;
   }
 };

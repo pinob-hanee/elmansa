@@ -19,6 +19,7 @@ import { setupPassport } from './config/passport';
 // Routes
 import authRoutes from './modules/auth/auth.routes';
 import courseRoutes from './modules/courses/course.routes';
+import assignmentRoutes from './modules/courses/assignment.routes';
 import userRoutes from './modules/users/user.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import communityRoutes from './modules/community/community.routes';
@@ -142,6 +143,7 @@ app.get('/health', (_req, res) => {
 // ============================================================
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/courses', courseRoutes);
+app.use('/api/v1/courses', assignmentRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/community', communityRoutes);

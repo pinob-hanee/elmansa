@@ -674,6 +674,22 @@ export class CourseService {
 
     if (completedLessons < totalLessons) return { completed: false, bonusXp: 0, certificateCode: null, newBadges: [] };
 
+    // Strict check for final assessments
+    const finalAssessments = await prisma.lesson.findMany({
+      where: {
+        isPublished: true,
+        isFinalAssessment: true,
+        chapter: { isPublished: true, module: { isPublished: true, courseId } }
+      }
+    });
+
+    for (const fa of finalAssessments) {
+      const isCompleted = await prisma.lessonProgress.findFirst({
+        where: { userId, lessonId: fa.id, isCompleted: true }
+      });
+      if (!isCompleted) return { completed: false, bonusXp: 0, certificateCode: null, newBadges: [] };
+    }
+
     // Check if already completed
     const enrollment = await prisma.enrollment.findUnique({
       where: { userId_courseId: { userId, courseId } }

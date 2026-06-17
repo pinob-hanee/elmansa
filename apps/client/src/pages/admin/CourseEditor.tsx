@@ -8,6 +8,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { adminCoursesApi } from '../../features/courses/api/admin.courses';
 import QuizBuilder from '../../features/quiz/components/QuizBuilder';
+import AssignmentBuilder from '../../features/courses/components/AssignmentBuilder';
 import TextEditorModal from './components/TextEditorModal';
 import ChapterDeadlineModal from './components/ChapterDeadlineModal';
 import toast from 'react-hot-toast';
@@ -56,12 +57,13 @@ function AddItemForm({ placeholder, onAdd, onCancel, addLabel, cancelLabel }: {
 function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
-  const typeColor = lesson.type === 'VIDEO' ? 'text-primary-400' : lesson.type === 'QUIZ' ? 'text-amber-400' : lesson.type === 'TEXT' ? 'text-blue-400' : 'text-surface-50';
+  const typeColor = lesson.type === 'VIDEO' ? 'text-primary-400' : lesson.type === 'QUIZ' ? 'text-amber-400' : lesson.type === 'TEXT' ? 'text-blue-400' : lesson.type === 'ASSIGNMENT' ? 'text-indigo-400' : 'text-surface-50';
   const TypeIcon = lesson.type === 'VIDEO' ? Video : lesson.type === 'TEXT' ? Edit2 : FileText;
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showQuizBuilder, setShowQuizBuilder] = useState(false);
+  const [showAssignmentBuilder, setShowAssignmentBuilder] = useState(false);
   const [showTextEditor, setShowTextEditor] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
@@ -231,6 +233,21 @@ function LessonRow({ lesson, courseId }: { lesson: any; courseId: string }) {
         </>
       )}
 
+      {lesson.type === 'ASSIGNMENT' && (
+        <>
+          <button
+            onClick={() => setShowAssignmentBuilder(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 rounded-lg text-xs font-medium transition-all opacity-0 group-hover:opacity-100"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            {t('courseEditor.buildAssignment', 'Build Assignment')}
+          </button>
+          {showAssignmentBuilder && (
+            <AssignmentBuilder lessonId={lesson.id} onClose={() => setShowAssignmentBuilder(false)} />
+          )}
+        </>
+      )}
+
       {lesson.type === 'TEXT' && (
         <>
           <button
@@ -273,7 +290,7 @@ function ChapterBlock({ chapter, moduleId, courseId, allModules }: { chapter: an
   const [expanded, setExpanded] = useState(true);
   const [addingLesson, setAddingLesson] = useState(false);
   const [showDeadlineModal, setShowDeadlineModal] = useState(false);
-  const [lessonType, setLessonType] = useState<'VIDEO' | 'QUIZ' | 'PDF' | 'TEXT'>('VIDEO');
+  const [lessonType, setLessonType] = useState<'VIDEO' | 'QUIZ' | 'PDF' | 'TEXT' | 'ASSIGNMENT'>('VIDEO');
   const qc = useQueryClient();
 
   const deleteChapterMutation = useMutation({
@@ -303,6 +320,8 @@ function ChapterBlock({ chapter, moduleId, courseId, allModules }: { chapter: an
     VIDEO: t('courseEditor.typeVideo'),
     QUIZ: t('courseEditor.typeQuiz'),
     PDF: t('courseEditor.typePdf'),
+    TEXT: t('courseEditor.typeText', 'Text / Article'),
+    ASSIGNMENT: t('courseEditor.typeAssignment', 'Project / Assignment'),
   };
 
   return (
@@ -371,7 +390,7 @@ function ChapterBlock({ chapter, moduleId, courseId, allModules }: { chapter: an
           {addingLesson ? (
             <div className="px-2 py-2 space-y-2">
               <div className="flex gap-2 flex-wrap">
-                {(['VIDEO', 'QUIZ', 'PDF'] as const).map(type => (
+                {(['VIDEO', 'QUIZ', 'PDF', 'TEXT', 'ASSIGNMENT'] as const).map(type => (
                   <button
                     key={type}
                     onClick={() => setLessonType(type)}

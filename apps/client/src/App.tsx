@@ -32,6 +32,7 @@ const AdminCourses = lazy(() => import('./pages/admin/Courses'));
 const AdminCourseEditor = lazy(() => import('./pages/admin/CourseEditor'));
 const AdminCommunity = lazy(() => import('./pages/admin/Community'));
 const AdminCodingProblems = lazy(() => import('./pages/admin/CodingProblems'));
+const AdminProjectSubmissions = lazy(() => import('./pages/admin/ProjectSubmissions'));
 // Student coding (standalone full-page, no layout)
 const CodingPage = lazy(() => import('./pages/student/CodingPage'));
 const CodingProblemPage = lazy(() => import('./pages/student/CodingProblemPage'));
@@ -122,6 +123,7 @@ export default function App() {
               <Route path="courses" element={<AdminCourses />} />
               <Route path="courses/new" element={<AdminCourseEditor />} />
               <Route path="courses/:id/edit" element={<AdminCourseEditor />} />
+              <Route path="submissions" element={<AdminProjectSubmissions />} />
               <Route path="community" element={<AdminCommunity />} />
               <Route path="coding" element={<AdminCodingProblems />} />
             </Route>

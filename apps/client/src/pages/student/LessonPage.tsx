@@ -3,8 +3,11 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { ArrowRight, Menu, X, PlayCircle, FileText, CheckCircle2, HelpCircle, Lock } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
+import CourseSidebar from './components/CourseSidebar';
 import { studentCoursesApi } from '../../features/courses/api/student.courses';
 import StudentQuizViewer from '../../features/quiz/components/StudentQuizViewer';
+import StudentAssignmentViewer from '../../features/courses/components/StudentAssignmentViewer';
 import { cn } from '../../lib/utils';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
@@ -203,6 +206,13 @@ export default function LessonPage() {
                 }}
               />
             </div>
+          ) : currentLesson?.type === 'ASSIGNMENT' ? (
+            <StudentAssignmentViewer
+              lessonId={lessonId!}
+              onComplete={() => {
+                updateProgressMutation.mutate(currentLesson?.videoDuration || 1000);
+              }}
+            />
           ) : videoLoading ? (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -384,7 +394,9 @@ export default function LessonPage() {
                             ) : lesson.type === 'VIDEO' ? (
                               <PlayCircle className={cn('w-4 h-4', isActive ? 'text-primary-400' : 'text-surface-500')} />
                             ) : lesson.type === 'QUIZ' ? (
-                              <HelpCircle className={cn('w-4 h-4', isActive ? 'text-amber-400' : 'text-surface-500')} />
+                              <HelpCircle className="w-4 h-4 text-amber-400" />
+                            ) : lesson.type === 'ASSIGNMENT' ? (
+                              <FileText className="w-4 h-4 text-indigo-400" />
                             ) : (
                               <FileText className={cn('w-4 h-4', isActive ? 'text-surface-50' : 'text-surface-500')} />
                             )}

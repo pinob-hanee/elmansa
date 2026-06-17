@@ -39,5 +39,20 @@ export const studentCoursesApi = {
   getCategories: async () => {
     const res = await api.get('/courses/categories');
     return res.data.data;
+  },
+
+  getAssignment: async (lessonId: string) => {
+    const res = await api.get(`/courses/lessons/${lessonId}/assignment`);
+    return res.data.data;
+  },
+
+  submitAssignment: async (assignmentId: string, data: any) => {
+    const res = await api.post(`/courses/assignments/${assignmentId}/submit`, data);
+    return res.data.data;
+  },
+
+  getStudentSubmissions: async () => {
+    const res = await api.get(`/courses/users/me/submissions`);
+    return res.data.data;
   }
 };
