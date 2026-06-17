@@ -25,8 +25,12 @@ export default function AdminCourses() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminCoursesApi.deleteCourse(id),
     onSuccess: () => {
+      toast.success(t('adminCourses.deleteSuccess', 'تم حذف الكورس بنجاح'));
       queryClient.invalidateQueries({ queryKey: ['admin-courses'] });
     },
+    onError: (e: any) => {
+      toast.error(e.response?.data?.message || t('common.error', 'حدث خطأ'));
+    }
   });
 
   const handleDelete = (id: string) => {

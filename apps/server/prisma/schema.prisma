@@ -566,7 +566,7 @@ model Comment {
 
   post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id])
+  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[]     @relation("CommentReplies")
   reactions Reaction[]
   reports   Report[]
@@ -606,8 +606,8 @@ model Report {
 
   filer   User           @relation("ReportFiler", fields: [filerId], references: [id])
   target  User           @relation("ReportTarget", fields: [targetId], references: [id])
-  post    CommunityPost? @relation(fields: [postId], references: [id])
-  comment Comment?       @relation(fields: [commentId], references: [id])
+  post    CommunityPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment?       @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@index([status])
 }

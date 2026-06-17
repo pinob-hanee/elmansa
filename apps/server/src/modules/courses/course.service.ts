@@ -2,6 +2,7 @@ import { prisma } from '../../config/database';
 import { cache } from '../../config/redis';
 import { NotFoundError, ForbiddenError } from '../../utils/errors';
 import { Prisma } from '@prisma/client';
+import { deleteMediaObject } from '../media/media.service';
 
 export interface CourseFilters {
   page?: number;
@@ -282,11 +283,32 @@ export class CourseService {
   }
 
   async deleteCourse(courseId: string, teacherId: string, role: string) {
-    const course = await prisma.course.findUnique({ where: { id: courseId } });
+    const course = await prisma.course.findUnique({ 
+      where: { id: courseId },
+      include: {
+        modules: {
+          include: {
+            chapters: {
+              include: { lessons: true }
+            }
+          }
+        }
+      }
+    });
     if (!course) throw new NotFoundError('Course not found');
     if (course.teacherId !== teacherId && !['SUPER_ADMIN'].includes(role)) {
       throw new ForbiddenError();
     }
+
+    for (const module of course.modules) {
+      for (const chapter of module.chapters) {
+        for (const lesson of chapter.lessons) {
+          if (lesson.videoKey) await deleteMediaObject(lesson.videoKey, true).catch(console.error);
+          if (lesson.pdfKey) await deleteMediaObject(lesson.pdfKey, false).catch(console.error);
+        }
+      }
+    }
+
     await prisma.course.delete({ where: { id: courseId } });
     await cache.del(`course:${course.slug}`);
   }
@@ -296,6 +318,23 @@ export class CourseService {
     return prisma.module.create({
       data: { ...data, courseId, isPublished: true },
     });
+  }
+
+  async deleteModule(moduleId: string) {
+    const module = await prisma.module.findUnique({
+      where: { id: moduleId },
+      include: { chapters: { include: { lessons: true } } }
+    });
+    if (!module) return;
+
+    for (const chapter of module.chapters) {
+      for (const lesson of chapter.lessons) {
+        if (lesson.videoKey) await deleteMediaObject(lesson.videoKey, true).catch(console.error);
+        if (lesson.pdfKey) await deleteMediaObject(lesson.pdfKey, false).catch(console.error);
+      }
+    }
+
+    await prisma.module.delete({ where: { id: moduleId } });
   }
 
   async createChapter(moduleId: string, data: any) {
@@ -321,6 +360,11 @@ export class CourseService {
       include: { module: true, lessons: true },
     });
     if (!chapter) throw new NotFoundError('Chapter not found');
+
+    for (const lesson of chapter.lessons) {
+      if (lesson.videoKey) await deleteMediaObject(lesson.videoKey, true).catch(console.error);
+      if (lesson.pdfKey) await deleteMediaObject(lesson.pdfKey, false).catch(console.error);
+    }
 
     const totalLessons = chapter.lessons.length;
     const totalDuration = chapter.lessons.reduce((acc, lesson) => acc + (lesson.duration || 0), 0);
@@ -411,6 +455,16 @@ export class CourseService {
   }
 
   async updateLesson(lessonId: string, data: any) {
+    const existing = await prisma.lesson.findUnique({ where: { id: lessonId } });
+    if (existing) {
+      if (existing.videoKey && (data.videoKey === null || (data.videoKey && data.videoKey !== existing.videoKey))) {
+        await deleteMediaObject(existing.videoKey, true).catch(console.error);
+      }
+      if (existing.pdfKey && (data.pdfKey === null || (data.pdfKey && data.pdfKey !== existing.pdfKey))) {
+        await deleteMediaObject(existing.pdfKey, false).catch(console.error);
+      }
+    }
+
     const lesson = await prisma.lesson.update({
       where: { id: lessonId },
       data,
@@ -426,6 +480,9 @@ export class CourseService {
       include: { chapter: { include: { module: true } } },
     });
     if (!lesson) throw new Error('Lesson not found');
+
+    if (lesson.videoKey) await deleteMediaObject(lesson.videoKey, true).catch(console.error);
+    if (lesson.pdfKey) await deleteMediaObject(lesson.pdfKey, false).catch(console.error);
 
     await prisma.lesson.delete({ where: { id: lessonId } });
 
