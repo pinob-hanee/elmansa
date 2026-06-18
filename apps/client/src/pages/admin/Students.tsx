@@ -107,7 +107,7 @@ export default function AdminStudents() {
 
   const updateStatus = useMutation({
     mutationFn: ({ id, isVerified, reason }: { id: string; isVerified: boolean; reason?: string }) =>
-      api.patch(`/admin/students/${id}/verify`, { isVerified, reason }),
+      api.patch(`/admin/students/verify`, { studentId: id, isVerified, reason }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-students'] }),
   });
 

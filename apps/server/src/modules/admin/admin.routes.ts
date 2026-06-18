@@ -40,11 +40,11 @@ router.get('/students', async (req, res, next) => {
 });
 
 // Approve / reject / suspend / ban
-router.patch('/students/:id/verify', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+router.patch('/students/verify', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
   try {
     const user = await userSvc.updateEmailVerification(
       req.user!.userId,
-      req.params.id,
+      req.body.studentId,
       req.body.isVerified,
       req.body.reason
     );
