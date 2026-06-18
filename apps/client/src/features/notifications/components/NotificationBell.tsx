@@ -5,12 +5,17 @@ import { Link } from 'react-router-dom';
 import { notificationsApi } from '../api/notifications';
 import { cn } from '../../../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { ar } from 'date-fns/locale';
+import { useAuthStore } from '../../../store/authStore';
+import { useTranslation } from 'react-i18next';
+import { ar, enUS } from 'date-fns/locale';
 
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
   const { data, isLoading } = useQuery({
     queryKey: ['notifications'],
@@ -53,21 +58,21 @@ export default function NotificationBell() {
       {isOpen && (
         <div className="absolute left-0 mt-2 w-80 bg-surface-900 border border-surface-800 rounded-2xl shadow-xl z-50 overflow-hidden">
           <div className="p-4 border-b border-surface-800 flex items-center justify-between">
-            <h3 className="font-bold text-surface-50">الإشعارات</h3>
+            <h3 className="font-bold text-surface-50">{t('nav.notifications', 'Notifications')}</h3>
             {unreadCount > 0 && (
               <span className="bg-primary-500/20 text-primary-400 text-xs px-2 py-1 rounded-full font-medium">
-                {unreadCount} جديد
+                {unreadCount} {t('common.new', 'New')}
               </span>
             )}
           </div>
           
           <div className="max-h-[360px] overflow-y-auto">
             {isLoading ? (
-              <div className="p-4 text-center text-surface-500 text-sm">جاري التحميل...</div>
+              <div className="p-4 text-center text-surface-500 text-sm">{t('common.loading', 'Loading...')}</div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
                 <Bell className="w-8 h-8 text-surface-700 mx-auto mb-3" />
-                <p className="text-surface-400 text-sm">لا توجد إشعارات حالياً</p>
+                <p className="text-surface-400 text-sm">{t('notifications.empty', 'No notifications right now')}</p>
               </div>
             ) : (
               <div className="divide-y divide-surface-800">
@@ -89,7 +94,7 @@ export default function NotificationBell() {
                       <p className="text-xs text-surface-400 line-clamp-2 leading-relaxed">{notification.message}</p>
                       <div className="flex items-center gap-1 mt-2 text-surface-500 text-[10px]">
                         <Clock className="w-3 h-3" />
-                        {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: ar })}
+                        {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: isRtl ? ar : enUS })}
                       </div>
                     </div>
                   </div>
@@ -104,7 +109,7 @@ export default function NotificationBell() {
               onClick={() => setIsOpen(false)}
               className="block w-full text-center text-sm text-primary-400 hover:text-primary-300 transition-colors font-medium"
             >
-              عرض كل الإشعارات
+              {t('notifications.viewAll', 'View All Notifications')}
             </Link>
           </div>
         </div>

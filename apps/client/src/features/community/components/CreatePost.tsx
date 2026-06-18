@@ -82,7 +82,7 @@ export default function CreatePost() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onFocus={() => setIsFocused(true)}
-            placeholder="بم تفكر؟ شارك أفكارك أو صورك مع المجتمع..."
+            placeholder={t('community.whatAreYouThinking', 'What are you thinking? Share your thoughts or photos with the community...')}
             className={cn(
               "w-full bg-surface-900/50 border border-surface-800 rounded-xl p-3 text-surface-50 placeholder:text-surface-500 focus:outline-none focus:border-primary-500/50 transition-all resize-none",
               isFocused || imageUrl ? "min-h-[120px]" : "min-h-[50px]"
@@ -159,7 +159,7 @@ export default function CreatePost() {
                   }}
                   className="px-4 py-2 text-sm text-surface-400 hover:text-surface-50 transition-colors"
                 >
-                  إخفاء
+                  {t('community.hide', 'Hide')}
                 </button>
                 <button
                   type="submit"

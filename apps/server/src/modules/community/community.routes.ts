@@ -96,6 +96,13 @@ router.get('/posts/comments', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+router.delete('/posts/comments', authenticate, async (req, res, next) => {
+  try {
+    const result = await svc.deleteComment(req.body.commentId, req.user!.userId, req.user!.role);
+    successResponse(res, result, 'Comment deleted successfully');
+  } catch (e) { next(e); }
+});
+
 // Notifications
 router.get('/notifications', authenticate, async (req, res, next) => {
   try {

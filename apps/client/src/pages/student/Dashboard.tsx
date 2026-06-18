@@ -59,7 +59,7 @@ export default function StudentDashboard() {
         <h1 className="text-2xl font-extrabold text-surface-50 mb-1 font-mono">
           <span className="text-primary-400">{'>'}</span> {t('dashboard.greeting', { name: user?.profile?.firstName || user?.email?.split('@')[0] })}
         </h1>
-        <p className="text-surface-400 font-mono text-sm">{t('dashboard.subtitle')}</p>
+        {/* <p className="text-surface-400 font-mono text-sm">{t('dashboard.subtitle')}</p> */}
       </motion.div>
 
       {/* Pending Approval Banner */}
@@ -126,13 +126,13 @@ export default function StudentDashboard() {
                       <Star className="w-6 h-6 text-surface-50" />
                     </div>
                     <div className="text-start">
-                      <div className="text-surface-400 text-sm font-medium">المستوى الحالي</div>
-                      <div className="text-2xl font-extrabold text-surface-50">مستوى {gamification.profile.level}</div>
+                      <div className="text-surface-400 text-sm font-medium">{t('gamification.currentLevel', 'Current Level')}</div>
+                      <div className="text-2xl font-extrabold text-surface-50">{t('gamification.level', { level: gamification.profile.level, defaultValue: `Level ${gamification.profile.level}` })}</div>
                     </div>
                   </div>
                   <div className="text-end shrink-0">
-                    <div className="text-sm font-bold text-primary-400 whitespace-nowrap">{gamification.profile.xp} XP</div>
-                    <div className="text-xs text-surface-500 whitespace-nowrap">من أصل {gamification.profile.level * 1000}</div>
+                    <div className="text-sm font-bold text-primary-400 whitespace-nowrap">{gamification.profile.xp.toLocaleString()} XP</div>
+                    <div className="text-xs text-surface-500 whitespace-nowrap">{t('gamification.outOf', 'out of')} {(gamification.profile.level * 1000).toLocaleString()}</div>
                   </div>
                 </div>
                 <div className="h-3 bg-surface-800 rounded-full overflow-hidden border border-surface-200">
@@ -140,7 +140,7 @@ export default function StudentDashboard() {
                     initial={{ width: 0 }}
                     animate={{ width: `${(gamification.profile.xp % 1000) / 10}%` }}
                     transition={{ duration: 1, delay: 0.5 }}
-                    className="h-full bg-surface-800 border border-surface-700 rounded-full relative"
+                    className="h-full bg-gradient-to-r from-primary-600 to-primary-400 border border-primary-500 rounded-full relative"
                   >
                     <div className="absolute inset-0 bg-white/20 w-full h-full animate-pulse" />
                   </motion.div>
@@ -153,9 +153,9 @@ export default function StudentDashboard() {
                   <Flame className="w-6 h-6 text-surface-50" />
                 </div>
                 <div className="text-3xl font-extrabold text-surface-50 mb-1 relative z-10">
-                  {gamification.profile.currentStreak} <span className="text-lg text-surface-400 font-medium">أيام</span>
+                  {gamification.profile.currentStreak} <span className="text-lg text-surface-400 font-medium">{t('profile.streak', 'Day Streak')}</span>
                 </div>
-                <div className="text-sm font-medium text-orange-400 relative z-10">سلسلة التعلم الحالية</div>
+                <div className="text-sm font-medium text-orange-400 relative z-10">{t('profile.streakLabel', 'Current Learning Streak')}</div>
               </div>
             </motion.div>
           )}
@@ -214,7 +214,7 @@ export default function StudentDashboard() {
                       </p>
                       <div className="mt-2 h-1.5 bg-surface-700 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-surface-800 border border-surface-700 rounded-full transition-all"
+                          className="h-full bg-primary-500 rounded-full transition-all"
                           style={{ width: `${Number(enrollment.progress) || 0}%` }}
                         />
                       </div>
@@ -284,10 +284,8 @@ export default function StudentDashboard() {
                     >
                       <div className="text-2xl shrink-0">{a.iconUrl}</div>
                       <div className="min-w-0">
-                        <p className={cn("text-xs font-bold truncate", a.earned ? "text-amber-300" : "text-surface-400")}>
-                          {a.nameAr || a.name}
-                        </p>
-                        <p className="text-[10px] text-surface-500">+{a.points} نقطة</p>
+                        <p className="text-xs font-bold text-amber-300">{isRtl ? a.nameAr || a.name : a.name}</p>
+                        <p className="text-[10px] text-surface-500">+{a.points} XP</p>
                       </div>
                       {a.earned && <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0 mr-auto" />}
                     </div>

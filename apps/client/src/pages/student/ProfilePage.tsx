@@ -15,6 +15,8 @@ export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     firstName: user?.profile?.firstName || '',
@@ -45,32 +47,32 @@ export default function ProfilePage() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) { toast.error(t('profile.imageTooLarge')); return; }
 
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-      const { data } = await api.post('/media/file', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      await api.patch('/users/me/profile', { avatarUrl: data.data.location });
-      setUser({ ...user!, profile: { ...user!.profile!, avatarUrl: data.data.location } });
-      toast.success(t('profile.avatarUpdated'));
-    } catch {
-      toast.error(t('profile.avatarError'));
-    } finally {
-      setUploading(false);
-    }
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await api.patch('/users/me/profile', formData);
+      let avatarUrl = user?.profile?.avatarUrl;
+      
+      if (avatarFile) {
+        const fd = new FormData();
+        fd.append('file', avatarFile);
+        const { data: mediaData } = await api.post('/media/file', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        avatarUrl = mediaData.data.location;
+      }
+
+      const { data } = await api.patch('/users/me/profile', { ...formData, avatarUrl });
       setUser(data.data);
+      setAvatarFile(null);
+      setAvatarPreview(null);
       toast.success(t('profile.profileSaved'));
     } catch (error: any) {
       toast.error(error.response?.data?.message || t('profile.profileError'));
@@ -108,9 +110,9 @@ export default function ProfilePage() {
           {/* Avatar + Name */}
           <div className="glass rounded-2xl p-6 border border-surface-200 text-center">
             <div className="relative inline-block mb-4">
-              <div className="w-24 h-24 rounded-2xl overflow-hidden bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-primary-500/20">
-                {user?.profile?.avatarUrl ? (
-                  <img src={user.profile.avatarUrl} alt="" className="w-full h-full object-cover" />
+              <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-primary-500 to-indigo-600 border border-surface-700 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-primary-500/20">
+                {avatarPreview || user?.profile?.avatarUrl ? (
+                  <img src={avatarPreview || user?.profile?.avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
                   user?.profile?.firstName?.charAt(0) || <User className="w-10 h-10" />
                 )}
@@ -139,7 +141,7 @@ export default function ProfilePage() {
             </div>
             <div className="h-2.5 bg-surface-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-surface-800 border border-surface-700 rounded-full transition-all duration-700"
+                className="h-full bg-gradient-to-r from-primary-600 to-primary-400 rounded-full transition-all duration-700"
                 style={{ width: `${xpProgress}%` }}
               />
             </div>
@@ -201,7 +203,7 @@ export default function ProfilePage() {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !formData.firstName || !formData.lastName}
                   className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium transition-all shadow-lg shadow-primary-500/20 disabled:opacity-50"
                 >
                   {loading ? <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" /> : <><Save className="w-5 h-5" /> {t('profile.saveChanges')}</>}

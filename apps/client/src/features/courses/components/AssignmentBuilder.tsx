@@ -107,8 +107,11 @@ export default function AssignmentBuilder({ lessonId, onClose }: { lessonId: str
                 <p className="text-sm text-surface-400">{t('adminCourses.reviewChecklistDesc', 'Define the rubric you will use to grade this assignment.')}</p>
               </div>
               <div className="flex items-center gap-4">
-                <div className="text-sm text-surface-300">
-                  {t('adminCourses.totalPoints', 'Total')}: <span className="font-bold text-primary-400">{checklist.reduce((s, i) => s + i.maxPoints, 0)}</span>
+                <div className="text-sm text-surface-300 flex items-center gap-2">
+                  {t('adminCourses.totalPoints', 'Total')}: 
+                  <span className={cn("font-bold", checklist.reduce((s, i) => s + i.maxPoints, 0) === 100 ? "text-primary-400" : "text-error")}>
+                    {checklist.reduce((s, i) => s + i.maxPoints, 0)}/100
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <label className="text-sm text-surface-400">{t('adminCourses.passingScore', 'Passing Score')}</label>
@@ -179,7 +182,7 @@ export default function AssignmentBuilder({ lessonId, onClose }: { lessonId: str
           </button>
           <button
             onClick={() => saveMutation.mutate()}
-            disabled={saveMutation.isPending || !title || checklist.length === 0}
+            disabled={saveMutation.isPending || !title || checklist.length === 0 || checklist.reduce((s, i) => s + i.maxPoints, 0) !== 100}
             className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-500 text-white rounded-xl transition-colors font-medium disabled:opacity-50"
           >
             <Save className="w-4 h-4" />

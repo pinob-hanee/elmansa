@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Code2, Home, Users, Bell, User,
-  Menu, X, LogOut, ChevronRight, Terminal, Zap
+  Menu, X, LogOut, ChevronRight, MonitorPlay, Zap, Shield
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { cn } from '../lib/utils';
@@ -12,6 +12,7 @@ import NotificationBell from '../features/notifications/components/NotificationB
 import { useQuery } from '@tanstack/react-query';
 import { gamificationApi } from '../features/gamification/api/gamification';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-hot-toast';
 import LanguageSwitcher from '../components/layout/LanguageSwitcher';
 import Logo from '../components/layout/Logo';
 import FloatingAiChat from '../ui/FloatingAiChat';
@@ -25,6 +26,16 @@ export default function StudentLayout() {
   const { user, logout } = useAuthStore();
   const isRtl = i18n.language === 'ar';
   const isPending = user?.isEmailVerified === false;
+
+  useEffect(() => {
+    if (user && location.pathname !== '/profile') {
+      const p = user.profile as any;
+      if (!p?.firstName || !p?.lastName || !p?.phone || !p?.city || !p?.grade || !p?.school) {
+        toast.error(t('profile.incomplete', 'Please complete your profile to continue'));
+        navigate('/profile', { replace: true });
+      }
+    }
+  }, [user, location.pathname, navigate, t]);
 
   // Live XP / level — auto-updates when gamification-stats is invalidated
   const { data: gamification } = useQuery({
@@ -42,7 +53,7 @@ export default function StudentLayout() {
 
   const navItems = [
     { icon: Home, label: t('nav.dashboard', 'Dashboard'), href: '/dashboard' },
-    { icon: Terminal, label: t('nav.courses', 'Courses'), href: '/courses' },
+    { icon: MonitorPlay, label: t('nav.courses', 'Courses'), href: '/courses' },
     { icon: Users, label: t('nav.community', 'Community'), href: '/community' },
     { icon: Code2, label: t('nav.coding', 'Coding'), href: '/coding' },
     { icon: Bell, label: t('nav.notifications', 'Notifications'), href: '/notifications' },
@@ -135,9 +146,13 @@ export default function StudentLayout() {
           {sidebarOpen ? (
             <div className="space-y-2">
               <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-800 transition-all group">
-                <div className="w-9 h-9 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                  {user?.profile?.firstName?.charAt(0) || 'U'}
-                </div>
+                {user?.profile?.avatarUrl ? (
+                  <img src={user.profile.avatarUrl} alt="Avatar" className="w-9 h-9 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                    {user?.profile?.firstName?.charAt(0) || 'U'}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-surface-50 truncate">
                     {user?.profile?.firstName} {user?.profile?.lastName}
@@ -146,12 +161,24 @@ export default function StudentLayout() {
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="text-surface-500 hover:text-error transition-colors shrink-0"
+                  className="text-surface-500 hover:text-error transition-colors shrink-0 flex items-center gap-2"
                   title={t('nav.logout')}
                 >
                   <LogOut className="w-4 h-4" />
+                  <span className="text-xs font-medium">{t('nav.logout', 'Logout')}</span>
                 </button>
               </div>
+
+              {/* View as Admin (if permitted) */}
+              {(user?.role === 'SUPER_ADMIN' || user?.role === 'TEACHER') && (
+                <Link
+                  to="/admin"
+                  className="flex items-center gap-3 p-2 rounded-xl text-amber-500 hover:bg-surface-800 transition-all group"
+                >
+                  <Shield className="w-4 h-4 shrink-0" />
+                  <span className="text-xs font-medium">{t('nav.viewAsAdmin', 'Admin View')}</span>
+                </Link>
+              )}
 
               {/* XP / Level bar */}
               {!isPending && (
@@ -215,8 +242,12 @@ export default function StudentLayout() {
           <div className="flex-1" />
           <LanguageSwitcher />
           <NotificationBell />
-          <Link to="/profile" className="w-9 h-9 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-sm font-bold">
-            {user?.profile?.firstName?.charAt(0) || 'U'}
+          <Link to="/profile" className="w-9 h-9 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-white text-sm font-bold overflow-hidden">
+            {user?.profile?.avatarUrl ? (
+              <img src={user.profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              user?.profile?.firstName?.charAt(0) || 'U'
+            )}
           </Link>
         </div>
         <div className="p-6">

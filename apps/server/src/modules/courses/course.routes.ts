@@ -59,6 +59,13 @@ router.put('/', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(up
   } catch (e) { next(e); }
 });
 
+router.put('/:id', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+  try {
+    const course = await svc.updateCourse(req.params.id, req.user!.userId, req.body);
+    successResponse(res, course, 'Course updated');
+  } catch (e) { next(e); }
+});
+
 router.delete('/', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
     await svc.deleteCourse(req.body.courseId || req.query.courseId as string, req.user!.userId, req.user!.role);

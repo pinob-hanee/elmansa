@@ -34,6 +34,11 @@ export const communityApi = {
     return data.data;
   },
 
+  deleteComment: async (commentId: string) => {
+    const { data } = await api.delete(`/community/posts/comments`, { data: { commentId } });
+    return data.data;
+  },
+
   toggleReaction: async (payload: { postId?: string; commentId?: string; type: string }) => {
     const { data } = await api.post('/community/reactions', payload);
     return data.data;

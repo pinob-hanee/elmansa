@@ -49,8 +49,8 @@ export default function CommunityPage() {
           />
         </div>
         <button className="flex items-center gap-2 px-4 rounded-xl bg-surface-900 border border-surface-800 text-surface-300 hover:text-surface-50 transition-colors">
-          <Filter className="w-5 h-5" />
-          <span className="hidden sm:inline">{t('community.filter', 'تصفية')}</span>
+          <Search className="w-5 h-5" />
+          <span className="hidden sm:inline">{t('common.search', 'بحث')}</span>
         </button>
       </div>
 

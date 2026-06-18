@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Send, CornerDownLeft } from 'lucide-react';
+import { Send, CornerDownLeft, Trash2 } from 'lucide-react';
 import { communityApi } from '../api/community';
 import { useAuthStore } from '../../../store/authStore';
 import { formatDistanceToNow } from 'date-fns';
@@ -10,9 +10,10 @@ import { useTranslation } from 'react-i18next';
 interface CommentSectionProps {
   postId: string;
   comments?: any[];
+  isAdmin?: boolean;
 }
 
-export default function CommentSection({ postId, comments: initialComments }: CommentSectionProps) {
+export default function CommentSection({ postId, comments: initialComments, isAdmin }: CommentSectionProps) {
   const [content, setContent] = useState('');
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
@@ -29,6 +30,14 @@ export default function CommentSection({ postId, comments: initialComments }: Co
     mutationFn: (payload: { content: string }) => communityApi.addComment(postId, payload),
     onSuccess: () => {
       setContent('');
+      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
+      queryClient.invalidateQueries({ queryKey: ['community-posts'] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (commentId: string) => communityApi.deleteComment(commentId),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', postId] });
       queryClient.invalidateQueries({ queryKey: ['community-posts'] });
     },
@@ -63,7 +72,22 @@ export default function CommentSection({ postId, comments: initialComments }: Co
                     {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: ar })}
                   </span>
                 </div>
-                <p className="text-surface-300 text-sm whitespace-pre-wrap">{comment.content}</p>
+                <div className="flex items-start justify-between">
+                  <p className="text-surface-300 text-sm whitespace-pre-wrap">{comment.content}</p>
+                  {(isAdmin || user?.userId === comment.authorId) && (
+                    <button
+                      onClick={() => {
+                        if (window.confirm(t('community.deleteCommentConfirm', 'هل أنت متأكد من حذف هذا التعليق؟'))) {
+                          deleteMutation.mutate(comment.id);
+                        }
+                      }}
+                      className="text-surface-500 hover:text-error transition-colors p-1"
+                      title={t('common.delete', 'حذف')}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))

@@ -778,6 +778,14 @@ export class CourseService {
       }
     });
 
+    const progressPercentage = Math.round((completedLessons / totalLessons) * 100);
+
+    // Update intermediate progress
+    await prisma.enrollment.updateMany({
+      where: { userId, courseId, status: 'ACTIVE' },
+      data: { progress: progressPercentage }
+    });
+
     if (completedLessons < totalLessons) return { completed: false, bonusXp: 0, certificateCode: null, newBadges: [] };
 
     // Strict check for final assessments

@@ -132,17 +132,17 @@ export default function PostCard({ post, currentUserId, isAdmin }: PostCardProps
               "flex items-center gap-2 text-sm transition-colors",
               isReported ? "text-amber-500 cursor-not-allowed" : "text-surface-500 hover:text-error"
             )}
-            title={isReported ? "{t('community.reported', 'تم الإبلاغ')}" : t('community.reportAction', 'إبلاغ كمحتوى غير لائق')}
+            title={isReported ? t('community.reported', 'Reported') : t('community.reportAction', 'Report')}
           >
             <Flag className={cn("w-4 h-4", isReported && "fill-current")} />
-            {isReported && <span className="text-xs">تم الإبلاغ</span>}
+            {isReported && <span className="text-xs">{t('community.reported', 'Reported')}</span>}
           </button>
         )}
       </div>
 
       {/* Comments Section */}
       {showComments && (
-        <CommentSection postId={post.id} />
+        <CommentSection postId={post.id} isAdmin={isAdmin} />
       )}
     </div>
   );

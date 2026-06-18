@@ -52,6 +52,23 @@ router.patch('/students/verify', requireRole('SUPER_ADMIN', 'TEACHER'), async (r
   } catch (e) { next(e); }
 });
 
+// Alias for legacy or alternative status updates
+router.patch('/students/:id/status', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+  try {
+    const isVerified = req.body.isVerified !== undefined 
+      ? req.body.isVerified 
+      : (req.body.status === 'APPROVED' || req.body.status === 'VERIFIED' || req.body.status === true);
+    
+    const user = await userSvc.updateEmailVerification(
+      req.user!.userId,
+      req.params.id,
+      isVerified,
+      req.body.reason
+    );
+    successResponse(res, user, `Student status updated`);
+  } catch (e) { next(e); }
+});
+
 // All users list
 router.get('/users', requireRole('SUPER_ADMIN'), async (req, res, next) => {
   try {

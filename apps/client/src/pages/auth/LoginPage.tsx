@@ -30,8 +30,9 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors, isValid } } = useForm<FormData>({
     resolver: zodResolver(makeSchema(t)),
+    mode: 'onChange',
   });
 
   const mutation = useMutation({
@@ -183,7 +184,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || !isValid}
               className="w-full py-3.5 rounded-xl bg-primary-600 text-white font-bold text-base hover:bg-primary-500 hover:shadow-xl hover:shadow-primary-500/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {mutation.isPending ? (

@@ -356,5 +356,14 @@
     "loadingComments": "جاري تحميل التعليقات...",
     "noComments": "لا توجد تعليقات بعد. كن أول من يعلق!",
     "writeComment": "اكتب تعليقاً..."
+  },
+  "notifications": {
+    "empty": "لا توجد إشعارات حالياً",
+    "viewAll": "عرض كل الإشعارات"
+  },
+  "gamification": {
+    "currentLevel": "المستوى الحالي",
+    "level": "مستوى {{level}}",
+    "outOf": "من أصل"
   }
 }

@@ -58,8 +58,9 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors, isValid } } = useForm<FormData>({
     resolver: zodResolver(makeSchema(t)),
+    mode: 'onChange',
   });
 
   const mutation = useMutation({
@@ -183,7 +184,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || !isValid}
               className="w-full py-3.5 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-500 hover:shadow-xl hover:shadow-primary-500/30 transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
             >
               {mutation.isPending ? (

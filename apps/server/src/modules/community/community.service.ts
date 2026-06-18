@@ -165,6 +165,21 @@ export class CommunityService {
     return comment;
   }
 
+  async deleteComment(commentId: string, userId: string, role: string) {
+    const comment = await prisma.comment.findUnique({ where: { id: commentId } });
+    if (!comment) throw new AppError(404, 'Comment not found');
+
+    if (role !== 'SUPER_ADMIN' && role !== 'ADMIN' && comment.authorId !== userId) {
+      throw new AppError(403, 'Not authorized to delete this comment');
+    }
+
+    await prisma.comment.update({
+      where: { id: commentId },
+      data: { isDeleted: true }
+    });
+    return { success: true };
+  }
+
   async toggleReaction(userId: string, postId?: string, commentId?: string, type = 'LIKE') {
     const existing = await prisma.reaction.findFirst({
       where: { userId, postId, commentId, type: type as any },

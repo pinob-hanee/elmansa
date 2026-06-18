@@ -356,5 +356,14 @@
     "loadingComments": "Loading comments...",
     "noComments": "No comments yet. Be the first to comment!",
     "writeComment": "Write a comment..."
+  },
+  "notifications": {
+    "empty": "No notifications right now",
+    "viewAll": "View All Notifications"
+  },
+  "gamification": {
+    "currentLevel": "Current Level",
+    "level": "Level {{level}}",
+    "outOf": "out of"
   }
 }
