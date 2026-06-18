@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 export default function ProfilePage() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
-  const { user, setUser } = useAuthStore();
+  const { user, updateProfile } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -70,7 +70,7 @@ export default function ProfilePage() {
       }
 
       const { data } = await api.patch('/users/me/profile', { ...formData, avatarUrl });
-      setUser(data.data);
+      updateProfile(data.data);
       setAvatarFile(null);
       setAvatarPreview(null);
       toast.success(t('profile.profileSaved'));
@@ -91,10 +91,10 @@ export default function ProfilePage() {
   const fields = [
     { label: t('profile.firstName'), name: 'firstName', icon: User, required: true },
     { label: t('profile.lastName'), name: 'lastName', icon: User, required: true },
-    { label: t('profile.phone'), name: 'phone', icon: Phone, type: 'tel' },
-    { label: t('profile.city'), name: 'city', icon: MapPin },
-    { label: t('profile.grade'), name: 'grade', icon: Book },
-    { label: t('profile.school'), name: 'school', icon: School },
+    { label: t('profile.phone'), name: 'phone', icon: Phone, type: 'tel', required: true },
+    { label: t('profile.city'), name: 'city', icon: MapPin, required: true },
+    { label: t('profile.grade'), name: 'grade', icon: Book, required: true },
+    { label: t('profile.school'), name: 'school', icon: School, required: true },
   ];
 
   return (

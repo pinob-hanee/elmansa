@@ -113,11 +113,11 @@ export class UserService {
   async updateProfile(userId: string, data: {
     firstName?: string;
     lastName?: string;
+    avatarUrl?: string;
     phone?: string;
-    parentPhone?: string;
+    city?: string;
     grade?: string;
     school?: string;
-    city?: string;
     bio?: string;
     facebookUrl?: string;
     twitterUrl?: string;
