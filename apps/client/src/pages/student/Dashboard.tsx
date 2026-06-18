@@ -215,10 +215,12 @@ export default function StudentDashboard() {
                       <div className="mt-2 h-1.5 bg-surface-700 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-primary-500 rounded-full transition-all"
-                          style={{ width: `${Number(enrollment.progress) || 0}%` }}
+                          style={{ width: `${typeof enrollment.progress === 'object' && enrollment.progress ? Number(enrollment.progress.toString ? enrollment.progress.toString() : (enrollment.progress.d ? enrollment.progress.d.join('') : 0)) : (Number(enrollment.progress) || 0)}%` }}
                         />
                       </div>
-                      <p className="text-xs text-surface-500 mt-1">{Number(enrollment.progress) || 0}% مكتمل</p>
+                      <p className="text-xs text-surface-500 mt-1">
+                        {typeof enrollment.progress === 'object' && enrollment.progress ? Number(enrollment.progress.toString ? enrollment.progress.toString() : (enrollment.progress.d ? enrollment.progress.d.join('') : 0)) : (Number(enrollment.progress) || 0)}% مكتمل
+                      </p>
                     </div>
                   </Link>
                 ))}

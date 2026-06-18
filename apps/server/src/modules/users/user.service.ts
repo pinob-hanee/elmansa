@@ -159,9 +159,36 @@ export class UserService {
       prisma.notification.count({ where: { userId, isRead: false } }),
     ]);
 
+    // Dynamically recalculate progress for accurate dashboard rendering
+    const accurateInProgressCourses = await Promise.all(
+      inProgressCourses.map(async (enrollment) => {
+        const total = await prisma.lesson.count({
+          where: { isPublished: true, chapter: { isPublished: true, module: { isPublished: true, courseId: enrollment.courseId } } }
+        });
+        if (total === 0) return { ...enrollment, progress: 0 };
+        
+        const completed = await prisma.lessonProgress.count({
+          where: {
+            userId,
+            isCompleted: true,
+            lesson: { isPublished: true, chapter: { isPublished: true, module: { isPublished: true, courseId: enrollment.courseId } } }
+          }
+        });
+        
+        const progressPercent = Math.round((completed / total) * 100);
+        
+        // Also update the DB if it is out of sync to fix the root cause
+        if (Number(enrollment.progress) !== progressPercent) {
+          await prisma.enrollment.update({ where: { id: enrollment.id }, data: { progress: progressPercent } }).catch(() => {});
+        }
+        
+        return { ...enrollment, progress: progressPercent };
+      })
+    );
+
     return {
       stats: { enrolledCount, completedCount, unreadNotifications: notifications },
-      inProgressCourses,
+      inProgressCourses: accurateInProgressCourses,
       recentActivity,
     };
   }

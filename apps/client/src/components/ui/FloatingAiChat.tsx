@@ -96,7 +96,7 @@ export default function FloatingAiChat() {
                       : "bg-surface-800 border border-surface-700 text-surface-50 rounded-bl-sm"
                   )}>
                     {msg.role === 'assistant' ? (
-                      <div className="prose prose-invert prose-sm max-w-none">
+                      <div className="prose prose-sm max-w-none text-surface-50">
                         <ReactMarkdown>{msg.content}</ReactMarkdown>
                       </div>
                     ) : (
