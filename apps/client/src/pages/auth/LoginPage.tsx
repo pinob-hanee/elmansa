@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import { cn } from '../../lib/utils';
+import { toast } from 'react-hot-toast';
 import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
 import Logo from '../../components/layout/Logo';
 

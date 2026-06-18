@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { adminCoursesApi } from '../../features/courses/api/admin.courses';
-import ModuleBlock from './components/ModuleBlock';
 import CourseAccessCodes from './components/CourseAccessCodes';
 import QuizBuilder from '../../features/quiz/components/QuizBuilder';
 import AssignmentBuilder from '../../features/courses/components/AssignmentBuilder';
@@ -22,8 +21,8 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
@@ -835,7 +834,7 @@ export default function CourseEditor() {
               </button>
             </div>
           </form>
-        ) : activeTab === 'content' && !isNew ? (
+        ) : activeTab === 'curriculum' && !isNew ? (
           /* Curriculum Tab */
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-2">

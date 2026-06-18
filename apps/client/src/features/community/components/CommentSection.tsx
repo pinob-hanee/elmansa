@@ -74,7 +74,7 @@ export default function CommentSection({ postId, comments: initialComments, isAd
                 </div>
                 <div className="flex items-start justify-between">
                   <p className="text-surface-300 text-sm whitespace-pre-wrap">{comment.content}</p>
-                  {(isAdmin || user?.userId === comment.authorId) && (
+                  {(isAdmin || user?.id === comment.authorId) && (
                     <button
                       onClick={() => {
                         if (window.confirm(t('community.deleteCommentConfirm', 'هل أنت متأكد من حذف هذا التعليق؟'))) {

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { toast } from 'react-hot-toast';
 import api from '../../lib/api';
 import { useTranslation } from 'react-i18next';
 

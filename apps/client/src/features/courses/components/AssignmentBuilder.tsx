@@ -4,6 +4,7 @@ import { adminCoursesApi } from '../api/admin.courses';
 import { X, Plus, Trash2, Save, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { cn } from '../../../lib/utils';
 
 export default function AssignmentBuilder({ lessonId, onClose }: { lessonId: string; onClose: () => void }) {
   const { t, i18n } = useTranslation();

@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
 import LanguageSwitcher from '../components/layout/LanguageSwitcher';
 import Logo from '../components/layout/Logo';
-import FloatingAiChat from '../ui/FloatingAiChat';
+import FloatingAiChat from '../components/ui/FloatingAiChat';
 
 export default function StudentLayout() {
   const { t, i18n } = useTranslation();
