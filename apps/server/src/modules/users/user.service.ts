@@ -182,7 +182,7 @@ export class UserService {
           await prisma.enrollment.update({ where: { id: enrollment.id }, data: { progress: progressPercent } }).catch(() => {});
         }
         
-        return { ...enrollment, progress: progressPercent };
+        return { ...enrollment, progress: progressPercent, completedLessons: completed, totalLessons: total };
       })
     );
 

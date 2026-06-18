@@ -218,9 +218,16 @@ export default function StudentDashboard() {
                           style={{ width: `${typeof enrollment.progress === 'object' && enrollment.progress ? Number(enrollment.progress.toString ? enrollment.progress.toString() : (enrollment.progress.d ? enrollment.progress.d.join('') : 0)) : (Number(enrollment.progress) || 0)}%` }}
                         />
                       </div>
-                      <p className="text-xs text-surface-500 mt-1">
-                        {typeof enrollment.progress === 'object' && enrollment.progress ? Number(enrollment.progress.toString ? enrollment.progress.toString() : (enrollment.progress.d ? enrollment.progress.d.join('') : 0)) : (Number(enrollment.progress) || 0)}% مكتمل
-                      </p>
+                      <div className="flex justify-between items-center text-xs text-surface-500 mt-1">
+                        <span>
+                          {typeof enrollment.progress === 'object' && enrollment.progress ? Number(enrollment.progress.toString ? enrollment.progress.toString() : (enrollment.progress.d ? enrollment.progress.d.join('') : 0)) : (Number(enrollment.progress) || 0)}% مكتمل
+                        </span>
+                        {enrollment.totalLessons !== undefined && enrollment.completedLessons !== undefined && (
+                          <span className="text-surface-400">
+                            {enrollment.completedLessons} / {enrollment.totalLessons} {isRtl ? 'دروس' : 'lessons'}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </Link>
                 ))}
