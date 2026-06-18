@@ -52,6 +52,20 @@ router.patch('/students/:id/verify', requireRole('SUPER_ADMIN', 'TEACHER'), asyn
   } catch (e) { next(e); }
 });
 
+// Backward compatibility for old UI clients or caches calling /status
+router.patch('/students/:id/status', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+  try {
+    const isVerified = req.body.status === 'APPROVED' ? true : req.body.status === 'PENDING' ? false : req.body.isVerified ?? true;
+    const user = await userSvc.updateEmailVerification(
+      req.user!.userId,
+      req.params.id,
+      isVerified,
+      req.body.reason
+    );
+    successResponse(res, user, `Student status updated via legacy route`);
+  } catch (e) { next(e); }
+});
+
 // All users list
 router.get('/users', requireRole('SUPER_ADMIN'), async (req, res, next) => {
   try {
