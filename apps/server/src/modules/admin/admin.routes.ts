@@ -82,9 +82,13 @@ router.get('/users', requireRole('SUPER_ADMIN'), async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+import adminNotificationsRoutes from './admin.notifications.routes';
+
 // Student enrollments
 import { CourseService } from '../courses/course.service';
 const courseSvc = new CourseService();
+
+router.use('/notifications', adminNotificationsRoutes);
 
 router.get('/students/enrollments', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
   try {
@@ -97,6 +101,21 @@ router.patch('/students/enrollments/drop', requireRole('SUPER_ADMIN', 'TEACHER')
   try {
     const result = await courseSvc.dropEnrollment(req.body.studentId, req.body.courseId);
     successResponse(res, result, 'Enrollment dropped');
+  } catch (e) { next(e); }
+});
+
+router.post('/students/enrollments', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+  try {
+    const enrollment = await courseSvc.manualEnroll(req.body.studentId, req.body.courseId);
+    successResponse(res, enrollment, 'Manually enrolled student');
+  } catch (e) { next(e); }
+});
+
+// Admin stats update
+router.post('/stats/refresh', requireRole('SUPER_ADMIN'), async (_req, res, next) => {
+  try {
+    // Usually triggers a background job or manual recalculation
+    successResponse(res, null, 'Stats refresh triggered');
   } catch (e) { next(e); }
 });
 

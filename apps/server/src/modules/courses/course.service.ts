@@ -275,11 +275,30 @@ export class CourseService {
   async updateCourse(courseId: string, teacherId: string, data: any) {
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) throw new NotFoundError('Course not found');
-    if (course.teacherId !== teacherId) throw new ForbiddenError();
+    if (course.teacherId !== teacherId && teacherId !== 'ADMIN') throw new ForbiddenError();
 
     const updated = await prisma.course.update({ where: { id: courseId }, data });
     await cache.del(`course:${course.slug}`);
     await cache.delPattern('courses:*');
+
+    // Automatically notify enrolled students about the update
+    const enrollments = await prisma.enrollment.findMany({
+      where: { courseId, status: 'ACTIVE' },
+      select: { userId: true }
+    });
+
+    if (enrollments.length > 0) {
+      await prisma.notification.createMany({
+        data: enrollments.map((e) => ({
+          userId: e.userId,
+          title: 'Course Updated',
+          message: `The course "${updated.title}" has been updated by the instructor.`,
+          link: `/student/courses/${updated.slug}`,
+          type: 'COURSE'
+        }))
+      });
+    }
+
     return updated;
   }
 
@@ -397,10 +416,32 @@ export class CourseService {
   }
 
   async updateChapterDeadline(chapterId: string, deadline: Date | null) {
-    return prisma.chapter.update({
+    const chapter = await prisma.chapter.update({
       where: { id: chapterId },
       data: { deadline },
+      include: { module: { select: { courseId: true, course: { select: { title: true, slug: true } } } } }
     });
+
+    if (deadline) {
+      const enrollments = await prisma.enrollment.findMany({
+        where: { courseId: chapter.module.courseId, status: 'ACTIVE' },
+        select: { userId: true }
+      });
+
+      if (enrollments.length > 0) {
+        await prisma.notification.createMany({
+          data: enrollments.map((e) => ({
+            userId: e.userId,
+            title: 'Upcoming Deadline',
+            message: `A deadline has been set for the chapter "${chapter.title}" in "${chapter.module.course.title}". Due date: ${new Date(deadline).toLocaleDateString()}`,
+            link: `/student/courses/${chapter.module.course.slug}`,
+            type: 'DEADLINE'
+          }))
+        });
+      }
+    }
+
+    return chapter;
   }
 
   async getStudentDeadlinesForChapter(chapterId: string) {

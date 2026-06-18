@@ -94,7 +94,7 @@ export class CommunityService {
     hashtags?: string[];
     imageUrls?: string[];
   }) {
-    return prisma.communityPost.create({
+    const post = await prisma.communityPost.create({
       data: {
         authorId,
         content: data.content,
@@ -106,10 +106,27 @@ export class CommunityService {
       },
       include: {
         author: {
-          select: { id: true, profile: { select: { firstName: true, lastName: true, avatarUrl: true } } },
+          select: { id: true, role: true, profile: { select: { firstName: true, lastName: true, avatarUrl: true } } },
         },
       },
     });
+
+    if (post.author.role === 'SUPER_ADMIN' || post.author.role === 'TEACHER') {
+      const students = await prisma.user.findMany({ where: { role: 'STUDENT' }, select: { id: true } });
+      if (students.length > 0) {
+        await prisma.notification.createMany({
+          data: students.map(s => ({
+            userId: s.id,
+            title: 'New Community Post',
+            message: `A new post was published by ${post.author.profile?.firstName || 'an instructor'}.`,
+            link: '/community',
+            type: 'COMMUNITY'
+          }))
+        });
+      }
+    }
+
+    return post;
   }
 
   async deletePost(postId: string, userId: string, role: string) {

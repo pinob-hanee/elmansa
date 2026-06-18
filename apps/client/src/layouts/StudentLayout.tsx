@@ -56,8 +56,7 @@ export default function StudentLayout() {
     { icon: MonitorPlay, label: t('nav.courses', 'Courses'), href: '/courses' },
     { icon: Users, label: t('nav.community', 'Community'), href: '/community' },
     { icon: Code2, label: t('nav.coding', 'Coding'), href: '/coding' },
-    { icon: Bell, label: t('nav.notifications', 'Notifications'), href: '/notifications' },
-    { icon: User, label: t('nav.profile', 'Profile'), href: '/profile' },
+    { icon: User, label: t('nav.profile', 'Profile'), href: '/profile' }
   ];
 
   const handleLogout = async () => {

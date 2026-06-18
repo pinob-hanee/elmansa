@@ -56,7 +56,10 @@ export default function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-80 bg-surface-900 border border-surface-800 rounded-2xl shadow-xl z-50 overflow-hidden">
+        <div className={cn(
+          "absolute mt-2 w-80 bg-surface-900 border border-surface-800 rounded-2xl shadow-xl z-50 overflow-hidden",
+          isRtl ? "left-0" : "right-0"
+        )}>
           <div className="p-4 border-b border-surface-800 flex items-center justify-between">
             <h3 className="font-bold text-surface-50">{t('nav.notifications', 'Notifications')}</h3>
             {unreadCount > 0 && (

@@ -3,12 +3,13 @@ import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Users, UserCheck, UserX, Clock, Search, ChevronDown,
-  Check, X, Ban, AlertCircle, Filter, BookOpen
+  Check, X, Ban, AlertCircle, Filter, BookOpen, Bell
 } from 'lucide-react';
 import api from '../../lib/api';
 import { cn } from '../../lib/utils';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import SendNotificationModal from '../../features/admin/components/SendNotificationModal';
 
 const getStatusConfig = (t: any) => ({
   VERIFIED: { label: t('adminStudents.verified', 'مفعل'), color: 'text-success bg-success/10 border-success/30', icon: UserCheck },
@@ -94,28 +95,44 @@ export default function AdminStudents() {
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
+  const [selectedNotificationUser, setSelectedNotificationUser] = useState<any>(null);
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-students', search, statusFilter, page],
-    queryFn: () =>
-      api.get('/admin/students', {
-        params: { search: search || undefined, isVerified: statusFilter || undefined, page },
-      }).then((r) => r.data),
-    placeholderData: (prev) => prev,
+    queryFn: () => api.get(`/admin/students`, {
+      params: { search, isVerified: statusFilter, page, limit: 10 }
+    }).then(r => r.data?.data),
   });
 
   const updateStatus = useMutation({
     mutationFn: ({ id, isVerified, reason }: { id: string; isVerified: boolean; reason?: string }) =>
       api.patch(`/admin/students/verify`, { studentId: id, isVerified, reason }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-students'] }),
+    onSuccess: () => {
+      toast.success(t('adminStudents.updateSuccess', 'تم تحديث حالة الطالب بنجاح'));
+      qc.invalidateQueries({ queryKey: ['admin-students'] });
+    },
   });
 
   return (
-    <div dir={isRtl ? 'rtl' : 'ltr'} className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold text-surface-50 mb-1">{t('adminStudents.title')}</h1>
-        <p className="text-surface-400">{t('adminStudents.subtitle')}</p>
+    <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-surface-50">{t('adminStudents.title')}</h1>
+          <p className="text-surface-400 mt-1">{t('adminStudents.subtitle')}</p>
+        </div>
+        <button
+          onClick={() => {
+            setSelectedNotificationUser(null);
+            setNotificationModalOpen(true);
+          }}
+          className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-xl font-medium transition-colors flex items-center gap-2"
+        >
+          <Bell className="w-5 h-5" />
+          Broadcast Notification
+        </button>
       </div>
 
       {/* Filters */}
@@ -233,6 +250,16 @@ export default function AdminStudents() {
                           >
                             <BookOpen className="w-4 h-4" />
                           </button>
+                          <button
+                            onClick={() => {
+                              setSelectedNotificationUser({ id: student.id, name: student.profile?.firstName });
+                              setNotificationModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg bg-surface-700 hover:bg-surface-600 text-surface-50 transition-all ml-1"
+                            title="Send Notification"
+                          >
+                            <Bell className="w-4 h-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -278,6 +305,13 @@ export default function AdminStudents() {
           onClose={() => setSelectedStudent(null)}
         />
       )}
+
+      <SendNotificationModal
+        isOpen={notificationModalOpen}
+        onClose={() => setNotificationModalOpen(false)}
+        userId={selectedNotificationUser?.id}
+        userName={selectedNotificationUser?.name}
+      />
     </div>
   );
 }
