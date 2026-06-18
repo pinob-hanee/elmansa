@@ -27,6 +27,7 @@ export default function AdminCourses() {
     onSuccess: () => {
       toast.success(t('adminCourses.deleteSuccess', 'تم حذف الكورس بنجاح'));
       queryClient.invalidateQueries({ queryKey: ['admin-courses'] });
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
     },
     onError: (e: any) => {
       toast.error(e.response?.data?.message || t('common.error', 'حدث خطأ'));

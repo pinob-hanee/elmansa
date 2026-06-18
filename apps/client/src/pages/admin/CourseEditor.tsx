@@ -15,6 +15,23 @@ import TextEditorModal from './components/TextEditorModal';
 import ChapterDeadlineModal from './components/ChapterDeadlineModal';
 import toast from 'react-hot-toast';
 import { cn } from '../../lib/utils';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 // ------------------------------------------------------------------
 // Curriculum sub-components
@@ -59,6 +76,15 @@ function AddItemForm({ placeholder, onAdd, onCancel, addLabel, cancelLabel }: {
 function LessonRow({ lesson, courseId, onMoveUp, onMoveDown, isFirst, isLast }: { lesson: any; courseId: string; onMoveUp?: () => void; onMoveDown?: () => void; isFirst?: boolean; isLast?: boolean; }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: lesson.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
+  };
+
   const typeColor = lesson.type === 'VIDEO' ? 'text-primary-400' : lesson.type === 'QUIZ' ? 'text-amber-400' : lesson.type === 'TEXT' ? 'text-blue-400' : lesson.type === 'ASSIGNMENT' ? 'text-indigo-400' : 'text-surface-50';
   const TypeIcon = lesson.type === 'VIDEO' ? Video : lesson.type === 'TEXT' ? Edit2 : FileText;
 
@@ -157,7 +183,10 @@ function LessonRow({ lesson, courseId, onMoveUp, onMoveDown, isFirst, isLast }: 
   const hasMedia = lesson.type === 'VIDEO' ? !!lesson.videoKey : !!lesson.pdfKey;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-800/30 rounded-xl transition-colors group">
+    <div ref={setNodeRef} style={style} className={cn("flex items-center gap-3 px-4 py-2.5 hover:bg-surface-800/30 rounded-xl transition-colors group border border-transparent", isDragging && "bg-surface-800/50 border-surface-700 shadow-xl")}>
+      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 text-surface-600 hover:text-surface-400 touch-none">
+        <GripVertical className="w-4 h-4" />
+      </button>
       <TypeIcon className={cn('w-4 h-4 shrink-0', typeColor)} />
       <span className="flex-1 text-sm text-surface-300">{lesson.title}</span>
       {lesson.isFree && (
@@ -272,22 +301,26 @@ function LessonRow({ lesson, courseId, onMoveUp, onMoveDown, isFirst, isLast }: 
 
       {/* Reorder buttons */}
       <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button 
-          onClick={onMoveUp} 
-          disabled={isFirst}
-          className="p-0.5 text-surface-500 hover:text-surface-300 disabled:opacity-30 transition-colors"
-          title={isRtl ? 'تحريك لأعلى' : 'Move Up'}
-        >
-          <ChevronUp className="w-4 h-4" />
-        </button>
-        <button 
-          onClick={onMoveDown} 
-          disabled={isLast}
-          className="p-0.5 text-surface-500 hover:text-surface-300 disabled:opacity-30 transition-colors"
-          title={isRtl ? 'تحريك لأسفل' : 'Move Down'}
-        >
-          <ChevronDown className="w-4 h-4" />
-        </button>
+        {onMoveUp && (
+          <button 
+            onClick={onMoveUp} 
+            disabled={isFirst}
+            className="p-0.5 text-surface-500 hover:text-surface-300 disabled:opacity-30 transition-colors"
+            title={isRtl ? 'تحريك لأعلى' : 'Move Up'}
+          >
+            <ChevronUp className="w-4 h-4" />
+          </button>
+        )}
+        {onMoveDown && (
+          <button 
+            onClick={onMoveDown} 
+            disabled={isLast}
+            className="p-0.5 text-surface-500 hover:text-surface-300 disabled:opacity-30 transition-colors"
+            title={isRtl ? 'تحريك لأسفل' : 'Move Down'}
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Delete lesson button - always visible on hover */}
@@ -343,18 +376,35 @@ function ChapterBlock({ chapter, moduleId, courseId, allModules }: { chapter: an
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['course-admin', courseId] }); },
   });
 
-  const handleMoveLesson = (index: number, direction: 'up' | 'down') => {
-    if (!chapter.lessons) return;
-    const newLessons = [...chapter.lessons];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= newLessons.length) return;
-    
-    const temp = newLessons[index];
-    newLessons[index] = newLessons[targetIndex];
-    newLessons[targetIndex] = temp;
-    
-    const newLessonIds = newLessons.map(l => l.id);
-    reorderLessonsMutation.mutate(newLessonIds);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = chapter.lessons.findIndex((l: any) => l.id === active.id);
+      const newIndex = chapter.lessons.findIndex((l: any) => l.id === over.id);
+      const newLessons = arrayMove(chapter.lessons, oldIndex, newIndex);
+      const newLessonIds = newLessons.map((l: any) => l.id);
+      
+      // Update local cache optimistically
+      qc.setQueryData(['course-admin', courseId], (oldData: any) => {
+        if (!oldData) return oldData;
+        const newData = JSON.parse(JSON.stringify(oldData));
+        const mod = newData.modules.find((m: any) => m.id === moduleId);
+        if (mod) {
+          const chap = mod.chapters.find((c: any) => c.id === chapter.id);
+          if (chap) {
+            chap.lessons = newLessons;
+          }
+        }
+        return newData;
+      });
+
+      reorderLessonsMutation.mutate(newLessonIds);
+    }
   };
 
   const lessonTypeLabels: Record<string, string> = {
@@ -429,17 +479,19 @@ function ChapterBlock({ chapter, moduleId, courseId, allModules }: { chapter: an
               <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
             </div>
           )}
-          {chapter.lessons?.map((lesson: any, index: number) => (
-            <LessonRow 
-              key={lesson.id} 
-              lesson={lesson} 
-              courseId={courseId} 
-              isFirst={index === 0}
-              isLast={index === (chapter.lessons?.length || 0) - 1}
-              onMoveUp={() => handleMoveLesson(index, 'up')}
-              onMoveDown={() => handleMoveLesson(index, 'down')}
-            />
-          ))}
+          {chapter.lessons && chapter.lessons.length > 0 && (
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={chapter.lessons.map((l: any) => l.id)} strategy={verticalListSortingStrategy}>
+                {chapter.lessons.map((lesson: any, index: number) => (
+                  <LessonRow 
+                    key={lesson.id} 
+                    lesson={lesson} 
+                    courseId={courseId} 
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+          )}
 
           {addingLesson ? (
             <div className="px-2 py-2 space-y-2">
@@ -580,6 +632,7 @@ export default function CourseEditor() {
       isNew ? adminCoursesApi.createCourse(data) : adminCoursesApi.updateCourse(id!, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-courses'] });
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
       setSuccessMsg(t('courseEditor.savedSuccess'));
       setTimeout(() => setSuccessMsg(''), 3000);
       if (isNew && data?.id) {
