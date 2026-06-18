@@ -15,9 +15,9 @@ router.get('/dashboard', authenticate, async (req, res, next) => {
 });
 
 // Get user profile (public)
-router.get('/:id/profile', async (req, res, next) => {
+router.get('/profile', async (req, res, next) => {
   try {
-    const user = await svc.getUserProfile(req.params.id);
+    const user = await svc.getUserProfile(req.query.userId as string);
     successResponse(res, user);
   } catch (e) { next(e); }
 });

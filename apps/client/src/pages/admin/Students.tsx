@@ -20,11 +20,11 @@ function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => v
   const qc = useQueryClient();
   const { data: enrollments, isLoading } = useQuery({
     queryKey: ['student-enrollments', student.id],
-    queryFn: () => api.get(`/admin/students/${student.id}/enrollments`).then(r => r.data?.data),
+    queryFn: () => api.get(`/admin/students/enrollments`, { params: { studentId: student.id } }).then(r => r.data?.data),
   });
 
   const dropMutation = useMutation({
-    mutationFn: (courseId: string) => api.patch(`/admin/students/${student.id}/enrollments/${courseId}/drop`),
+    mutationFn: (courseId: string) => api.patch(`/admin/students/enrollments/drop`, { studentId: student.id, courseId }),
     onSuccess: () => {
       toast.success(t('adminStudents.dropSuccess', 'تم إيقاف الكورس للطالب'));
       qc.invalidateQueries({ queryKey: ['student-enrollments', student.id] });

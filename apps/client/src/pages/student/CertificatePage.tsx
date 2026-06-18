@@ -12,7 +12,7 @@ export default function CertificatePage() {
 
   const { data: cert, isLoading, isError } = useQuery({
     queryKey: ['certificate', code],
-    queryFn: () => api.get(`/gamification/certificate/${code}`).then(r => r.data.data),
+    queryFn: () => api.get(`/gamification/certificate`, { params: { code } }).then(r => r.data.data),
     retry: false,
   });
 

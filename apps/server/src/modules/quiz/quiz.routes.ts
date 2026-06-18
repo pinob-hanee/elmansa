@@ -7,10 +7,10 @@ import { NotFoundError, ForbiddenError } from '../../utils/errors';
 const router = Router();
 
 // Get quiz by lesson
-router.get('/lesson/:lessonId', authenticate, async (req, res, next) => {
+router.get('/lesson', authenticate, async (req, res, next) => {
   try {
     const quiz = await prisma.quiz.findUnique({
-      where: { lessonId: req.params.lessonId },
+      where: { lessonId: req.query.lessonId as string },
       include: {
         questions: {
           orderBy: { sortOrder: 'asc' },
@@ -23,7 +23,7 @@ router.get('/lesson/:lessonId', authenticate, async (req, res, next) => {
     }
 
     // Ensure chapter deadline starts
-    const lesson = await prisma.lesson.findUnique({ where: { id: req.params.lessonId } });
+    const lesson = await prisma.lesson.findUnique({ where: { id: req.query.lessonId as string } });
     if (lesson && req.user?.userId) {
       const existingDeadline = await prisma.studentChapterDeadline.findUnique({
         where: { userId_chapterId: { userId: req.user.userId, chapterId: lesson.chapterId } }
@@ -44,19 +44,19 @@ router.get('/lesson/:lessonId', authenticate, async (req, res, next) => {
 });
 
 // Upsert quiz by lesson (Admin/Teacher)
-router.put('/lesson/:lessonId', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.put('/lesson', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const { title, description, passingScore, timeLimitMin, questions } = req.body;
+    const { lessonId, title, description, passingScore, timeLimitMin, questions } = req.body;
     
     // Use an interactive transaction to safely wipe old questions and insert new ones
     const quiz = await prisma.$transaction(async (tx) => {
       // 1. Find or create the base quiz
-      let quizRecord = await tx.quiz.findUnique({ where: { lessonId: req.params.lessonId } });
+      let quizRecord = await tx.quiz.findUnique({ where: { lessonId } });
       
       if (!quizRecord) {
         quizRecord = await tx.quiz.create({
           data: {
-            lessonId: req.params.lessonId,
+            lessonId,
             title: title || 'اختبار',
             description,
             passingScore: passingScore ?? 70,
@@ -113,10 +113,10 @@ router.put('/lesson/:lessonId', authenticate, requireRole('TEACHER', 'SUPER_ADMI
 });
 
 // Submit quiz attempt
-router.post('/:quizId/attempt', authenticate, async (req, res, next) => {
+router.post('/attempt', authenticate, async (req, res, next) => {
   try {
     const quiz = await prisma.quiz.findUnique({
-      where: { id: req.params.quizId },
+      where: { id: req.body.quizId },
       include: { questions: { include: { options: true } } },
     });
     if (!quiz) throw new NotFoundError('Quiz not found');

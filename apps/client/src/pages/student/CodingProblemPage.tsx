@@ -188,12 +188,12 @@ export default function CodingProblemPage() {
 
   const { data: problem, isLoading } = useQuery({
     queryKey: ['coding-problem', id],
-    queryFn: () => api.get(`/coding/problems/${id}`).then(r => r.data.data),
+    queryFn: () => api.get(`/coding/problems/details`, { params: { problemId: id } }).then(r => r.data.data),
   });
 
   const { data: submissions, refetch: refetchSubmissions } = useQuery({
     queryKey: ['my-submissions', id],
-    queryFn: () => api.get(`/coding/problems/${id}/my-submissions`).then(r => r.data.data),
+    queryFn: () => api.get(`/coding/problems/my-submissions`, { params: { problemId: id } }).then(r => r.data.data),
     enabled: activeTab === 'submissions',
   });
 
@@ -208,14 +208,14 @@ export default function CodingProblemPage() {
 
   const submitMutation = useMutation({
     mutationFn: ({ code, language }: { code: string; language: string }) =>
-      api.post(`/coding/problems/${id}/submit`, { code, language }).then(r => r.data.data),
+      api.post(`/coding/problems/submit`, { problemId: id, code, language }).then(r => r.data.data),
     onSuccess: (data) => {
       setResult({ status: 'PENDING' });
       setIsPolling(true);
       scrollToResult();
       pollInterval.current = setInterval(async () => {
         try {
-          const res = await api.get(`/coding/submissions/${data.submissionId}`);
+          const res = await api.get(`/coding/submissions`, { params: { submissionId: data.submissionId } });
           const sub = res.data.data;
           if (sub.status !== 'PENDING') {
             setResult(sub);
@@ -234,7 +234,7 @@ export default function CodingProblemPage() {
 
   const runMutation = useMutation({
     mutationFn: ({ code, language }: { code: string; language: string }) =>
-      api.post(`/coding/problems/${id}/run`, { code, language }).then(r => r.data.data),
+      api.post(`/coding/problems/run`, { problemId: id, code, language }).then(r => r.data.data),
     onSuccess: (data) => {
       setResult(data); // already has testResults + isRun: true
       scrollToResult();

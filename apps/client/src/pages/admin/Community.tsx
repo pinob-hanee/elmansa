@@ -21,7 +21,7 @@ export default function AdminCommunity() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/admin/community/posts/${id}`),
+    mutationFn: (id: string) => api.delete(`/admin/community/posts`, { data: { postId: id } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-community'] });
     }

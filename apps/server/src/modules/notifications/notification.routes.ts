@@ -19,10 +19,10 @@ router.get('/', authenticate, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-router.patch('/:id/read', authenticate, async (req, res, next) => {
+router.patch('/read', authenticate, async (req, res, next) => {
   try {
     await prisma.notification.updateMany({
-      where: { id: req.params.id, userId: req.user!.userId },
+      where: { id: req.body.notificationId, userId: req.user!.userId },
       data: { isRead: true, readAt: new Date() },
     });
     successResponse(res, null, 'Marked as read');

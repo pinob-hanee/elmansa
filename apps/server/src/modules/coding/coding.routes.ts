@@ -24,19 +24,19 @@ router.get('/problems', authenticate, async (req, res, next) => {
 });
 
 // Get single problem (strips hidden test cases)
-router.get('/problems/:id', authenticate, async (req, res, next) => {
+router.get('/problems/details', authenticate, async (req, res, next) => {
   try {
-    const data = await svc.getProblemById(req.params.id, req.user!.userId);
+    const data = await svc.getProblemById(req.query.problemId as string, req.user!.userId);
     successResponse(res, data);
   } catch (e) { next(e); }
 });
 
 // Submit code for execution
-router.post('/problems/:id/submit', authenticate, async (req, res, next) => {
+router.post('/problems/submit', authenticate, async (req, res, next) => {
   try {
-    const { code, language } = req.body;
+    const { problemId, code, language } = req.body;
     const result = await svc.submitCode(
-      req.params.id,
+      problemId,
       req.user!.userId,
       code,
       language
@@ -46,26 +46,26 @@ router.post('/problems/:id/submit', authenticate, async (req, res, next) => {
 });
 
 // Run code against visible test cases only (no submission saved)
-router.post('/problems/:id/run', authenticate, async (req, res, next) => {
+router.post('/problems/run', authenticate, async (req, res, next) => {
   try {
-    const { code, language } = req.body;
-    const result = await svc.runCode(req.params.id, code, language);
+    const { problemId, code, language } = req.body;
+    const result = await svc.runCode(problemId, code, language);
     successResponse(res, result);
   } catch (e) { next(e); }
 });
 
 // Poll submission result
-router.get('/submissions/:submissionId', authenticate, async (req, res, next) => {
+router.get('/submissions', authenticate, async (req, res, next) => {
   try {
-    const data = await svc.getSubmission(req.params.submissionId, req.user!.userId);
+    const data = await svc.getSubmission(req.query.submissionId as string, req.user!.userId);
     successResponse(res, data);
   } catch (e) { next(e); }
 });
 
 // Get my submissions for a problem
-router.get('/problems/:id/my-submissions', authenticate, async (req, res, next) => {
+router.get('/problems/my-submissions', authenticate, async (req, res, next) => {
   try {
-    const data = await svc.getMySubmissions(req.params.id, req.user!.userId);
+    const data = await svc.getMySubmissions(req.query.problemId as string, req.user!.userId);
     successResponse(res, data);
   } catch (e) { next(e); }
 });
@@ -98,24 +98,24 @@ router.post(
 );
 
 router.put(
-  '/admin/problems/:id',
+  '/admin/problems',
   authenticate,
   requireRole('SUPER_ADMIN', 'TEACHER'),
   async (req, res, next) => {
     try {
-      const data = await svc.updateProblem(req.params.id, req.body);
+      const data = await svc.updateProblem(req.body.problemId, req.body);
       successResponse(res, data, 'Problem updated');
     } catch (e) { next(e); }
   }
 );
 
 router.delete(
-  '/admin/problems/:id',
+  '/admin/problems',
   authenticate,
   requireRole('SUPER_ADMIN', 'TEACHER'),
   async (req, res, next) => {
     try {
-      await svc.deleteProblem(req.params.id);
+      await svc.deleteProblem(req.body.problemId || req.query.problemId as string);
       successResponse(res, null, 'Problem deleted');
     } catch (e) { next(e); }
   }

@@ -63,7 +63,7 @@ export default function CodingProblemEditor({ problem, onClose }: Props) {
   const saveMutation = useMutation({
     mutationFn: (data: any) =>
       problem?.id
-        ? api.put(`/coding/admin/problems/${problem.id}`, data).then(r => r.data)
+        ? api.put(`/coding/admin/problems`, { problemId: problem.id, ...data }).then(r => r.data)
         : api.post('/coding/admin/problems', data).then(r => r.data),
     onSuccess: () => {
       toast.success(problem?.id ? 'تم تحديث المسألة بنجاح' : 'تم إنشاء المسألة');

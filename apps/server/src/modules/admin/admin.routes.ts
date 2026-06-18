@@ -69,16 +69,16 @@ router.get('/users', requireRole('SUPER_ADMIN'), async (req, res, next) => {
 import { CourseService } from '../courses/course.service';
 const courseSvc = new CourseService();
 
-router.get('/students/:id/enrollments', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+router.get('/students/enrollments', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
   try {
-    const enrollments = await courseSvc.getStudentEnrollments(req.params.id);
+    const enrollments = await courseSvc.getStudentEnrollments(req.query.studentId as string);
     successResponse(res, enrollments);
   } catch (e) { next(e); }
 });
 
-router.patch('/students/:id/enrollments/:courseId/drop', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+router.patch('/students/enrollments/drop', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
   try {
-    const result = await courseSvc.dropEnrollment(req.params.id, req.params.courseId);
+    const result = await courseSvc.dropEnrollment(req.body.studentId, req.body.courseId);
     successResponse(res, result, 'Enrollment dropped');
   } catch (e) { next(e); }
 });
@@ -98,9 +98,11 @@ router.get('/community/posts', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-router.delete('/community/posts/:id', async (req, res, next) => {
+router.delete('/community/posts', async (req, res, next) => {
   try {
-    await communitySvc.deletePost(req.params.id, req.user!.userId, req.user!.role);
+    // Note: express router.delete accepts body in some clients, but query might be safer for REST compliance.
+    // Given the user requested 'don't pass id in url', we'll accept it from the body.
+    await communitySvc.deletePost(req.body.postId || req.query.postId as string, req.user!.userId, req.user!.role);
     successResponse(res, null, 'Post deleted');
   } catch (e) { next(e); }
 });

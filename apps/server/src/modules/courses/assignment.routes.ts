@@ -7,9 +7,9 @@ const router = Router();
 const svc = new AssignmentService();
 
 // Admin: Upsert Assignment for a Lesson
-router.put('/lessons/:lessonId/assignment', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.put('/lessons/assignment', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const assignment = await svc.upsertAssignment(req.params.lessonId, req.body);
+    const assignment = await svc.upsertAssignment(req.body.lessonId, req.body);
     successResponse(res, assignment, 'Assignment updated');
   } catch (e) { next(e); }
 });
@@ -23,25 +23,25 @@ router.get('/admin/submissions', authenticate, requireRole('TEACHER', 'SUPER_ADM
 });
 
 // Admin: Grade submission
-router.put('/admin/submissions/:submissionId/grade', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.put('/admin/submissions/grade', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const submission = await svc.gradeSubmission(req.params.submissionId, req.user!.userId, req.body);
+    const submission = await svc.gradeSubmission(req.body.submissionId, req.user!.userId, req.body);
     successResponse(res, submission, 'Submission graded');
   } catch (e) { next(e); }
 });
 
 // Student: Get assignment details
-router.get('/lessons/:lessonId/assignment', authenticate, async (req, res, next) => {
+router.get('/lessons/assignment', authenticate, async (req, res, next) => {
   try {
-    const assignment = await svc.getAssignmentByLesson(req.params.lessonId);
+    const assignment = await svc.getAssignmentByLesson(req.query.lessonId as string);
     successResponse(res, assignment);
   } catch (e) { next(e); }
 });
 
 // Student: Submit assignment
-router.post('/assignments/:assignmentId/submit', authenticate, async (req, res, next) => {
+router.post('/assignments/submit', authenticate, async (req, res, next) => {
   try {
-    const submission = await svc.submitAssignment(req.params.assignmentId, req.user!.userId, req.body);
+    const submission = await svc.submitAssignment(req.body.assignmentId, req.user!.userId, req.body);
     successResponse(res, submission, 'Assignment submitted', 201);
   } catch (e) { next(e); }
 });

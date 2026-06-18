@@ -29,7 +29,7 @@ export default function AdminCodingProblems() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/coding/admin/problems/${id}`),
+    mutationFn: (id: string) => api.delete(`/coding/admin/problems`, { data: { problemId: id } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-coding-problems'] });
       toast.success(isRtl ? 'تم حذف المسألة' : 'Problem deleted');

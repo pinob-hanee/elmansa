@@ -7,7 +7,7 @@ export const notificationsApi = {
   },
 
   markAsRead: async (id: string) => {
-    const { data } = await api.patch(`/notifications/${id}/read`);
+    const { data } = await api.patch(`/notifications/read`, { notificationId: id });
     return data.data;
   },
 

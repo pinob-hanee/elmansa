@@ -117,10 +117,10 @@ router.get('/certificates', requireVerifiedStudent, async (req, res, next) => {
 });
 
 // ----- Public Certificate View (no auth required for sharing) -----
-router.get('/certificate/:code', async (req, res, next) => {
+router.get('/certificate', async (req, res, next) => {
   try {
     const cert = await prisma.certificate.findUnique({
-      where: { uniqueCode: req.params.code },
+      where: { uniqueCode: req.query.code as string },
       include: {
         user: {
           select: { profile: { select: { firstName: true, lastName: true } } }

@@ -29,26 +29,26 @@ router.post('/posts', authenticate, async (req, res, next) => {
 });
 
 // Delete post
-router.delete('/posts/:id', authenticate, async (req, res, next) => {
+router.delete('/posts', authenticate, async (req, res, next) => {
   try {
-    await svc.deletePost(req.params.id, req.user!.userId, req.user!.role);
+    await svc.deletePost(req.body.postId, req.user!.userId, req.user!.role);
     successResponse(res, null, 'Post deleted');
   } catch (e) { next(e); }
 });
 
 // Pin post (admin/teacher/mod)
-router.patch('/posts/:id/pin', authenticate, requireRole('SUPER_ADMIN', 'TEACHER', 'MODERATOR'), async (req, res, next) => {
+router.patch('/posts/pin', authenticate, requireRole('SUPER_ADMIN', 'TEACHER', 'MODERATOR'), async (req, res, next) => {
   try {
-    const post = await svc.togglePin(req.params.id);
+    const post = await svc.togglePin(req.body.postId);
     successResponse(res, post);
   } catch (e) { next(e); }
 });
 
 // Add comment
-router.post('/posts/:id/comments', authenticate, async (req, res, next) => {
+router.post('/posts/comments', authenticate, async (req, res, next) => {
   try {
     const comment = await svc.addComment(
-      req.params.id,
+      req.body.postId,
       req.user!.userId,
       req.body.content,
       req.body.parentId
@@ -85,10 +85,10 @@ router.post('/reports', authenticate, async (req, res, next) => {
 });
 
 // Get comments for a post
-router.get('/posts/:id/comments', async (req, res, next) => {
+router.get('/posts/comments', async (req, res, next) => {
   try {
     const result = await svc.getComments(
-      req.params.id,
+      req.query.postId as string,
       Number(req.query.page) || 1,
       Number(req.query.limit) || 20
     );
@@ -115,9 +115,9 @@ router.get('/notifications/unread-count', authenticate, async (req, res, next) =
   } catch (e) { next(e); }
 });
 
-router.patch('/notifications/:id/read', authenticate, async (req, res, next) => {
+router.patch('/notifications/read', authenticate, async (req, res, next) => {
   try {
-    const notif = await svc.markNotificationRead(req.params.id, req.user!.userId);
+    const notif = await svc.markNotificationRead(req.body.notificationId, req.user!.userId);
     successResponse(res, notif);
   } catch (e) { next(e); }
 });

@@ -20,17 +20,17 @@ export const communityApi = {
   },
 
   deletePost: async (id: string) => {
-    const { data } = await api.delete(`/community/posts/${id}`);
+    const { data } = await api.delete(`/community/posts`, { data: { postId: id } });
     return data.data;
   },
 
   pinPost: async (id: string) => {
-    const { data } = await api.patch(`/community/posts/${id}/pin`);
+    const { data } = await api.patch(`/community/posts/pin`, { postId: id });
     return data.data;
   },
 
   addComment: async (postId: string, payload: { content: string; parentId?: string }) => {
-    const { data } = await api.post(`/community/posts/${postId}/comments`, payload);
+    const { data } = await api.post(`/community/posts/comments`, { postId, ...payload });
     return data.data;
   },
 
@@ -45,7 +45,7 @@ export const communityApi = {
   },
 
   getComments: async (postId: string, params?: { page?: number; limit?: number }) => {
-    const { data } = await api.get(`/community/posts/${postId}/comments`, { params });
+    const { data } = await api.get(`/community/posts/comments`, { params: { postId, ...params } });
     return data;
   },
 
@@ -60,7 +60,7 @@ export const communityApi = {
   },
 
   markAsRead: async (notificationId: string) => {
-    const { data } = await api.patch(`/community/notifications/${notificationId}/read`);
+    const { data } = await api.patch(`/community/notifications/read`, { notificationId });
     return data.data;
   },
 };

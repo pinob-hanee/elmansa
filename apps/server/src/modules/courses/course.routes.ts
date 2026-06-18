@@ -52,128 +52,128 @@ router.post('/', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(c
   } catch (e) { next(e); }
 });
 
-router.put('/:id', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(updateCourseSchema), async (req, res, next) => {
+router.put('/', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(updateCourseSchema), async (req, res, next) => {
   try {
-    const course = await svc.updateCourse(req.params.id, req.user!.userId, req.body);
+    const course = await svc.updateCourse(req.body.courseId, req.user!.userId, req.body);
     successResponse(res, course, 'Course updated');
   } catch (e) { next(e); }
 });
 
-router.delete('/:id', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.delete('/', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    await svc.deleteCourse(req.params.id, req.user!.userId, req.user!.role);
+    await svc.deleteCourse(req.body.courseId || req.query.courseId as string, req.user!.userId, req.user!.role);
     successResponse(res, null, 'Course deleted');
   } catch (e) { next(e); }
 });
 
 // Admin: get full course detail including unpublished content
-router.get('/:id/admin', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.get('/admin', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const course = await svc.getFullCourseForAdmin(req.params.id);
+    const course = await svc.getFullCourseForAdmin(req.query.courseId as string);
     successResponse(res, course);
   } catch (e) { next(e); }
 });
 
 // Curriculum Routes
-router.post('/:id/modules', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.post('/modules', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const module = await svc.createModule(req.params.id, req.body);
+    const module = await svc.createModule(req.body.courseId, req.body);
     successResponse(res, module, 'Module created', 201);
   } catch (e) { next(e); }
 });
 
-router.post('/modules/:moduleId/chapters', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(createChapterSchema), async (req, res, next) => {
+router.post('/chapters', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(createChapterSchema), async (req, res, next) => {
   try {
-    const chapter = await svc.createChapter(req.params.moduleId, req.body);
+    const chapter = await svc.createChapter(req.body.moduleId, req.body);
     successResponse(res, chapter, 'Chapter created', 201);
   } catch (e) { next(e); }
 });
 
-router.put('/chapters/:chapterId/deadline', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.put('/chapters/deadline', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const chapter = await svc.updateChapterDeadline(req.params.chapterId, req.body.deadline ? new Date(req.body.deadline) : null);
+    const chapter = await svc.updateChapterDeadline(req.body.chapterId, req.body.deadline ? new Date(req.body.deadline) : null);
     successResponse(res, chapter, 'Chapter deadline updated');
   } catch (e) { next(e); }
 });
 
-router.get('/chapters/:chapterId/student-deadlines', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.get('/chapters/student-deadlines', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const deadlines = await svc.getStudentDeadlinesForChapter(req.params.chapterId);
+    const deadlines = await svc.getStudentDeadlinesForChapter(req.query.chapterId as string);
     successResponse(res, deadlines);
   } catch (e) { next(e); }
 });
 
-router.post('/chapters/:chapterId/student-deadlines', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.post('/chapters/student-deadlines', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
     const deadlineDate = req.body.deadline ? new Date(req.body.deadline) : null;
-    const deadline = await svc.setStudentDeadline(req.params.chapterId, req.body.userId, deadlineDate);
+    const deadline = await svc.setStudentDeadline(req.body.chapterId, req.body.userId, deadlineDate);
     successResponse(res, deadline, 'Student deadline updated');
   } catch (e) { next(e); }
 });
 
-router.patch('/chapters/:chapterId/move', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.patch('/chapters/move', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const updated = await svc.moveChapter(req.params.chapterId, req.body.moduleId);
+    const updated = await svc.moveChapter(req.body.chapterId, req.body.moduleId);
     successResponse(res, updated, 'Chapter moved');
   } catch (e) { next(e); }
 });
 
-router.delete('/chapters/:chapterId', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.delete('/chapters', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    await svc.deleteChapter(req.params.chapterId);
+    await svc.deleteChapter(req.body.chapterId || req.query.chapterId as string);
     successResponse(res, null, 'Chapter deleted');
   } catch (e) { next(e); }
 });
 
-router.post('/chapters/:chapterId/lessons', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(createLessonSchema), async (req, res, next) => {
+router.post('/lessons', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), validate(createLessonSchema), async (req, res, next) => {
   try {
-    const lesson = await svc.createLesson(req.params.chapterId, req.body);
+    const lesson = await svc.createLesson(req.body.chapterId, req.body);
     successResponse(res, lesson, 'Lesson created', 201);
   } catch (e) { next(e); }
 });
 
-router.put('/lessons/:lessonId', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.put('/lessons', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const lesson = await svc.updateLesson(req.params.lessonId, req.body);
+    const lesson = await svc.updateLesson(req.body.lessonId, req.body);
     successResponse(res, lesson, 'Lesson updated');
   } catch (e) { next(e); }
 });
 
-router.delete('/lessons/:lessonId', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.delete('/lessons', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    await svc.deleteLesson(req.params.lessonId);
+    await svc.deleteLesson(req.body.lessonId || req.query.lessonId as string);
     successResponse(res, null, 'Lesson deleted');
   } catch (e) { next(e); }
 });
 
-router.put('/chapters/:chapterId/lessons/reorder', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
+router.put('/lessons/reorder', authenticate, requireRole('TEACHER', 'SUPER_ADMIN'), async (req, res, next) => {
   try {
-    const { lessonIds } = req.body;
-    await svc.reorderLessons(req.params.chapterId, lessonIds);
+    const { chapterId, lessonIds } = req.body;
+    await svc.reorderLessons(chapterId, lessonIds);
     successResponse(res, null, 'Lessons reordered');
   } catch (e) { next(e); }
 });
 
-router.post('/:id/enroll', authenticate, requireVerifiedStudent, async (req, res, next) => {
+router.post('/enroll', authenticate, requireVerifiedStudent, async (req, res, next) => {
   try {
-    const enrollment = await svc.enrollStudent(req.params.id, req.user!.userId, req.body.code);
+    const enrollment = await svc.enrollStudent(req.body.courseId, req.user!.userId, req.body.code);
     successResponse(res, enrollment, 'Enrolled successfully', 201);
   } catch (e) { next(e); }
 });
 
 // Video URL (signed) or Lesson Content
-router.get('/lessons/:lessonId/video', authenticate, requireVerifiedStudent, async (req, res, next) => {
+router.get('/lessons/video', authenticate, requireVerifiedStudent, async (req, res, next) => {
   try {
-    const data = await svc.getLessonVideoUrl(req.params.lessonId, req.user!.userId);
+    const data = await svc.getLessonVideoUrl(req.query.lessonId as string, req.user!.userId);
     successResponse(res, data);
   } catch (e) { next(e); }
 });
 
 // Progress tracking
-router.post('/lessons/:lessonId/progress', authenticate, requireVerifiedStudent, async (req, res, next) => {
+router.post('/lessons/progress', authenticate, requireVerifiedStudent, async (req, res, next) => {
   try {
     const progress = await svc.updateLessonProgress(
-      req.params.lessonId,
+      req.body.lessonId,
       req.user!.userId,
       req.body.watchedTime
     );
@@ -182,24 +182,24 @@ router.post('/lessons/:lessonId/progress', authenticate, requireVerifiedStudent,
 });
 
 // Access Codes
-router.post('/:id/access-codes', authenticate, requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+router.post('/access-codes', authenticate, requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
   try {
-    const code = await svc.generateAccessCode(req.params.id, req.user!.userId, req.body.email);
+    const code = await svc.generateAccessCode(req.body.courseId, req.user!.userId, req.body.email);
     successResponse(res, code, 'Access code generated', 201);
   } catch (e) { next(e); }
 });
 
-router.get('/:id/access-codes', authenticate, requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+router.get('/access-codes', authenticate, requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
   try {
-    const codes = await svc.getAccessCodes(req.params.id);
+    const codes = await svc.getAccessCodes(req.query.courseId as string);
     successResponse(res, codes);
   } catch (e) { next(e); }
 });
 
-// Public slug route (must be last to avoid intercepting other routes)
-router.get('/:slug', optionalAuthenticate, async (req, res, next) => {
+// Public slug route
+router.get('/public/slug', optionalAuthenticate, async (req, res, next) => {
   try {
-    const course = await svc.getCourseBySlug(req.params.slug, req.user?.userId);
+    const course = await svc.getCourseBySlug(req.query.slug as string, req.user?.userId);
     successResponse(res, course);
   } catch (e) { next(e); }
 });

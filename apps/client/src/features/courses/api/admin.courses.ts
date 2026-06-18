@@ -7,7 +7,7 @@ export const adminCoursesApi = {
   },
 
   getAdminCourse: async (id: string) => {
-    const res = await api.get(`/courses/${id}/admin`);
+    const res = await api.get(`/courses/admin`, { params: { courseId: id } });
     return res.data.data;
   },
 
@@ -22,62 +22,62 @@ export const adminCoursesApi = {
   },
 
   deleteCourse: async (id: string) => {
-    const res = await api.delete(`/courses/${id}`);
+    const res = await api.delete(`/courses`, { data: { courseId: id } });
     return res.data.data;
   },
 
   createModule: async (courseId: string, data: any) => {
-    const res = await api.post(`/courses/${courseId}/modules`, data);
+    const res = await api.post(`/courses/modules`, { courseId, ...data });
     return res.data.data;
   },
 
   createChapter: async (moduleId: string, data: any) => {
-    const res = await api.post(`/courses/modules/${moduleId}/chapters`, data);
+    const res = await api.post(`/courses/chapters`, { moduleId, ...data });
     return res.data.data;
   },
 
   deleteChapter: async (chapterId: string) => {
-    const res = await api.delete(`/courses/chapters/${chapterId}`);
+    const res = await api.delete(`/courses/chapters`, { data: { chapterId } });
     return res.data.data;
   },
 
   moveChapter: async (chapterId: string, moduleId: string) => {
-    const res = await api.patch(`/courses/chapters/${chapterId}/move`, { moduleId });
+    const res = await api.patch(`/courses/chapters/move`, { chapterId, moduleId });
     return res.data.data;
   },
 
   createLesson: async (chapterId: string, data: any) => {
-    const res = await api.post(`/courses/chapters/${chapterId}/lessons`, data);
+    const res = await api.post(`/courses/lessons`, { chapterId, ...data });
     return res.data.data;
   },
 
   updateLesson: async (lessonId: string, data: any) => {
-    const res = await api.put(`/courses/lessons/${lessonId}`, data);
+    const res = await api.put(`/courses/lessons`, { lessonId, ...data });
     return res.data.data;
   },
 
   deleteLesson: async (lessonId: string) => {
-    const res = await api.delete(`/courses/lessons/${lessonId}`);
+    const res = await api.delete(`/courses/lessons`, { data: { lessonId } });
     return res.data.data;
   },
 
   reorderLessons: async (chapterId: string, lessonIds: string[]) => {
-    const res = await api.put(`/courses/chapters/${chapterId}/lessons/reorder`, { lessonIds });
+    const res = await api.put(`/courses/lessons/reorder`, { chapterId, lessonIds });
     return res.data.data;
   },
 
   updateChapterDeadline: async (chapterId: string, deadline: string | null) => {
-    const res = await api.put(`/courses/chapters/${chapterId}/deadline`, { deadline });
+    const res = await api.put(`/courses/chapters/deadline`, { chapterId, deadline });
     return res.data.data;
   },
 
   getStudentDeadlines: async (chapterId: string) => {
-    const res = await api.get(`/courses/chapters/${chapterId}/student-deadlines`);
+    const res = await api.get(`/courses/chapters/student-deadlines`, { params: { chapterId } });
     return res.data.data;
   },
 
   setStudentDeadline: async (chapterId: string, userId: string, deadline: string | null) => {
-    const res = await api.post(`/courses/chapters/${chapterId}/student-deadlines`, { userId, deadline });
+    const res = await api.post(`/courses/chapters/student-deadlines`, { chapterId, userId, deadline });
     return res.data.data;
   },
 
@@ -106,12 +106,12 @@ export const adminCoursesApi = {
   },
 
   getAssignment: async (lessonId: string) => {
-    const res = await api.get(`/courses/lessons/${lessonId}/assignment`);
+    const res = await api.get(`/courses/lessons/assignment`, { params: { lessonId } });
     return res.data.data;
   },
 
   upsertAssignment: async (lessonId: string, data: any) => {
-    const res = await api.put(`/courses/lessons/${lessonId}/assignment`, data);
+    const res = await api.put(`/courses/lessons/assignment`, { lessonId, ...data });
     return res.data.data;
   },
 
@@ -121,17 +121,17 @@ export const adminCoursesApi = {
   },
 
   gradeSubmission: async (submissionId: string, data: any) => {
-    const res = await api.put(`/courses/admin/submissions/${submissionId}/grade`, data);
+    const res = await api.put(`/courses/admin/submissions/grade`, { submissionId, ...data });
     return res.data.data;
   },
 
   getAccessCodes: async (courseId: string) => {
-    const res = await api.get(`/courses/${courseId}/access-codes`);
+    const res = await api.get(`/courses/access-codes`, { params: { courseId } });
     return res.data.data;
   },
 
   generateAccessCode: async (courseId: string, email: string) => {
-    const res = await api.post(`/courses/${courseId}/access-codes`, { email });
+    const res = await api.post(`/courses/access-codes`, { courseId, email });
     return res.data.data;
   }
 };
