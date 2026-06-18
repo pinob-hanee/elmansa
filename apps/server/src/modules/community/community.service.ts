@@ -167,10 +167,10 @@ export class CommunityService {
 
   async deleteComment(commentId: string, userId: string, role: string) {
     const comment = await prisma.comment.findUnique({ where: { id: commentId } });
-    if (!comment) throw new AppError(404, 'Comment not found');
+    if (!comment) throw new NotFoundError('Comment not found');
 
     if (role !== 'SUPER_ADMIN' && role !== 'ADMIN' && comment.authorId !== userId) {
-      throw new AppError(403, 'Not authorized to delete this comment');
+      throw new ForbiddenError('Not authorized to delete this comment');
     }
 
     await prisma.comment.update({

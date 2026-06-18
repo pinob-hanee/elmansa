@@ -297,6 +297,9 @@ router.post('/attempt', authenticate, async (req, res, next) => {
     }
 
     successResponse(res, { attempt, score: scorePercent, isPassed, xpEarned, newBadges }, 'Quiz submitted', 201);
+  } catch (e) { next(e); }
+});
+
 router.post('/:id/attempt', authenticate, async (req, res, next) => {
   try {
     const quiz = await prisma.quiz.findUnique({
