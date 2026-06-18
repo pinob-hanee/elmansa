@@ -12,7 +12,7 @@ export class AssignmentService {
         data: { isFinalAssessment }
       });
       // Import cache if not imported
-      const { cache } = require('../../lib/cache');
+      const { cache } = require('../../config/redis');
       await cache.delPattern('course:*');
       await cache.delPattern('courses:*');
     }
