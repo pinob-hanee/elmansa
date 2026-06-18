@@ -14,6 +14,7 @@ import { gamificationApi } from '../features/gamification/api/gamification';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../components/layout/LanguageSwitcher';
 import Logo from '../components/layout/Logo';
+import FloatingAiChat from '../ui/FloatingAiChat';
 
 export default function StudentLayout() {
   const { t, i18n } = useTranslation();
@@ -23,7 +24,7 @@ export default function StudentLayout() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const isRtl = i18n.language === 'ar';
-  const isPending = user?.approvalStatus === 'PENDING';
+  const isPending = user?.isEmailVerified === false;
 
   // Live XP / level — auto-updates when gamification-stats is invalidated
   const { data: gamification } = useQuery({
@@ -63,7 +64,11 @@ export default function StudentLayout() {
       <motion.aside
         animate={{ width: sidebarOpen ? 256 : 72 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className={cn("relative flex flex-col bg-surface-900 border-surface-800 shrink-0 overflow-hidden shadow-2xl z-50", isRtl ? "border-l" : "border-r")}
+        className={cn(
+          "absolute lg:relative inset-y-0 flex flex-col bg-surface-900 border-surface-800 shrink-0 overflow-hidden shadow-2xl z-50",
+          isRtl ? "border-l right-0" : "border-r left-0",
+          sidebarOpen ? "flex" : "hidden lg:flex"
+        )}
       >
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-surface-800 shrink-0">
@@ -141,7 +146,7 @@ export default function StudentLayout() {
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="text-surface-500 hover:text-error transition-colors"
+                  className="text-surface-500 hover:text-error transition-colors shrink-0"
                   title={t('nav.logout')}
                 >
                   <LogOut className="w-4 h-4" />
@@ -151,12 +156,12 @@ export default function StudentLayout() {
               {/* XP / Level bar */}
               {!isPending && (
                 <div className="px-2 pb-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-1 text-xs text-amber-400 font-bold">
+                  <div className="flex items-center justify-between mb-1 gap-2">
+                    <div className="flex items-center gap-1 text-xs text-amber-400 font-bold shrink-0">
                       <Zap className="w-3 h-3" />
                       {t('gamification.level', { level, defaultValue: `Level ${level}` })}
                     </div>
-                    <span className="text-[10px] text-surface-500 font-mono">{xpInLevel}/{XP_PER_LEVEL} {t('gamification.xp', 'XP')}</span>
+                    <span className="text-[10px] text-surface-500 font-mono truncate">{xpInLevel}/{XP_PER_LEVEL} {t('gamification.xp', 'XP')}</span>
                   </div>
                   <div className="w-full h-1.5 bg-surface-800 rounded-full overflow-hidden">
                     <motion.div
@@ -218,6 +223,8 @@ export default function StudentLayout() {
           <Outlet />
         </div>
       </main>
+
+      <FloatingAiChat />
     </div>
   );
 }

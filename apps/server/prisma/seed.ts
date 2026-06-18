@@ -17,7 +17,7 @@ async function main() {
       email: 'admin@elmansa.com',
       passwordHash: adminPassword,
       role: 'SUPER_ADMIN',
-      approvalStatus: 'APPROVED',
+      isEmailVerified: true,
       isEmailVerified: true,
       profile: {
         create: {
@@ -41,7 +41,7 @@ async function main() {
       email: 'teacher@elmansa.com',
       passwordHash: teacherPassword,
       role: 'TEACHER',
-      approvalStatus: 'APPROVED',
+      isEmailVerified: true,
       isEmailVerified: true,
       profile: {
         create: {
@@ -88,8 +88,7 @@ async function main() {
       description: 'كورس شامل لمنهج الرياضيات للصف الثاني عشر مع شرح مفصل لجميع الوحدات والنماذج الامتحانية',
       teacherId: teacher.id,
       categoryId: categories[0].id,
-      level: 'INTERMEDIATE',
-      price: 0,
+      level: 'BEGINNER',
       isPublished: true,
       modules: {
         create: [
@@ -143,7 +142,7 @@ async function main() {
       email: 'student@elmansa.com',
       passwordHash: studentPassword,
       role: 'STUDENT',
-      approvalStatus: 'APPROVED',
+      isEmailVerified: true,
       isEmailVerified: true,
       profile: {
         create: {

@@ -25,7 +25,7 @@ async function runAudit() {
     // Manually set role to SUPER_ADMIN directly in DB
     const admin = await prisma.user.update({
       where: { email: 'admin_audit2@test.com' },
-      data: { role: 'SUPER_ADMIN', isEmailVerified: true, approvalStatus: 'APPROVED' }
+      data: { role: 'SUPER_ADMIN', isEmailVerified: true }
     });
 
     // Login Admin
@@ -42,7 +42,6 @@ async function runAudit() {
       titleAr: 'دورة التدقيق',
       description: 'A test course',
       descriptionAr: 'دورة اختبار',
-      price: 0,
       level: 'BEGINNER'
     }, { headers: { Authorization: `Bearer ${adminToken}` } });
 
@@ -94,7 +93,7 @@ async function runAudit() {
 
     const student = await prisma.user.update({
       where: { email: 'student_audit2@test.com' },
-      data: { isEmailVerified: true, approvalStatus: 'APPROVED' }
+      data: { isEmailVerified: true }
     });
 
     const studentLogin = await axios.post(`${API_URL}/auth/login`, {

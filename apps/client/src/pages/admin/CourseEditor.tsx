@@ -3,10 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Settings, Layers, Save, ArrowRight, Plus, Video,
-  FileText, ChevronDown, ChevronUp, ChevronRight, Trash2, AlertCircle, CheckCircle2, UploadCloud, Loader2, Edit2, Calendar
+  FileText, ChevronDown, ChevronUp, ChevronRight, Trash2, AlertCircle, CheckCircle2, UploadCloud, Loader2, Edit2, Calendar, Key, Clock, GripVertical, Lock, PlayCircle
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { adminCoursesApi } from '../../features/courses/api/admin.courses';
+import ModuleBlock from './components/ModuleBlock';
+import CourseAccessCodes from './components/CourseAccessCodes';
 import QuizBuilder from '../../features/quiz/components/QuizBuilder';
 import AssignmentBuilder from '../../features/courses/components/AssignmentBuilder';
 import TextEditorModal from './components/TextEditorModal';
@@ -542,15 +544,15 @@ export default function CourseEditor() {
   const isNew = !id;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'settings' | 'curriculum'>('settings');
+  const [activeTab, setActiveTab] = useState<'settings' | 'curriculum' | 'access-codes'>('settings');
   const [successMsg, setSuccessMsg] = useState('');
   const [addingModule, setAddingModule] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    price: 0,
     isPublished: false,
+    isFree: false,
     level: 'BEGINNER',
   });
 
@@ -566,8 +568,8 @@ export default function CourseEditor() {
       setFormData({
         title: courseData.title || '',
         description: courseData.description || '',
-        price: Number(courseData.price) || 0,
         isPublished: courseData.isPublished || false,
+        isFree: courseData.isFree || false,
         level: courseData.level || 'BEGINNER',
       });
     }
@@ -681,6 +683,20 @@ export default function CourseEditor() {
           )}
           {activeTab === 'curriculum' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 rounded-t-full" />}
         </button>
+        <button
+          onClick={() => setActiveTab('access-codes')}
+          disabled={isNew}
+          title={isNew ? t('courseEditor.tabDisabledHint') : ''}
+          className={cn(
+            'pb-4 flex items-center gap-2 text-sm font-medium transition-colors relative',
+            activeTab === 'access-codes' ? 'text-primary-400' : 'text-surface-400 hover:text-surface-50',
+            isNew && 'opacity-40 cursor-not-allowed'
+          )}
+        >
+          <Key className="w-4 h-4" />
+          {isRtl ? 'أكواد التفعيل' : 'Access Codes'}
+          {activeTab === 'access-codes' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 rounded-t-full" />}
+        </button>
       </div>
 
       {/* Content */}
@@ -729,19 +745,7 @@ export default function CourseEditor() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-surface-300 mb-2">
-                    {t('courseEditor.price')} <span className="text-surface-500 font-normal">{t('courseEditor.priceFreeHint')}</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
-                    className="w-full bg-surface-900 border border-surface-800 rounded-xl p-3 text-surface-50 focus:border-primary-500 focus:outline-none transition-all"
-                  />
-                </div>
+
               </div>
 
               {!isNew && (
@@ -828,6 +832,8 @@ export default function CourseEditor() {
               ))
             )}
           </div>
+        ) : activeTab === 'access-codes' && !isNew ? (
+          <CourseAccessCodes courseId={courseData.id} />
         )}
       </div>
     </div>

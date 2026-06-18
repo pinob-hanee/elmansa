@@ -32,7 +32,7 @@ router.get('/students', async (req, res, next) => {
       page: Number(req.query.page) || 1,
       limit: Number(req.query.limit) || 20,
       role: 'STUDENT',
-      approvalStatus: req.query.status as any,
+      isEmailVerified: req.query.isVerified === 'true' ? true : req.query.isVerified === 'false' ? false : undefined,
       search: req.query.search as string,
     });
     paginatedResponse(res, result.users, result.meta);
@@ -40,15 +40,15 @@ router.get('/students', async (req, res, next) => {
 });
 
 // Approve / reject / suspend / ban
-router.patch('/students/:id/status', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+router.patch('/students/:id/verify', requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
   try {
-    const user = await userSvc.updateApprovalStatus(
+    const user = await userSvc.updateEmailVerification(
       req.user!.userId,
       req.params.id,
-      req.body.status,
+      req.body.isVerified,
       req.body.reason
     );
-    successResponse(res, user, `Student status updated to ${req.body.status}`);
+    successResponse(res, user, `Student verification updated`);
   } catch (e) { next(e); }
 });
 

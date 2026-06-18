@@ -29,7 +29,7 @@ export class AuthService {
         email: input.email,
         passwordHash,
         role: 'STUDENT',
-        approvalStatus: 'PENDING',
+        isEmailVerified: false,
         profile: {
           create: {
             firstName: input.firstName,
@@ -65,7 +65,7 @@ export class AuthService {
       id: user.id,
       email: user.email,
       role: user.role,
-      approvalStatus: user.approvalStatus,
+      isEmailVerified: user.isEmailVerified,
       profile: user.profile,
     };
   }
@@ -115,7 +115,6 @@ export class AuthService {
         id: user.id,
         email: user.email,
         role: user.role,
-        approvalStatus: user.approvalStatus,
         isEmailVerified: user.isEmailVerified,
         profile: user.profile,
       },
@@ -235,7 +234,6 @@ export class AuthService {
           googleId,
           isEmailVerified: true,
           role: 'STUDENT',
-          approvalStatus: 'PENDING',
           profile: {
             create: { firstName, lastName, avatarUrl },
           },

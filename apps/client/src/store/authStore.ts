@@ -19,7 +19,6 @@ export interface AuthUser {
   id: string;
   email: string;
   role: 'SUPER_ADMIN' | 'TEACHER' | 'STUDENT' | 'MODERATOR';
-  approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED' | 'BANNED';
   isEmailVerified: boolean;
   profile?: UserProfile;
 }

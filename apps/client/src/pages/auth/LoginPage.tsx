@@ -41,8 +41,9 @@ export default function LoginPage() {
       const role = data.data.user.role;
       if (['SUPER_ADMIN', 'TEACHER', 'MODERATOR'].includes(role)) {
         navigate('/admin');
-      } else if (data.data.user.approvalStatus === 'PENDING') {
-        navigate('/pending-approval');
+      } else if (!data.data.user.isEmailVerified) {
+        toast.success(isRtl ? 'تم تسجيل الدخول. يرجى تأكيد بريدك الإلكتروني.' : 'Logged in. Please verify your email.');
+        navigate('/dashboard');
       } else {
         navigate('/dashboard');
       }
@@ -52,7 +53,12 @@ export default function LoginPage() {
   const onSubmit = (data: FormData) => mutation.mutate(data);
 
   return (
-    <div className="min-h-screen bg-surface-950 flex" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-surface-950 flex relative" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Absolute Language Switcher */}
+      <div className="absolute top-6 end-6 z-50">
+        <LanguageSwitcher />
+      </div>
+
       {/* Left/Right side — branding */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-surface-800 border border-surface-700" />
@@ -81,9 +87,9 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          {/* Language Switcher */}
-          <div className="flex justify-end mb-6">
-            <LanguageSwitcher />
+          {/* Mobile Logo Branding */}
+          <div className="lg:hidden flex justify-center mb-8">
+            <Logo size="lg" />
           </div>
 
           <div className="mb-8">
@@ -183,10 +189,17 @@ export default function LoginPage() {
               {mutation.isPending ? (
                 <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />
               ) : (
-                <>
-                  <LogIn className="w-5 h-5" />
-                  {t('auth.login')}
-                </>
+                  {isRtl ? (
+                    <>
+                      {t('auth.login')}
+                      <LogIn className="w-5 h-5 rtl:scale-x-[-1]" />
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-5 h-5" />
+                      {t('auth.login')}
+                    </>
+                  )}
               )}
             </button>
           </form>

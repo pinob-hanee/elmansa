@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { CourseService } from './course.service';
-import { authenticate, requireRole, requireApprovedStudent, optionalAuthenticate } from '../../api/middlewares/auth.middleware';
+import { authenticate, requireRole, requireVerifiedStudent, optionalAuthenticate } from '../../api/middlewares/auth.middleware';
 import { successResponse, paginatedResponse } from '../../utils/response';
 import { fileUpload } from '../media/media.service';
 import { validate } from '../../api/middlewares/validate.middleware';
@@ -154,15 +154,15 @@ router.put('/chapters/:chapterId/lessons/reorder', authenticate, requireRole('TE
   } catch (e) { next(e); }
 });
 
-router.post('/:id/enroll', authenticate, requireApprovedStudent, async (req, res, next) => {
+router.post('/:id/enroll', authenticate, requireVerifiedStudent, async (req, res, next) => {
   try {
-    const enrollment = await svc.enrollStudent(req.params.id, req.user!.userId);
-    successResponse(res, enrollment, 'Enrollment request submitted', 201);
+    const enrollment = await svc.enrollStudent(req.params.id, req.user!.userId, req.body.code);
+    successResponse(res, enrollment, 'Enrolled successfully', 201);
   } catch (e) { next(e); }
 });
 
 // Video URL (signed) or Lesson Content
-router.get('/lessons/:lessonId/video', authenticate, requireApprovedStudent, async (req, res, next) => {
+router.get('/lessons/:lessonId/video', authenticate, requireVerifiedStudent, async (req, res, next) => {
   try {
     const data = await svc.getLessonVideoUrl(req.params.lessonId, req.user!.userId);
     successResponse(res, data);
@@ -170,7 +170,7 @@ router.get('/lessons/:lessonId/video', authenticate, requireApprovedStudent, asy
 });
 
 // Progress tracking
-router.post('/lessons/:lessonId/progress', authenticate, requireApprovedStudent, async (req, res, next) => {
+router.post('/lessons/:lessonId/progress', authenticate, requireVerifiedStudent, async (req, res, next) => {
   try {
     const progress = await svc.updateLessonProgress(
       req.params.lessonId,
@@ -178,6 +178,21 @@ router.post('/lessons/:lessonId/progress', authenticate, requireApprovedStudent,
       req.body.watchedTime
     );
     successResponse(res, progress);
+  } catch (e) { next(e); }
+});
+
+// Access Codes
+router.post('/:id/access-codes', authenticate, requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+  try {
+    const code = await svc.generateAccessCode(req.params.id, req.user!.userId, req.body.email);
+    successResponse(res, code, 'Access code generated', 201);
+  } catch (e) { next(e); }
+});
+
+router.get('/:id/access-codes', authenticate, requireRole('SUPER_ADMIN', 'TEACHER'), async (req, res, next) => {
+  try {
+    const codes = await svc.getAccessCodes(req.params.id);
+    successResponse(res, codes);
   } catch (e) { next(e); }
 });
 

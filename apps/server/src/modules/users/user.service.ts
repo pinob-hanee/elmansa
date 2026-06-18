@@ -1,12 +1,12 @@
 import { prisma } from '../../config/database';
 import { NotFoundError, ForbiddenError } from '../../utils/errors';
-import { ApprovalStatus, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 
 export interface AdminUserFilters {
   page?: number;
   limit?: number;
   role?: Role;
-  approvalStatus?: ApprovalStatus;
+  isEmailVerified?: boolean;
   search?: string;
 }
 
@@ -18,7 +18,7 @@ export class UserService {
 
     const where = {
       ...(filters.role ? { role: filters.role } : {}),
-      ...(filters.approvalStatus ? { approvalStatus: filters.approvalStatus } : {}),
+      ...(filters.isEmailVerified !== undefined ? { isEmailVerified: filters.isEmailVerified } : {}),
       ...(filters.search
         ? {
             OR: [
@@ -45,10 +45,10 @@ export class UserService {
     return { users, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } };
   }
 
-  async updateApprovalStatus(
+  async updateEmailVerification(
     adminId: string,
     userId: string,
-    status: ApprovalStatus,
+    isVerified: boolean,
     reason?: string
   ) {
     const user = await prisma.user.findUnique({
@@ -59,7 +59,7 @@ export class UserService {
 
     const updated = await prisma.user.update({
       where: { id: userId },
-      data: { approvalStatus: status },
+      data: { isEmailVerified: isVerified },
       include: { profile: true },
     });
 
@@ -67,16 +67,16 @@ export class UserService {
     await prisma.auditLog.create({
       data: {
         userId: adminId,
-        action: `APPROVAL_STATUS_CHANGED_TO_${status}`,
+        action: `EMAIL_VERIFICATION_CHANGED_TO_${isVerified}`,
         entity: 'User',
         entityId: userId,
-        oldValues: { approvalStatus: user.approvalStatus },
-        newValues: { approvalStatus: status, reason },
+        oldValues: { isEmailVerified: user.isEmailVerified },
+        newValues: { isEmailVerified: isVerified, reason },
       },
     });
 
     // Notify user
-    if (status === 'APPROVED') {
+    if (isVerified) {
       await prisma.notification.create({
         data: {
           userId,
@@ -84,15 +84,6 @@ export class UserService {
           title: 'تم قبول حسابك!',
           message: 'تم قبول تسجيلك في المنصة. يمكنك الآن تسجيل في الدورات.',
           link: '/courses',
-        },
-      });
-    } else if (status === 'REJECTED') {
-      await prisma.notification.create({
-        data: {
-          userId,
-          type: 'ENROLLMENT_REJECTED',
-          title: 'تم رفض طلب التسجيل',
-          message: reason || 'لم يتم قبول طلب تسجيلك. يرجى التواصل مع الإدارة.',
         },
       });
     }
@@ -185,7 +176,7 @@ export class UserService {
       recentUsers,
     ] = await Promise.all([
       prisma.user.count({ where: { role: 'STUDENT' } }),
-      prisma.user.count({ where: { role: 'STUDENT', approvalStatus: 'PENDING' } }),
+      prisma.user.count({ where: { role: 'STUDENT', isEmailVerified: false } }),
       prisma.course.count(),
       prisma.course.count({ where: { isPublished: true } }),
       prisma.enrollment.count(),

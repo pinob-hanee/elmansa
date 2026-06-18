@@ -11,8 +11,8 @@ export const studentCoursesApi = {
     return res.data.data;
   },
 
-  enroll: async (courseId: string) => {
-    const res = await api.post(`/courses/${courseId}/enroll`);
+  enroll: async (courseId: string, code?: string) => {
+    const res = await api.post(`/courses/${courseId}/enroll`, { code });
     return res.data.data;
   },
 

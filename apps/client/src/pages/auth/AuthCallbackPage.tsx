@@ -22,8 +22,9 @@ export default function AuthCallbackPage() {
           const user = response.data.data;
           login(user, token);
           
-          if (user.approvalStatus === 'PENDING') {
-            navigate('/pending-approval', { replace: true });
+          if (!user.isEmailVerified) {
+            toast.success('Logged in successfully. Please verify your email.');
+            navigate('/dashboard', { replace: true });
           } else if (['SUPER_ADMIN', 'TEACHER', 'MODERATOR'].includes(user.role)) {
             navigate('/admin', { replace: true });
           } else {

@@ -28,6 +28,7 @@ import notificationRoutes from './modules/notifications/notification.routes';
 import quizRoutes from './modules/quiz/quiz.routes';
 import gamificationRoutes from './modules/gamification/gamification.routes';
 import codingRoutes from './modules/coding/coding.routes';
+import aiRoutes from './modules/ai/ai.routes';
 
 const app = express();
 const httpServer = createServer(app);
@@ -55,9 +56,24 @@ io.on('connection', (socket) => {
 
 // ============================================================
 // Security Middleware
-// ============================================================
+app.use((req, res, next) => {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    req.headers['x-forwarded-proto'] &&
+    req.headers['x-forwarded-proto'] !== 'https'
+  ) {
+    return res.redirect(301, `https://${req.hostname}${req.url}`);
+  }
+  next();
+});
+
 app.use(
   helmet({
+    hsts: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true,
+    },
     crossOriginResourcePolicy: { policy: 'cross-origin' },
     contentSecurityPolicy: {
       directives: {
@@ -152,6 +168,7 @@ app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/quizzes', quizRoutes);
 app.use('/api/v1/gamification', gamificationRoutes);
 app.use('/api/v1/coding', codingRoutes);
+app.use('/api/v1/ai', aiRoutes);
 
 // ============================================================
 // Error Handling

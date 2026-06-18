@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../../config/database';
-import { authenticate, requireApprovedStudent } from '../../api/middlewares/auth.middleware';
+import { authenticate, requireVerifiedStudent } from '../../api/middlewares/auth.middleware';
 import { successResponse } from '../../utils/response';
 
 const router = Router();
@@ -33,13 +33,13 @@ router.get('/stats', async (req, res, next) => {
 });
 
 // ----- Leaderboard (top 50 by total XP) -----
-router.get('/leaderboard', async (req, res, next) => {
+router.get('/leaderboard', requireVerifiedStudent, async (req, res, next) => {
   try {
     const leaders = await prisma.profile.findMany({
       where: {
         user: {
           role: 'STUDENT',
-          approvalStatus: 'APPROVED',
+        isEmailVerified: true,
         }
       },
       orderBy: { xp: 'desc' },
@@ -75,7 +75,7 @@ router.get('/leaderboard', async (req, res, next) => {
 });
 
 // ----- My Achievements -----
-router.get('/achievements', async (req, res, next) => {
+router.get('/achievements', requireVerifiedStudent, async (req, res, next) => {
   try {
     const [allAchievements, earned] = await Promise.all([
       prisma.achievement.findMany({ orderBy: { points: 'asc' } }),
@@ -100,7 +100,7 @@ router.get('/achievements', async (req, res, next) => {
 });
 
 // ----- My Certificates -----
-router.get('/certificates', async (req, res, next) => {
+router.get('/certificates', requireVerifiedStudent, async (req, res, next) => {
   try {
     const certificates = await prisma.certificate.findMany({
       where: { userId: req.user!.userId },

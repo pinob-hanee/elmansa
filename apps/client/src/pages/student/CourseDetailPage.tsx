@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { PlayCircle, Clock, BookOpen, Layers, CheckCircle2, FileText, Award, Lock, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useState } from 'react';
+import { MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { studentCoursesApi } from '../../features/courses/api/student.courses';
 
@@ -11,6 +13,7 @@ export default function CourseDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [accessCode, setAccessCode] = useState('');
 
   const { data: course, isLoading } = useQuery({
     queryKey: ['course', slug],
@@ -18,9 +21,9 @@ export default function CourseDetailPage() {
   });
 
   const enrollMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: (code?: string) => {
       if (!course?.id) return Promise.reject(new Error('Course not loaded'));
-      return studentCoursesApi.enroll(course.id);
+      return studentCoursesApi.enroll(course.id, code);
     },
     onSuccess: () => {
       toast.success(t('courses.enrollSuccess'));
@@ -56,8 +59,17 @@ export default function CourseDetailPage() {
     } else if (isEnrolled && !firstLesson) {
       toast.error(t('courses.noLessonsAvailable'));
     } else {
-      enrollMutation.mutate();
+      if (!accessCode) {
+        toast.error(isRtl ? 'يرجى إدخال كود التفعيل' : 'Please enter an access code');
+        return;
+      }
+      enrollMutation.mutate(accessCode);
     }
+  };
+
+  const handleRequestCode = () => {
+    const text = encodeURIComponent(`Hello, I'd like to request an access code for the course: ${course.title}`);
+    window.open(`https://wa.me/1234567890?text=${text}`, '_blank');
   };
 
   const buttonLabel = () => {
@@ -143,6 +155,25 @@ export default function CourseDetailPage() {
                 </Link>
               )}
             </div>
+
+            {!isEnrolled && (
+              <div className="flex flex-col sm:flex-row items-center gap-3 mt-4">
+                <input
+                  type="text"
+                  placeholder={isRtl ? 'كود التفعيل...' : 'Access Code...'}
+                  value={accessCode}
+                  onChange={(e) => setAccessCode(e.target.value)}
+                  className="px-4 py-3 rounded-xl bg-surface-900 border border-surface-800 focus:border-primary-500 outline-none text-surface-50 text-sm w-full sm:w-auto flex-1"
+                />
+                <button
+                  onClick={handleRequestCode}
+                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-surface-800 border border-surface-700 text-surface-300 hover:text-white hover:bg-surface-700 transition-all text-sm font-bold w-full sm:w-auto"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  {isRtl ? 'اطلب الكود' : 'Request Code'}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="w-full md:w-80 glass rounded-2xl p-6 border border-surface-200 shrink-0 bg-surface-900/50 backdrop-blur-xl">

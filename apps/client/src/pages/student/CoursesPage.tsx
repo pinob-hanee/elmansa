@@ -26,11 +26,6 @@ const CourseCard = React.memo(({ course, index, t }: { course: any; index: numbe
             <BookOpen className="w-12 h-12 text-primary-400/50" />
           </div>
         )}
-        {Number(course.price) === 0 && (
-          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-success/20 border border-success/30 text-success text-xs font-medium backdrop-blur-sm">
-            {t('courses.free')}
-          </span>
-        )}
       </div>
       <div className="p-4 flex flex-col flex-1">
         <h3 className="font-bold text-surface-50 mb-2 group-hover:text-primary-400 transition-colors line-clamp-2">
@@ -41,9 +36,6 @@ const CourseCard = React.memo(({ course, index, t }: { course: any; index: numbe
           <div className="text-sm text-surface-500">
             {course._count?.enrollments || 0} {t('courses.students')}
           </div>
-          {Number(course.price) > 0 ? (
-            <span className="text-primary-400 font-bold">{course.price} EGP</span>
-          ) : null}
         </div>
         <Link
           to={`/courses/${course.slug}`}

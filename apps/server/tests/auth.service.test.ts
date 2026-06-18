@@ -57,7 +57,7 @@ describe('AuthService', () => {
         id: '2',
         email: 'new@test.com',
         role: 'STUDENT',
-        approvalStatus: 'PENDING',
+        isEmailVerified: false,
       });
 
       const result = await authService.register({

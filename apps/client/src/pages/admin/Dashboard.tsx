@@ -125,12 +125,11 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={cn(
-                        'text-xs px-2.5 py-1 rounded-full border',
-                        user.approvalStatus === 'APPROVED' ? 'text-success bg-success/10 border-success/30' :
-                        user.approvalStatus === 'PENDING' ? 'text-warning bg-warning/10 border-warning/30' :
-                        'text-error bg-error/10 border-error/30'
+                        'px-2.5 py-1 text-xs font-bold rounded-full border',
+                        user.isEmailVerified ? 'text-success bg-success/10 border-success/30' :
+                        'text-warning bg-warning/10 border-warning/30'
                       )}>
-                        {user.approvalStatus === 'APPROVED' ? (isRtl ? 'مقبول' : 'Approved') : user.approvalStatus === 'PENDING' ? (isRtl ? 'منتظر' : 'Pending') : (isRtl ? 'مرفوض' : 'Rejected')}
+                        {user.isEmailVerified ? (isRtl ? 'مفعل' : 'Verified') : (isRtl ? 'غير مفعل' : 'Unverified')}
                       </span>
                     </td>
                   </tr>

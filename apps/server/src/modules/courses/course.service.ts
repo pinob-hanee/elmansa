@@ -31,7 +31,7 @@ export class CourseService {
       ...(filters.isPublished !== undefined ? { isPublished: filters.isPublished } : {}),
       ...(filters.categoryId ? { categoryId: filters.categoryId } : {}),
       ...(filters.level ? { level: filters.level as any } : {}),
-      ...(filters.isFree !== undefined ? { price: filters.isFree ? 0 : { gt: 0 } } : {}),
+      // price filter removed
       ...(filters.search
         ? {
             OR: [
@@ -528,35 +528,58 @@ export class CourseService {
     return { success: true };
   }
 
-  async enrollStudent(courseId: string, userId: string) {
+  async enrollStudent(courseId: string, userId: string, code?: string) {
+    if (!code) {
+      throw new Error('An access code is required to enroll in this course');
+    }
+
+    const accessCode = await prisma.courseAccessCode.findUnique({
+      where: { code },
+    });
+
+    if (!accessCode) throw new Error('Invalid access code');
+    if (accessCode.courseId !== courseId) throw new Error('This code is for a different course');
+    if (accessCode.isUsed) throw new Error('This access code has already been used');
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error('User not found');
+    if (accessCode.userEmail !== user.email) throw new Error('This access code is registered to a different email address');
+
     const existing = await prisma.enrollment.findUnique({
       where: { userId_courseId: { userId, courseId } },
     });
 
     if (existing) {
       if (existing.status === 'DROPPED') {
-        // Re-enroll a dropped student
+        await prisma.courseAccessCode.update({
+          where: { code },
+          data: { isUsed: true, usedAt: new Date(), usedById: userId },
+        });
         return prisma.enrollment.update({
           where: { userId_courseId: { userId, courseId } },
           data: { status: 'ACTIVE' },
         });
       }
       if (existing.status === 'COMPLETED' || existing.status === 'ACTIVE') {
-        // Already in the course — just return the existing enrollment (idempotent)
         return existing;
       }
     }
 
-    const enrollment = await prisma.enrollment.create({
-      data: { userId, courseId, status: 'ACTIVE' },
-    });
+    await prisma.$transaction([
+      prisma.courseAccessCode.update({
+        where: { code },
+        data: { isUsed: true, usedAt: new Date(), usedById: userId },
+      }),
+      prisma.enrollment.create({
+        data: { userId, courseId, status: 'ACTIVE' },
+      }),
+      prisma.course.update({
+        where: { id: courseId },
+        data: { totalEnrolled: { increment: 1 } },
+      }),
+    ]);
 
-    await prisma.course.update({
-      where: { id: courseId },
-      data: { totalEnrolled: { increment: 1 } }
-    });
-
-    return enrollment;
+    return { success: true };
   }
 
   async getStudentEnrollments(userId: string) {
@@ -824,5 +847,43 @@ export class CourseService {
 
     await cache.set(cacheKey, cats, 3600);
     return cats;
+  }
+
+  async generateAccessCode(courseId: string, adminId: string, userEmail: string) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    const accessCode = await prisma.courseAccessCode.create({
+      data: {
+        code,
+        courseId,
+        userEmail,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: adminId,
+        action: 'COURSE_ACCESS_CODE_GENERATED',
+        entity: 'CourseAccessCode',
+        entityId: accessCode.id,
+        newValues: { courseId, userEmail, code },
+      },
+    });
+
+    return accessCode;
+  }
+
+  async getAccessCodes(courseId: string) {
+    return prisma.courseAccessCode.findMany({
+      where: { courseId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { email: true, profile: { select: { firstName: true, lastName: true } } } }
+      }
+    });
   }
 }

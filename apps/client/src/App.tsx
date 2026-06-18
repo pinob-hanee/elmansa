@@ -53,7 +53,7 @@ const ProtectedRoute = ({ children, roles }: { children: React.ReactNode; roles?
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (roles && user && !roles.includes(user.role)) return <Navigate to="/dashboard" replace />;
   // PENDING students can see the student area — Dashboard will show a banner
-  if (user?.approvalStatus === 'PENDING' && user.role === 'STUDENT' && roles) {
+  if (!user?.isEmailVerified && user?.role === 'STUDENT' && roles) {
     // Only block role-restricted routes (like admin), but let student routes pass
     return <>{children}</>;
   }
@@ -62,7 +62,7 @@ const ProtectedRoute = ({ children, roles }: { children: React.ReactNode; roles?
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
-  if (isAuthenticated && user?.approvalStatus === 'APPROVED') {
+  if (isAuthenticated && user?.isEmailVerified) {
     return <Navigate to="/dashboard" replace />;
   }
   return <>{children}</>;

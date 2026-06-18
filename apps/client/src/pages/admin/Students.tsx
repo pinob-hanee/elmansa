@@ -11,11 +11,8 @@ import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
 const getStatusConfig = (t: any) => ({
-  PENDING: { label: t('adminStudents.pending', 'في الانتظار'), color: 'text-warning bg-warning/10 border-warning/30', icon: Clock },
-  APPROVED: { label: t('adminStudents.approved', 'مقبول'), color: 'text-success bg-success/10 border-success/30', icon: UserCheck },
-  REJECTED: { label: t('adminStudents.rejected', 'مرفوض'), color: 'text-error bg-error/10 border-error/30', icon: UserX },
-  SUSPENDED: { label: t('adminStudents.suspended', 'موقوف'), color: 'text-orange-400 bg-orange-400/10 border-orange-400/30', icon: AlertCircle },
-  BANNED: { label: t('adminStudents.banned', 'محظور'), color: 'text-red-500 bg-red-500/10 border-red-500/30', icon: Ban },
+  VERIFIED: { label: t('adminStudents.verified', 'مفعل'), color: 'text-success bg-success/10 border-success/30', icon: UserCheck },
+  UNVERIFIED: { label: t('adminStudents.unverified', 'غير مفعل'), color: 'text-warning bg-warning/10 border-warning/30', icon: Clock },
 });
 
 function EnrollmentsModal({ student, onClose }: { student: any, onClose: () => void }) {
@@ -103,14 +100,14 @@ export default function AdminStudents() {
     queryKey: ['admin-students', search, statusFilter, page],
     queryFn: () =>
       api.get('/admin/students', {
-        params: { search: search || undefined, status: statusFilter || undefined, page },
+        params: { search: search || undefined, isVerified: statusFilter || undefined, page },
       }).then((r) => r.data),
     placeholderData: (prev) => prev,
   });
 
   const updateStatus = useMutation({
-    mutationFn: ({ id, status, reason }: { id: string; status: string; reason?: string }) =>
-      api.patch(`/admin/students/${id}/status`, { status, reason }),
+    mutationFn: ({ id, isVerified, reason }: { id: string; isVerified: boolean; reason?: string }) =>
+      api.patch(`/admin/students/${id}/verify`, { isVerified, reason }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-students'] }),
   });
 
@@ -138,10 +135,8 @@ export default function AdminStudents() {
           className="px-4 py-2.5 rounded-xl bg-surface-800 border border-surface-700 text-surface-300 text-sm outline-none transition-all focus:border-primary-500"
         >
           <option value="">{t('adminStudents.allStatuses')}</option>
-          <option value="PENDING">{t('adminStudents.pending')}</option>
-          <option value="APPROVED">{t('adminStudents.approved')}</option>
-          <option value="REJECTED">{t('adminStudents.rejected')}</option>
-          <option value="SUSPENDED">{t('adminStudents.suspended')}</option>
+          <option value="true">{t('adminStudents.verified', 'مفعل')}</option>
+          <option value="false">{t('adminStudents.unverified', 'غير مفعل')}</option>
         </select>
       </div>
 
@@ -175,7 +170,7 @@ export default function AdminStudents() {
                 </tr>
               ) : (
                 data?.data?.map((student: any) => {
-                  const conf = getStatusConfig(t)[student.approvalStatus as keyof ReturnType<typeof getStatusConfig>];
+                  const conf = getStatusConfig(t)[student.isEmailVerified ? 'VERIFIED' : 'UNVERIFIED'];
                   return (
                     <tr key={student.id} className="hover:bg-surface-800/30 transition-colors">
                       <td className="px-4 py-3">
@@ -197,7 +192,7 @@ export default function AdminStudents() {
                       </td>
                       <td className="px-4 py-3">
                         {(() => {
-                          const conf = getStatusConfig(t)[student.approvalStatus as keyof ReturnType<typeof getStatusConfig>];
+                          const conf = getStatusConfig(t)[student.isEmailVerified ? 'VERIFIED' : 'UNVERIFIED'];
                           return (
                             <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border', conf?.color)}>
                               {conf?.icon && <conf.icon className="w-3.5 h-3.5" />}
@@ -211,9 +206,9 @@ export default function AdminStudents() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          {student.approvalStatus !== 'APPROVED' && (
+                          {!student.isEmailVerified && (
                             <button
-                              onClick={() => updateStatus.mutate({ id: student.id, status: 'APPROVED' })}
+                              onClick={() => updateStatus.mutate({ id: student.id, isVerified: true })}
                               disabled={updateStatus.isPending}
                               className="p-1.5 rounded-lg bg-success/10 hover:bg-success/20 text-success transition-all"
                               title={t('adminStudents.approve')}
@@ -221,24 +216,14 @@ export default function AdminStudents() {
                               <Check className="w-4 h-4" />
                             </button>
                           )}
-                          {student.approvalStatus !== 'REJECTED' && (
+                          {student.isEmailVerified && (
                             <button
-                              onClick={() => updateStatus.mutate({ id: student.id, status: 'REJECTED' })}
+                              onClick={() => updateStatus.mutate({ id: student.id, isVerified: false })}
                               disabled={updateStatus.isPending}
                               className="p-1.5 rounded-lg bg-error/10 hover:bg-error/20 text-error transition-all"
                               title={t('adminStudents.reject')}
                             >
                               <X className="w-4 h-4" />
-                            </button>
-                          )}
-                          {student.approvalStatus !== 'SUSPENDED' && (
-                            <button
-                              onClick={() => updateStatus.mutate({ id: student.id, status: 'SUSPENDED' })}
-                              disabled={updateStatus.isPending}
-                              className="p-1.5 rounded-lg bg-warning/10 hover:bg-warning/20 text-warning transition-all"
-                              title={t('adminStudents.suspend')}
-                            >
-                              <AlertCircle className="w-4 h-4" />
                             </button>
                           )}
                           <button

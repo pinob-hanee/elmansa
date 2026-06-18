@@ -6,8 +6,7 @@ export const createCourseSchema = z.object({
     description: z.string().min(10),
     categoryId: z.string().uuid().optional().or(z.literal('')),
     level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']).optional(),
-    isFree: z.boolean().optional(),
-    price: z.number().min(0).optional(),
+
     thumbnailUrl: z.string().url().optional().or(z.literal('')),
   })
 });
@@ -18,8 +17,7 @@ export const updateCourseSchema = z.object({
     description: z.string().min(10).optional(),
     categoryId: z.string().uuid().optional().or(z.literal('')),
     level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']).optional(),
-    isFree: z.boolean().optional(),
-    price: z.number().min(0).optional(),
+
     thumbnailUrl: z.string().url().optional().or(z.literal('')),
     isPublished: z.boolean().optional(),
   })

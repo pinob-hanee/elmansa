@@ -37,7 +37,7 @@ export const authenticate = async (
     // Verify user still exists and is active
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { id: true, email: true, role: true, isActive: true, approvalStatus: true },
+      select: { id: true, email: true, role: true, isActive: true, isEmailVerified: true },
     });
 
     if (!user || !user.isActive) {
@@ -105,7 +105,7 @@ export const requireRole = (...roles: Role[]) => {
   };
 };
 
-export const requireApprovedStudent = async (
+export const requireVerifiedStudent = async (
   req: Request,
   _res: Response,
   next: NextFunction
@@ -115,7 +115,7 @@ export const requireApprovedStudent = async (
 
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
-      select: { approvalStatus: true, role: true },
+      select: { isEmailVerified: true, role: true },
     });
 
     if (!user) throw new UnauthorizedError();
@@ -125,8 +125,8 @@ export const requireApprovedStudent = async (
       return next();
     }
 
-    if (user.approvalStatus !== 'APPROVED') {
-      throw new ForbiddenError('Your account is pending approval');
+    if (!user.isEmailVerified) {
+      return next(new ForbiddenError('Your account email is not verified yet.'));
     }
 
     next();

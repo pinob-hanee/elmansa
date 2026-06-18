@@ -91,7 +91,7 @@ function CodeBlock() {
   const lines = displayedCode.split('\n');
 
   return (
-    <div className="relative w-full max-w-xl mx-auto">
+    <div className="relative w-full max-w-xl mx-auto" dir="ltr">
       {/* Glow */}
       <div className="absolute -inset-4 bg-primary-500/10 rounded-3xl blur-2xl" />
       <div className="relative glass rounded-2xl overflow-hidden border border-surface-200 shadow-2xl">
@@ -140,7 +140,7 @@ function CodeBlock() {
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
+  const inView = useInView(ref, { once: true, amount: 0.1 });
 
   useEffect(() => {
     if (!inView) return;
@@ -168,16 +168,16 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
             <Logo size="md" />
-            <span className="text-xl font-bold gradient-text font-mono">Elmansa</span>
-            <span className="hidden sm:block text-xs text-surface-500 font-mono border border-surface-800 px-2 py-0.5 rounded-md">{"<coding />"}</span>
+            <span className="hidden sm:inline-block text-xl font-bold gradient-text font-mono">Elmansa</span>
+            <span className="hidden md:block text-xs text-surface-500 font-mono border border-surface-800 px-2 py-0.5 rounded-md">{"<coding />"}</span>
           </motion.div>
-          <div className="flex items-center gap-4">
-            <Link to="/login" className="text-surface-300 hover:text-surface-50 transition-colors text-sm font-mono">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            <Link to="/login" className="hidden sm:block text-surface-300 hover:text-surface-50 transition-colors text-sm font-mono">
               $ login
             </Link>
             <Link
               to="/register"
-              className="px-5 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium transition-all hover:shadow-lg hover:shadow-primary-500/25 font-mono"
+              className="px-4 py-2 sm:px-5 sm:py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-xs sm:text-sm font-medium transition-all hover:shadow-lg hover:shadow-primary-500/25 font-mono whitespace-nowrap"
             >
               git clone career →
             </Link>
@@ -204,13 +204,13 @@ export default function LandingPage() {
 
               <motion.h1
                 variants={fadeUp} initial="hidden" animate="visible" custom={1}
-                className="text-5xl md:text-6xl font-extrabold leading-tight mb-6"
+                className="text-4xl md:text-6xl font-extrabold leading-tight mb-6"
               >
                 تعلّم البرمجة
                 <br />
                 <span className="gradient-text font-mono">كالمحترفين</span>
                 <br />
-                <span className="text-surface-400 text-4xl font-mono font-light">{"{"} فكّر • كوّد • ابنِ {"}"}</span>
+                <span className="text-surface-400 text-2xl md:text-4xl font-mono font-light">{"{"} فكّر • كوّد • ابنِ {"}"}</span>
               </motion.h1>
 
               <motion.p
@@ -222,18 +222,18 @@ export default function LandingPage() {
 
               <motion.div
                 variants={fadeUp} initial="hidden" animate="visible" custom={3}
-                className="flex flex-col sm:flex-row gap-4"
+                className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
               >
                 <Link
                   to="/register"
-                  className="group px-8 py-4 rounded-2xl bg-surface-800 border border-surface-700 text-white font-bold text-lg hover:shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 hover:-translate-y-1 flex items-center gap-2"
+                  className="group w-full sm:w-auto px-8 py-4 rounded-2xl bg-surface-800 border border-surface-700 text-white font-bold text-lg hover:shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-2"
                 >
                   <Terminal className="w-5 h-5" />
                   ابدأ رحلتك الآن
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <button className="group px-8 py-4 rounded-2xl border border-surface-700 text-surface-300 hover:text-surface-50 hover:border-primary-500/50 transition-all flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary-600/20 flex items-center justify-center group-hover:bg-primary-600/40 transition-colors">
+                <button className="group w-full sm:w-auto px-8 py-4 rounded-2xl border border-surface-700 text-surface-300 hover:text-surface-50 hover:border-primary-500/50 transition-all flex items-center justify-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary-600/20 flex items-center justify-center group-hover:bg-primary-600/40 transition-colors shrink-0">
                     <Play className="w-4 h-4 text-primary-400 ml-0.5" />
                   </div>
                   شاهد نموذج الشرح

@@ -123,5 +123,15 @@ export const adminCoursesApi = {
   gradeSubmission: async (submissionId: string, data: any) => {
     const res = await api.put(`/courses/admin/submissions/${submissionId}/grade`, data);
     return res.data.data;
+  },
+
+  getAccessCodes: async (courseId: string) => {
+    const res = await api.get(`/courses/${courseId}/access-codes`);
+    return res.data.data;
+  },
+
+  generateAccessCode: async (courseId: string, email: string) => {
+    const res = await api.post(`/courses/${courseId}/access-codes`, { email });
+    return res.data.data;
   }
 };

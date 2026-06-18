@@ -16,7 +16,7 @@ const fadeUp: Variants = {
 export default function StudentDashboard() {
   const { t, i18n } = useTranslation();
   const { user } = useAuthStore();
-  const isPending = user?.approvalStatus === 'PENDING';
+  const isPending = user?.isEmailVerified === false;
   const isRtl = i18n.language === 'ar';
 
   const { data, isLoading, isError } = useQuery({
@@ -125,14 +125,14 @@ export default function StudentDashboard() {
                     <div className="w-12 h-12 rounded-xl bg-surface-800 border border-surface-700 flex items-center justify-center shadow-lg shadow-primary-500/20">
                       <Star className="w-6 h-6 text-surface-50" />
                     </div>
-                    <div>
+                    <div className="text-start">
                       <div className="text-surface-400 text-sm font-medium">المستوى الحالي</div>
                       <div className="text-2xl font-extrabold text-surface-50">مستوى {gamification.profile.level}</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-primary-400">{gamification.profile.xp} XP</div>
-                    <div className="text-xs text-surface-500">من أصل {gamification.profile.level * 1000}</div>
+                  <div className="text-end shrink-0">
+                    <div className="text-sm font-bold text-primary-400 whitespace-nowrap">{gamification.profile.xp} XP</div>
+                    <div className="text-xs text-surface-500 whitespace-nowrap">من أصل {gamification.profile.level * 1000}</div>
                   </div>
                 </div>
                 <div className="h-3 bg-surface-800 rounded-full overflow-hidden border border-surface-200">
@@ -163,7 +163,7 @@ export default function StudentDashboard() {
           {/* In Progress Courses */}
           <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-surface-50">الكورسات الجارية</h2>
+              <h2 className="text-lg font-bold text-surface-50 text-start">الكورسات الجارية</h2>
               <Link to="/courses" className="text-primary-400 hover:text-primary-300 text-sm transition-colors">
                 عرض الكل
               </Link>
@@ -228,7 +228,7 @@ export default function StudentDashboard() {
 
           {/* Recent Activity */}
           <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4}>
-            <h2 className="text-lg font-bold text-surface-50 mb-4">النشاط الأخير</h2>
+            <h2 className="text-lg font-bold text-surface-50 mb-4 text-start">النشاط الأخير</h2>
             {isLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map(i => <div key={i} className="h-12 rounded-xl bg-surface-800 animate-pulse" />)}

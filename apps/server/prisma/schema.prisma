@@ -111,7 +111,6 @@ model User {
   passwordHash    String?
   googleId        String?        @unique
   role            Role           @default(STUDENT)
-  approvalStatus  ApprovalStatus @default(PENDING)
   isEmailVerified Boolean        @default(false)
   isActive        Boolean        @default(true)
   lastLoginAt     DateTime?
@@ -142,9 +141,10 @@ model User {
 
   submittedAssignments AssignmentSubmission[] @relation("AssignmentSubmitter")
   reviewedAssignments  AssignmentSubmission[] @relation("AssignmentReviewer")
+  usedAccessCodes      CourseAccessCode[]
 
   @@index([email])
-  @@index([role, approvalStatus])
+  @@index([role])
   @@index([googleId])
 }
 
@@ -259,8 +259,6 @@ model Course {
   categoryId       String?
   level            CourseLevel @default(ALL_LEVELS)
   language         String      @default("ar")
-  price            Decimal     @default(0.00) @db.Decimal(10, 2)
-  discountPrice    Decimal?    @db.Decimal(10, 2)
   isPublished      Boolean     @default(false)
   isFeatured       Boolean     @default(false)
   requiresApproval Boolean     @default(true)
@@ -277,11 +275,30 @@ model Course {
   posts          CommunityPost[]
   certificates   Certificate[]
   codingProblems CodingProblem[]
+  accessCodes    CourseAccessCode[]
 
   @@index([slug])
   @@index([isPublished, isFeatured])
   @@index([categoryId])
   @@index([teacherId])
+}
+
+model CourseAccessCode {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  courseId  String
+  userEmail String
+  isUsed    Boolean   @default(false)
+  usedAt    DateTime?
+  usedById  String?
+  createdAt DateTime  @default(now())
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [usedById], references: [id])
+
+  @@index([code])
+  @@index([courseId])
+  @@index([userEmail])
 }
 
 model Module {
