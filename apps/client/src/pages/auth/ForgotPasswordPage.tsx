@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={mutation.isPending}
-                className="w-full py-3 rounded-xl bg-surface-800 border border-surface-700 text-white font-bold hover:shadow-xl transition-all disabled:opacity-60"
+                className="w-full py-3 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-500 hover:shadow-xl transition-all disabled:opacity-60"
               >
                 {mutation.isPending
                   ? (isRtl ? 'جاري الإرسال...' : 'Sending...')

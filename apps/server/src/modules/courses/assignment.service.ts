@@ -11,6 +11,10 @@ export class AssignmentService {
         where: { id: lessonId },
         data: { isFinalAssessment }
       });
+      // Import cache if not imported
+      const { cache } = require('../../lib/cache');
+      await cache.delPattern('course:*');
+      await cache.delPattern('courses:*');
     }
 
     return prisma.assignment.upsert({
@@ -78,25 +82,34 @@ export class AssignmentService {
         reviewerId,
       },
       include: {
-        assignment: { include: { lesson: true } }
+        assignment: { include: { lesson: { include: { chapter: { include: { module: true } } } } } }
       }
     });
 
     // If graded and passed, update lesson progress
     if (data.status === 'GRADED' && data.score >= submission.assignment.passingScore) {
-      await prisma.lessonProgress.upsert({
-        where: { userId_lessonId: { userId: submission.userId, lessonId: submission.assignment.lessonId } },
-        create: {
-          userId: submission.userId,
-          lessonId: submission.assignment.lessonId,
-          isCompleted: true,
-          completedAt: new Date(),
-        },
-        update: {
-          isCompleted: true,
-          completedAt: new Date(),
-        }
-      });
+      // Use CourseService to complete lesson so course completion runs
+      const { CourseService } = require('./course.service');
+      const courseSvc = new CourseService();
+      
+      const courseId = submission.assignment.lesson.chapter?.module?.courseId;
+      if (courseId) {
+        await courseSvc.completeLesson(submission.userId, submission.assignment.lessonId, courseId);
+      } else {
+        await prisma.lessonProgress.upsert({
+          where: { userId_lessonId: { userId: submission.userId, lessonId: submission.assignment.lessonId } },
+          create: {
+            userId: submission.userId,
+            lessonId: submission.assignment.lessonId,
+            isCompleted: true,
+            completedAt: new Date(),
+          },
+          update: {
+            isCompleted: true,
+            completedAt: new Date(),
+          }
+        });
+      }
     }
 
     return submission;

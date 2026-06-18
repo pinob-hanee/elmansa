@@ -184,7 +184,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="w-full py-3.5 rounded-xl bg-surface-800 border border-surface-700 text-white font-bold hover:shadow-xl hover:shadow-primary-500/30 transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
+              className="w-full py-3.5 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-500 hover:shadow-xl hover:shadow-primary-500/30 transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
             >
               {mutation.isPending ? (
                 <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />

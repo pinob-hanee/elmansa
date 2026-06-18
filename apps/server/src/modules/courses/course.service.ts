@@ -317,9 +317,12 @@ export class CourseService {
 
   // Curriculum Building
   async createModule(courseId: string, data: any) {
-    return prisma.module.create({
+    const module = await prisma.module.create({
       data: { ...data, courseId, isPublished: true },
     });
+    await cache.delPattern('course:*');
+    await cache.delPattern('courses:*');
+    return module;
   }
 
   async deleteModule(moduleId: string) {
@@ -337,6 +340,8 @@ export class CourseService {
     }
 
     await prisma.module.delete({ where: { id: moduleId } });
+    await cache.delPattern('course:*');
+    await cache.delPattern('courses:*');
   }
 
   async createChapter(moduleId: string, data: any) {
@@ -344,6 +349,7 @@ export class CourseService {
       data: { ...data, moduleId, isPublished: true },
     });
     await cache.delPattern('course:*');
+    await cache.delPattern('courses:*');
     return chapter;
   }
 
@@ -353,6 +359,7 @@ export class CourseService {
       data: { moduleId: targetModuleId },
     });
     await cache.delPattern('course:*');
+    await cache.delPattern('courses:*');
     return updated;
   }
 
@@ -385,6 +392,7 @@ export class CourseService {
     }
 
     await cache.delPattern('course:*');
+    await cache.delPattern('courses:*');
     return { deleted: true };
   }
 
@@ -453,6 +461,7 @@ export class CourseService {
     }
 
     await cache.delPattern('course:*');
+    await cache.delPattern('courses:*');
     return lesson;
   }
 
@@ -472,6 +481,7 @@ export class CourseService {
       data,
     });
     await cache.delPattern('course:*');
+    await cache.delPattern('courses:*');
     return lesson;
   }
 
@@ -501,6 +511,7 @@ export class CourseService {
     }
 
     await cache.delPattern('course:*');
+    await cache.delPattern('courses:*');
     return { deleted: true };
   }
 
@@ -513,6 +524,7 @@ export class CourseService {
     );
     await prisma.$transaction(queries);
     await cache.delPattern('course:*');
+    await cache.delPattern('courses:*');
     return { success: true };
   }
 
