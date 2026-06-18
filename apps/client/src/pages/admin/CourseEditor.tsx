@@ -835,7 +835,7 @@ export default function CourseEditor() {
               </button>
             </div>
           </form>
-        ) : (
+        ) : activeTab === 'content' && !isNew ? (
           /* Curriculum Tab */
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-2">
@@ -887,7 +887,7 @@ export default function CourseEditor() {
           </div>
         ) : activeTab === 'access-codes' && !isNew ? (
           <CourseAccessCodes courseId={courseData.id} />
-        )}
+        ) : null}
       </div>
     </div>
   );

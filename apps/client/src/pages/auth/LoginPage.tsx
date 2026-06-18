@@ -189,18 +189,16 @@ export default function LoginPage() {
             >
               {mutation.isPending ? (
                 <div className="w-5 h-5 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />
+              ) : isRtl ? (
+                <>
+                  {t('auth.login')}
+                  <LogIn className="w-5 h-5 rtl:scale-x-[-1]" />
+                </>
               ) : (
-                  {isRtl ? (
-                    <>
-                      {t('auth.login')}
-                      <LogIn className="w-5 h-5 rtl:scale-x-[-1]" />
-                    </>
-                  ) : (
-                    <>
-                      <LogIn className="w-5 h-5" />
-                      {t('auth.login')}
-                    </>
-                  )}
+                <>
+                  <LogIn className="w-5 h-5" />
+                  {t('auth.login')}
+                </>
               )}
             </button>
           </form>
